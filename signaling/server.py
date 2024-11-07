@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+PORT = int(os.getenv('SIGNALING_SERVER_PORT'))
+
 from aiohttp import web
 import socketio
-
-PORT = 9999
 
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
