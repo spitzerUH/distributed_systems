@@ -51,6 +51,8 @@ The main point is to keep the server light and simple and concentrate more on th
 In the case of specific game rooms, server uses websocket rooms as the base.
 Sessions can be used to to remember client specific room to reduce the need to include it in messages.
 
+At first install python with your prefered method. You can manage different versions with ```pyenv``` and use it to install latest version ```pyenv install 3.13:latest```, also it is advised to use virtualenv for the project. You can create one with ```pyenv virtualenv 3.13 distributed_systems``` and then activate it ```pyenv activate distributed_systems```.
+
 ## Game clients
 
 Clients initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
