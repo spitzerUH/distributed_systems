@@ -53,6 +53,10 @@ Sessions can be used to to remember client specific room to reduce the need to i
 
 At first install python with your prefered method. You can manage different versions with ```pyenv``` and use it to install latest version ```pyenv install 3.13:latest```, also it is advised to use virtualenv for the project. You can create one with ```pyenv virtualenv 3.13 distributed_systems``` and then activate it ```pyenv activate distributed_systems```.
 
+After python is installed, there are some requirements to install. Use command ```pip install -r requirements.txt``` to install tested versions of libraries.
+
+Use ```python signaling/server.py``` to run the server.
+
 ## Game clients
 
 Clients initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
