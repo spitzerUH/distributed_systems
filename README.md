@@ -78,6 +78,8 @@ Leader selection could be based on the game score.
 We might also have third client type for observation.
 This could be handy to showcase the game state in the demo situation.
 
+You can serve the client files from local server by loading the environment variables ```source .env``` and then using ```python -m http.server $CLIENT_PORT -d clients``` and opening ```http://localhost:CLIENT_PORT``` with browser.
+
 ## Message types
 
 ### Websocket, general
