@@ -28,10 +28,9 @@ async def data(sid, data):
     print('Message from {}: {}'.format(sid, data))
     await sio.emit('data', data, room=ROOM, skip_sid=sid)
 
-# Temporary web response
-async def hello(request):
-    return web.Response(text="Hello, world")
-app.add_routes([web.get('/', hello)])
+async def welcome(request):
+    return web.Response(text="Signaling server is up and running!")
+app.add_routes([web.get('/', welcome)])
 
 if __name__ == '__main__':
     web.run_app(app, port=PORT)
