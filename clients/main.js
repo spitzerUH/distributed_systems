@@ -1,13 +1,16 @@
 const SIGNALING_SERVER_URL = 'http://localhost:9999';
 const PC_CONFIG = {};
+const dataChannelParams = {ordered: true, negotiated: true, id: 0};
 
 let socket = io(SIGNALING_SERVER_URL, { autoConnect: false });
 
 let pc1;
+let dataChannel1;
 
 socket.on('newclient', () => {
     console.info('New client just joined');
     pc1 = createPeerConnection();
+    dataChannel1 = createDataChannel(pc1);
     sendOffer(pc1);
 });
 
@@ -21,9 +24,21 @@ let createPeerConnection = () => {
     let pc;
     try {
         pc = new RTCPeerConnection(PC_CONFIG);
+        pc.onicecandidate = onIceCandidate;
         return pc;
     } catch(error) {
         console.error('createPeerConnection');
+    }
+};
+
+let createDataChannel = (pc) => {
+    let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
+    return dc;
+};
+
+let onIceCandidate = (event) => {
+    if (event.candidate) {
+        console.log("ICE candidate");
     }
 };
 
@@ -52,9 +67,9 @@ let sendAnswer = (pc) => {
 let processSignalingData = (data) => {
     switch (data.type) {
         case 'offer':
-            let pc = createPeerConnection();
-            pc.setRemoteDescription(new RTCSessionDescription(data));
-            sendAnswer(pc);
+            pc1 = createPeerConnection();
+            pc1.setRemoteDescription(new RTCSessionDescription(data));
+            sendAnswer(pc1);
             break;
         case 'answer':
             pc1.setRemoteDescription(new RTCSessionDescription(data));
