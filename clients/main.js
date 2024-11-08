@@ -13,6 +13,3 @@ socket.on('data', (data) => {
 
 // For now just connect
 socket.connect();
-
-// Send random data using console to try out
-//socket.emit('data', 'foobar');
