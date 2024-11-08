@@ -19,6 +19,10 @@ socket.on('data', (data) => {
     processSignalingData(data);
 });
 
+let sendSocketData = (data) => {
+    socket.emit('data', data);
+};
+
 let createPeerConnection = () => {
     console.debug('createPeerConnection');
     let pc;
@@ -49,7 +53,7 @@ let createDataChannel = (pc) => {
 let onIceCandidate = (event) => {
     if (event.candidate) {
         console.log("ICE candidate");
-        socket.emit('data', {
+        sendSocketData({
             type: 'candidate',
             candidate: event.candidate
         });
@@ -61,7 +65,7 @@ let sendOffer = (pc) => {
     pc.createOffer().then((sessionDescription) => {
         console.log(sessionDescription);
         pc.setLocalDescription(sessionDescription);
-        socket.emit('data', sessionDescription);
+        sendSocketData(sessionDescription);
     }, (error) => {
         console.error(error);
     });
@@ -72,7 +76,7 @@ let sendAnswer = (pc) => {
     pc.createAnswer().then((sessionDescription) => {
         console.log(sessionDescription);
         pc.setLocalDescription(sessionDescription);
-        socket.emit('data', sessionDescription);
+        sendSocketData(sessionDescription);
     }, (error) => {
         console.error(error);
     });
