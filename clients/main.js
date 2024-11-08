@@ -15,7 +15,7 @@ socket.on('newclient', () => {
 });
 
 socket.on('data', (data) => {
-    console.info('Data received: ', data);
+    console.debug('Data received: ', data);
     processSignalingData(data);
 });
 
@@ -39,6 +39,10 @@ let createDataChannel = (pc) => {
 let onIceCandidate = (event) => {
     if (event.candidate) {
         console.log("ICE candidate");
+        socket.emit('data', {
+            type: 'candidate',
+            candidate: event.candidate
+        });
     }
 };
 
@@ -73,6 +77,9 @@ let processSignalingData = (data) => {
             break;
         case 'answer':
             pc1.setRemoteDescription(new RTCSessionDescription(data));
+            break;
+        case 'candidate':
+            pc1.addIceCandidate(new RTCIceCandidate(data.candidate));
             break;
     }
 };
