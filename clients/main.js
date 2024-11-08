@@ -33,6 +33,16 @@ let createPeerConnection = () => {
 
 let createDataChannel = (pc) => {
     let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
+    dc.binaryType = 'arraybuffer';
+    dc.addEventListener('open', () => {
+        console.log('Data channel open!');
+    });
+    dc.addEventListener('close', () => {
+        console.log('Data channel closed!');
+    });
+    dc.addEventListener('message', (event) => {
+        console.log('Message: ' + event.data);
+    });
     return dc;
 };
 
@@ -73,6 +83,7 @@ let processSignalingData = (data) => {
         case 'offer':
             pc1 = createPeerConnection();
             pc1.setRemoteDescription(new RTCSessionDescription(data));
+            dataChannel1 = createDataChannel(pc1);
             sendAnswer(pc1);
             break;
         case 'answer':
