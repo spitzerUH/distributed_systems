@@ -13,6 +13,7 @@ socket.on('newclient', () => {
 
 socket.on('data', (data) => {
     console.info('Data received: ', data);
+    processSignalingData(data);
 });
 
 let createPeerConnection = () => {
@@ -35,6 +36,30 @@ let sendOffer = (pc) => {
     }, (error) => {
         console.error(error);
     });
+};
+
+let sendAnswer = (pc) => {
+    console.debug('sendAnswer');
+    pc.createAnswer().then((sessionDescription) => {
+        console.log(sessionDescription);
+        pc.setLocalDescription(sessionDescription);
+        socket.emit('data', sessionDescription);
+    }, (error) => {
+        console.error(error);
+    });
+};
+
+let processSignalingData = (data) => {
+    switch (data.type) {
+        case 'offer':
+            let pc = createPeerConnection();
+            pc.setRemoteDescription(new RTCSessionDescription(data));
+            sendAnswer(pc);
+            break;
+        case 'answer':
+            pc1.setRemoteDescription(new RTCSessionDescription(data));
+            break;
+    }
 };
 
 // For now just connect
