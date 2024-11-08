@@ -23,6 +23,11 @@ async def disconnect(sid):
     await sio.leave_room(sid, ROOM)
     print('Client Disconnected', sid)
 
+@sio.event
+async def data(sid, data):
+    print('Message from {}: {}'.format(sid, data))
+    await sio.emit('data', data, room=ROOM, skip_sid=sid)
+
 # Temporary web response
 async def hello(request):
     return web.Response(text="Hello, world")
