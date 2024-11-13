@@ -47,6 +47,7 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 #### Websocket, WebRTC related
 * Offer
 * Answer
+* ICE candidate
 
 #### WebRTC data stream
 * Info message (coordinates, other game state)
