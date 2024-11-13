@@ -1,11 +1,11 @@
 # Design Plan
 ## First Task
 ### Team Members
-* Gesche Redlich
-* Oona Rauhala
-* Riku Mattila
-* Sami Saada
-* Christoph Spitzer
+* Gesche Redlich @gescheredlichj
+* Oona Rauhala @oonarauhala
+* Riku Mattila @rikumat
+* Sami Saada @samitheberber
+* Christoph Spitzer @spitzerUH 
 ### Description
 
 #### Key Points
