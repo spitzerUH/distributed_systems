@@ -50,6 +50,7 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 #### Websocket, WebRTC related
 
 Client needs to send other clients an offer to describe the connection.
+It emits ```offer``` message type with following payload:
 ```json
 {
     "type":"offer",
@@ -58,6 +59,7 @@ Client needs to send other clients an offer to describe the connection.
 ```
 
 Client responds and Offer with Answer
+It emits ```answer``` message type with following payload:
 ```json
 {
     "type":"answer",
@@ -66,6 +68,7 @@ Client responds and Offer with Answer
 ```
 
 The peer-to-peer connection needs ICE candidate to determine how the communication is formed
+It emits ```candidate``` message type with following payload:
 ```json
 {
     "type":"candidate",
