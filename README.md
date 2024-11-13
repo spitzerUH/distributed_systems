@@ -41,24 +41,15 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 ### Message types
 
 #### Websocket, basic
-
-Connect
-
-Disconnect
+* Connect
+* Disconnect
 
 #### Websocket, WebRTC related
-
-Offer
-
-Answer
+* Offer
+* Answer
 
 #### WebRTC data stream
-
-Foobar
-
 * Info message (coordinates, other game state)
-* Join message (join room)
-* Leave message (leave room)
 
 ## Possible problems
 * how to deal with bad/good internet connection of the different clients? -> Data consistency issues
