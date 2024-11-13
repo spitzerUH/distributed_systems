@@ -32,6 +32,16 @@ We are unsure if we will be able to implement all of these game specific ideas a
 The role for the server is purely signaling purpose.
 Server provides websocket communication for the clients.
 
+aiohttp provides HTTP server that is used to initialize the websocket connection.
+Socket.IO provides the websocket connectivity and simple interface for events.
+These events happen when clients send websocket messages.
+The nature of websocket means that server needs to send the messages forward or react otherwise.
+
+We can implement the server using simple message structure or tackle in callbacks.
+This is something that will set the message content by removing some of the redundancy.
+
+The main point is to keep the server light and simple and concentrate more on the client.
+
 ## Game clients
 
 Game clients are browser based.
