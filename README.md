@@ -124,7 +124,7 @@ Server will transform the message with new payload:
     }
 }
 ```
-
+---
 Notice: ```to``` and ```from``` fields are required for the client to identify with who the connection is formed.
 It is also for the server to be able to send a private message to correct target.
 
