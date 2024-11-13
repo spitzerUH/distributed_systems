@@ -21,6 +21,12 @@ Communication between clients are done using peer-to-peer, while having signalin
 
 ![Distributed-System-First-Draft](https://github.com/user-attachments/assets/f672382a-1d7a-40f7-b9f9-a565cf85619f)
 
+## Node roles
+
+* Server
+* Leader client node
+* Regular client node
+
 ### Signaling server
 
 The role for the server is purely signaling purpose.
@@ -50,5 +56,11 @@ Answer
 
 Foobar
 
+* Info message (coordinates, other game state)
+* Join message (join room)
+* Leave message (leave room)
+
 ## Possible problems
-* how to deal with bad/good internet connection of the different clients?
+* how to deal with bad/good internet connection of the different clients? -> Data consistency issues
+* Leader election
+* Order of messages
