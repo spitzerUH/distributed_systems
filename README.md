@@ -164,6 +164,17 @@ It is also for the server to be able to send a private message to correct target
 Datastream messages are all sent with same channel, only the payload will be different.
 
 * Info message (coordinates, other game state)
+---
+We need message to handle the leader election:
+```json
+{
+    "type": "election",
+    "action": "election action"
+}
+```
+Election action could from bully algorithm ```election```, ```ok``` and ```coordinator```.
+
+---
 
 ## Possible problems
 * how to deal with bad/good internet connection of the different clients? -> Data consistency issues
