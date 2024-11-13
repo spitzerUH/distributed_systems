@@ -9,7 +9,13 @@
 
 ## Description
 
-We want to implement a simple multiplayer game. There will be different nodes represented by coordinates on a twodimensional space. Each node will be able to move across the space. We would like to implement a "snake"-like game, where there is some kind of reward on the space and the players/nodes want to get there first. If they crash they die. We are unsure if we will be able to implement all of these game specific ideas as we will first focus on the distributed system in itself. Communication between clients are done using peer-to-peer, while having signaling server to initialize the connections.
+We want to implement a simple multiplayer game.
+There will be different nodes represented by coordinates on a twodimensional space.
+Each node will be able to move across the space.
+We would like to implement a "snake"-like game, where there is some kind of reward on the space and the players/nodes want to get there first.
+If they crash they die.
+We are unsure if we will be able to implement all of these game specific ideas as we will first focus on the distributed system in itself.
+Communication between clients are done using peer-to-peer, while having signaling server to initialize the connections.
 
 ## Architecture
 
@@ -17,11 +23,14 @@ We want to implement a simple multiplayer game. There will be different nodes re
 
 ### Signaling server
 
-The role for the server is purely signaling purpose. Server provides websocket communication for the clients.
+The role for the server is purely signaling purpose.
+Server provides websocket communication for the clients.
 
 ### Game clients
 
-Game clients are browser based. They initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC. One of the nodes will be selected as leader node to resolve possible conflicts.
+Game clients are browser based.
+They initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
+One of the nodes will be selected as leader node to resolve possible conflicts.
 
 ### Message types
 
