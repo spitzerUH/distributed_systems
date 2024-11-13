@@ -1,12 +1,15 @@
-# Design Plan
-## First Task
-### Team Members
+# Distributed Systems 2024, group 16
+
+## Team Members
 * Gesche Redlich @gescheredlichj
 * Oona Rauhala @oonarauhala
 * Riku Mattila @rikumat
 * Sami Saada @samitheberber
-* Christoph Spitzer @spitzerUH 
-### Description
+* Christoph Spitzer @spitzerUH
+
+## Description
+
+Project is going to be a multiplayer game where the communication is mainly between the clients using peer-to-peer while having server as part of signaling to form initial connections.
 
 #### Key Points
 * Server for participants look up
