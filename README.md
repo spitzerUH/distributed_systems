@@ -21,12 +21,7 @@ The role for the server is purely signaling purpose. Server provides websocket c
 
 ### Game clients
 
-Javascript
-
-* Client nodes in the distributed system
-  * Do we need a leading node?
-  * Do we need load balancing?
-  * What messages are sent between participants/clients?
+Game clients are browser based. They initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC. One of the nodes will be selected as leader node to resolve possible conflicts.
 
 ### Message types
 
