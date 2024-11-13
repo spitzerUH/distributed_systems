@@ -44,8 +44,12 @@ The main point is to keep the server light and simple and concentrate more on th
 
 ## Game clients
 
-Game clients are browser based.
-They initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
+Clients initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
+
+Game clients are browser based implemented by using JavaScript.
+Socket.IO provides websocket functionality also for client.
+WebRTC is implemented by the browsers and we use its datastream functionality to communicate between the clients.
+
 One of the nodes will be selected as leader node to resolve possible conflicts.
 Leader selection could be based on the game score.
 
