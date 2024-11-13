@@ -42,9 +42,9 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 
 #### Websocket, basic
 * Default Socket.io messages
-    * ```connect```
-    * ```disconnect```
-    * ```connect_error```
+    * ```connect``` is sent when client connects to the server
+    * ```disconnect``` is sent when client disconnects from the server
+    * ```connect_error``` is sent when connection fails
 * New client
 
 #### Websocket, WebRTC related
