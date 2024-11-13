@@ -31,7 +31,7 @@ Server provides websocket communication for the clients.
 Game clients are browser based.
 They initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
 One of the nodes will be selected as leader node to resolve possible conflicts.
-One of the clients will be selected as a leader TBD explanation.
+Leader selection could be based on the game score.
 
 ### Message types
 
