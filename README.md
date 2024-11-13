@@ -68,14 +68,18 @@ This could be handy to showcase the game state in the demo situation.
     * ```connect``` is sent when client connects to the server
     * ```disconnect``` is sent when client disconnects from the server
     * ```connect_error``` is sent when connection fails
+
 ---
+
 When new client connects, server emits ```newclient``` message:
 ```json
 {
     "session_id": "session id"
 }
 ```
+
 ---
+
 Session id is for temporary use for websocket to identify the clients for direct messaging.
 
 ### Websocket, WebRTC related
@@ -101,7 +105,9 @@ Server will transform the message with new payload:
     }
 }
 ```
+
 ---
+
 Client responds and Offer with Answer.
 It emits ```answer``` message type with following payload:
 ```json
@@ -123,7 +129,9 @@ Server will transform the message with new payload:
     }
 }
 ```
+
 ---
+
 The peer-to-peer connection needs ICE candidate to determine how the communication is formed
 It emits ```candidate``` message type with following payload:
 ```json
@@ -155,7 +163,9 @@ Server will transform the message with new payload:
     }
 }
 ```
+
 ---
+
 Notice: ```to``` and ```from``` fields are required for the client to identify with who the connection is formed.
 It is also for the server to be able to send a private message to correct target.
 
@@ -173,6 +183,7 @@ General game related message:
 This can be coordinates or other game state.
 
 ---
+
 We need message to handle the leader election:
 ```json
 {
