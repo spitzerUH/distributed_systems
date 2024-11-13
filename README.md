@@ -45,7 +45,7 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
     * ```connect``` is sent when client connects to the server
     * ```disconnect``` is sent when client disconnects from the server
     * ```connect_error``` is sent when connection fails
-* New client
+* When new client connects, server sends ```newclient``` message
 
 #### Websocket, WebRTC related
 * Offer
