@@ -173,6 +173,8 @@ It is also for the server to be able to send a private message to correct target
 
 Datastream messages are all sent with same channel, only the payload will be different.
 
+---
+
 General game related message:
 ```json
 {
