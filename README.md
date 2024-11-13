@@ -70,7 +70,7 @@ Server will transform the message with new payload:
     }
 }
 ```
-
+---
 Client responds and Offer with Answer.
 It emits ```answer``` message type with following payload:
 ```json
@@ -92,7 +92,7 @@ Server will transform the message with new payload:
     }
 }
 ```
-
+---
 The peer-to-peer connection needs ICE candidate to determine how the communication is formed
 It emits ```candidate``` message type with following payload:
 ```json
