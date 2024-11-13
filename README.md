@@ -53,6 +53,8 @@ When new client connects, server emits ```newclient``` message:
 }
 ```
 ---
+Session id is for temporary use for websocket to identify the clients for direct messaging.
+
 #### Websocket, WebRTC related
 
 Client needs to send other clients an offer to describe the connection.
