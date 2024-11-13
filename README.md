@@ -10,8 +10,6 @@ It uses P2P communication between the clients.
 * Sami Saada @samitheberber
 * Christoph Spitzer @spitzerUH
 
-![Distributed-System-First-Draft](https://github.com/user-attachments/assets/f672382a-1d7a-40f7-b9f9-a565cf85619f)
-
 Our game will work in the browser, where the main computation is also done.
 Game clients connect each other using WebRTC connections and use its datastream functionality to communicate.
 To form the peer-to-peer connection, we need signaling server to deal the messaging at first.
@@ -26,6 +24,8 @@ Each node will be able to move across the space.
 We would like to implement a "snake"-like game, where there is some kind of reward on the space and the players/nodes want to get there first.
 If they crash they die.
 We are unsure if we will be able to implement all of these game specific ideas as we will first focus on the distributed system in itself.
+
+![Distributed-System-First-Draft](https://github.com/user-attachments/assets/f672382a-1d7a-40f7-b9f9-a565cf85619f)
 
 ## Signaling server
 
