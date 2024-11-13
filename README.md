@@ -48,9 +48,35 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 * When new client connects, server sends ```newclient``` message
 
 #### Websocket, WebRTC related
-* Offer
-* Answer
-* ICE candidate
+
+Client needs to send other clients an offer to describe the connection.
+```json
+{
+    "type":"offer",
+    "sdp":"sdpdata..."
+}
+```
+
+Client responds and Offer with Answer
+```json
+{
+    "type":"answer",
+    "sdp":"sdpdata..."
+}
+```
+
+The peer-to-peer connection needs ICE candidate to determine how the communication is formed
+```json
+{
+    "type":"candidate",
+    "candidate":{
+        "candidate":"candidate:...",
+        "sdpMLineIndex":0,
+        "sdpMid":"0",
+        "usernameFragment":"None"
+    }
+}
+```
 
 #### WebRTC data stream
 * Info message (coordinates, other game state)
