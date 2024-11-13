@@ -43,6 +43,7 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 #### Websocket, basic
 * Connect
 * Disconnect
+* New client
 
 #### Websocket, WebRTC related
 * Offer
