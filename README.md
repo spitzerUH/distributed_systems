@@ -17,9 +17,7 @@ We want to implement a simple multiplayer game. There will be different nodes re
 
 ### Signaling server
 
-* Server node for connection establishment and participant track
-
-Python
+The role for the server is purely signaling purpose. Server provides websocket communication for the clients.
 
 ### Game clients
 
