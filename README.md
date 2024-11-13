@@ -63,7 +63,8 @@ This could be handy to showcase the game state in the demo situation.
 
 ## Message types
 
-### Websocket, basic
+### Websocket, general
+
 * Default Socket.io messages
     * ```connect``` is sent when client connects to the server
     * ```disconnect``` is sent when client disconnects from the server
