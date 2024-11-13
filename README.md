@@ -17,19 +17,22 @@ We want to implement a simple multiplayer game. There will be different nodes re
 
 ### Signaling server
 
+* Server node for connection establishment and participant track
+
 Python
 
 ### Game clients
 
 Javascript
 
-## Forth Task
-### Different nodes
-* Server node for connection establishment and participant track
 * Client nodes in the distributed system
   * Do we need a leading node?
   * Do we need load balancing?
   * What messages are sent between participants/clients?
+
+### Message types
+
+Websocket messages, p2p messages ...
 
 ## Possible problems
 * how to deal with bad/good internet connection of the different clients?
