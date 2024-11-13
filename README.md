@@ -163,13 +163,21 @@ It is also for the server to be able to send a private message to correct target
 
 Datastream messages are all sent with same channel, only the payload will be different.
 
-* Info message (coordinates, other game state)
+General game related message:
+```json
+{
+    "type": "game",
+    "data": "relevant game data"
+}
+```
+This can be coordinates or other game state.
+
 ---
 We need message to handle the leader election:
 ```json
 {
     "type": "election",
-    "action": "election action"
+    "data": "election action"
 }
 ```
 Election action could from bully algorithm ```election```, ```ok``` and ```coordinator```.
