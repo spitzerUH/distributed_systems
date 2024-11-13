@@ -135,6 +135,9 @@ Notice: ```to``` and ```from``` fields are required for the client to identify w
 It is also for the server to be able to send a private message to correct target.
 
 #### WebRTC data stream
+
+Datastream messages are all sent with same channel, only the payload will be different.
+
 * Info message (coordinates, other game state)
 
 ## Possible problems
