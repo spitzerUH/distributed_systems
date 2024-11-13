@@ -53,17 +53,43 @@ Client needs to send other clients an offer to describe the connection.
 It emits ```offer``` message type with following payload:
 ```json
 {
-    "type":"offer",
-    "sdp":"sdpdata..."
+    "to": "session id",
+    "data":{
+        "type":"offer",
+        "sdp":"sdpdata..."
+    }
+}
+```
+Server will transform the message with new payload:
+```json
+{
+    "from": "session id",
+    "data":{
+        "type":"offer",
+        "sdp":"sdpdata..."
+    }
 }
 ```
 
-Client responds and Offer with Answer
+Client responds and Offer with Answer.
 It emits ```answer``` message type with following payload:
 ```json
 {
-    "type":"answer",
-    "sdp":"sdpdata..."
+    "to": "session id",
+    "data":{
+        "type":"answer",
+        "sdp":"sdpdata..."
+    }
+}
+```
+Server will transform the message with new payload:
+```json
+{
+    "from": "session id",
+    "data":{
+        "type":"answer",
+        "sdp":"sdpdata..."
+    }
 }
 ```
 
@@ -71,15 +97,36 @@ The peer-to-peer connection needs ICE candidate to determine how the communicati
 It emits ```candidate``` message type with following payload:
 ```json
 {
-    "type":"candidate",
-    "candidate":{
-        "candidate":"candidate:...",
-        "sdpMLineIndex":0,
-        "sdpMid":"0",
-        "usernameFragment":"None"
+    "to": "session id",
+    "data":{
+        "type":"candidate",
+        "candidate":{
+            "candidate":"candidate:...",
+            "sdpMLineIndex":0,
+            "sdpMid":"0",
+            "usernameFragment":"None"
+        }
     }
 }
 ```
+Server will transform the message with new payload:
+```json
+{
+    "from": "session id",
+    "data":{
+        "type":"candidate",
+        "candidate":{
+            "candidate":"candidate:...",
+            "sdpMLineIndex":0,
+            "sdpMid":"0",
+            "usernameFragment":"None"
+        }
+    }
+}
+```
+
+Notice: ```to``` and ```from``` fields are required for the client to identify with who the connection is formed.
+It is also for the server to be able to send a private message to correct target.
 
 #### WebRTC data stream
 * Info message (coordinates, other game state)
