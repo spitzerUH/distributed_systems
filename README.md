@@ -32,3 +32,6 @@ We want to implement a simple multiplayer game. There will be different nodes re
   * Do we need a leading node?
   * Do we need load balancing?
   * What messages are sent between participants/clients?
+
+## Possible problems
+* how to deal with bad/good internet connection of the different clients?
