@@ -34,7 +34,21 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 
 ### Message types
 
-Websocket messages, p2p messages ...
+#### Websocket, basic
+
+Connect
+
+Disconnect
+
+#### Websocket, WebRTC related
+
+Offer
+
+Answer
+
+#### WebRTC data stream
+
+Foobar
 
 ## Possible problems
 * how to deal with bad/good internet connection of the different clients?
