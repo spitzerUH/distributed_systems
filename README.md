@@ -49,9 +49,17 @@ Clients initialize the communication using websockets to form a peer-to-peer com
 Game clients are browser based implemented by using JavaScript.
 Socket.IO provides websocket functionality also for client.
 WebRTC is implemented by the browsers and we use its datastream functionality to communicate between the clients.
+This covers the main functionalities for the communication section of the clients.
 
+Our plan is to demonstrate the usage of communication by using it to share game states between client in multiplayer environment.
+Each client runs an instance of the game and share the state by sending messages.
+
+We have at least two types of the clients, a regular client running the information and an elected leader client for special cases.
 One of the nodes will be selected as leader node to resolve possible conflicts.
 Leader selection could be based on the game score.
+
+We might also have third client type for observation.
+This could be handy to showcase the game state in the demo situation.
 
 ## Message types
 
