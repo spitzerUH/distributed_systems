@@ -41,8 +41,10 @@ One of the nodes will be selected as leader node to resolve possible conflicts.
 ### Message types
 
 #### Websocket, basic
-* Connect
-* Disconnect
+* Default Socket.io messages
+    * ```connect```
+    * ```disconnect```
+    * ```connect_error```
 * New client
 
 #### Websocket, WebRTC related
