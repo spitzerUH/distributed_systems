@@ -1,4 +1,4 @@
-const SIGNALING_SERVER_URL = 'http://localhost:9999';
+const SIGNALING_SERVER_URL = process.env.SIGNALING_SERVER_URL;
 
 import {Connection} from "./connection.js";
 
