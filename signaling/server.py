@@ -22,14 +22,15 @@ async def disconnect(sid):
 @sio.on('room-enter')
 async def room_enter(sid, message):
     room_code = message['room_code'] or 'default'
-    print('Client joins room', room_code)
+    print("Client {} joins room {}".format(sid, room_code))
     await sio.enter_room(sid, room_code)
+    await sio.emit('room-joined', {'session_id':sid}, room=room_code, skip_sid=sid)
     return {'room_code':room_code}
 
 @sio.on('room-exit')
 async def room_enter(sid, message):
     room_code = message['room_code']
-    print('Client leaves room', room_code)
+    print("Client {} leaves room {}".format(sid, room_code))
     await sio.leave_room(sid, room_code)
     return {'room_code':room_code}
 

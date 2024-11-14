@@ -5,6 +5,7 @@ export class Connection {
         this.socket = io(server, { autoConnect: false });
         this.socket.connect();
         this.room_code = null;
+        this.socket.on('room-joined', this.roomJoined);
     }
 
     get room() {
@@ -27,5 +28,10 @@ export class Connection {
         }, (response) => {
             this.room_code = null;
         });
+    }
+
+    roomJoined(message) {
+        console.log('New client joined the room,', message.session_id);
+        console.log(message);
     }
 }
