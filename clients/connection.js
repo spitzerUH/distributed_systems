@@ -96,4 +96,10 @@ export class Connection {
         });
         return dc;
     }
+
+    sendMessage(message) {
+        Object.entries(this.clients).forEach( ([sid, conns]) => {
+            conns.dc.send(message);
+        });
+    }
 }
