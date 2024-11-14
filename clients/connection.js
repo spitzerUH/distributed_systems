@@ -1,11 +1,14 @@
 const { io } = require("socket.io-client");
 
+const PC_CONFIG = {};
+
 export class Connection {
     constructor(server) {
         this.socket = io(server, { autoConnect: false });
         this.socket.connect();
         this.room_code = null;
-        this.socket.on('room-joined', this.roomJoined);
+        this.p2p_connections = {};
+        this.socket.on('room-joined', (message) => {this.roomJoined(this, message) });
     }
 
     get room() {
@@ -30,8 +33,10 @@ export class Connection {
         });
     }
 
-    roomJoined(message) {
-        console.log('New client joined the room,', message.session_id);
-        console.log(message);
+    roomJoined(conn, message) {
+        let session_id = message.session_id;
+        console.log('New client joined the room,', session_id);
+        let pc = new RTCPeerConnection(PC_CONFIG);
+        conn.p2p_connections[session_id] = pc;
     }
 }
