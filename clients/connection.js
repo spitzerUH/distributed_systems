@@ -5,8 +5,7 @@ const dataChannelParams = {ordered: true, negotiated: true, id: 0};
 
 export class Connection {
     constructor(server) {
-        this.socket = io(server, { autoConnect: false });
-        this.socket.connect();
+        this.socket = io(server);
         this.room_code = null;
         this.clients = {};
         this.socket.on('room-joined', (message) => {this.roomJoined(this, message) });
