@@ -57,6 +57,8 @@ This covers the main functionalities for the communication section of the client
 Our plan is to demonstrate the usage of communication by using it to share game states between client in multiplayer environment.
 Each client runs an instance of the game and share the state by sending messages.
 
+Client can list all existing game rooms and create/join/leave one room.
+
 We have at least two types of the clients, a regular client running the information and an elected leader client for special cases.
 One of the nodes will be selected as leader node to resolve possible conflicts.
 Leader selection could be based on the game score.
