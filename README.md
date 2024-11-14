@@ -69,6 +69,23 @@ This could be handy to showcase the game state in the demo situation.
     * ```connect``` is sent when client connects to the server
     * ```disconnect``` is sent when client disconnects from the server
     * ```connect_error``` is sent when connection fails
+---
+
+To list all existing rooms ```room-list``` with empty payload:
+```json
+{}
+```
+Server will send response message with list of the rooms:
+```json
+{
+    "rooms": [
+        {
+            "room_code": "code",
+            "players": "number of players"
+        }
+    ]
+}
+```
 
 ---
 
@@ -77,6 +94,7 @@ In case multiple rooms are implemented, we need message to enter one, ```room-en
 {
     "room_code": "code"
 }
+```
 Room code can be empty or any alphanumeric string.
 New room will be created if leaved empty or non-matching existing room found.
 Server will send response message with active room code:
