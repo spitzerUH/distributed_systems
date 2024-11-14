@@ -260,6 +260,7 @@ Election action could from bully algorithm ```election```, ```ok``` and ```coord
 ## How to develop
 
 All the commands are made to be run at project root.
+Necessary environment variables are in ```.env``` which is loaded automatically.
 
 ### Spin up the server
 
@@ -269,15 +270,15 @@ This guide assumes that you have pyenv installed:
 $ pyenv install 3.13:latest
 $ pyenv virtualenv 3.13 distributed_systems
 ```
-Remember activate the virtualenv in any terminal at first:
+Remember to activate the virtualenv in any terminal at first:
 ```bash
 $ pyenv activate distributed_systems
 ```
-Install project python dependecies:
+Install python dependecies:
 ```bash
 $ pip install -r requirements.txt
 ```
-To run the server:
+Start the server:
 ```bash
 $ python signaling/server.py
 ```
