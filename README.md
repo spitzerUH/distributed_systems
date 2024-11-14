@@ -51,6 +51,8 @@ The main point is to keep the server light and simple and concentrate more on th
 In the case of specific game rooms, server uses websocket rooms as the base.
 Sessions can be used to to remember client specific room to reduce the need to include it in messages.
 
+### How to start the server
+
 At first install python with your prefered method. You can manage different versions with ```pyenv``` and use it to install latest version ```pyenv install 3.13:latest```, also it is advised to use virtualenv for the project. You can create one with ```pyenv virtualenv 3.13 distributed_systems``` and then activate it ```pyenv activate distributed_systems```.
 
 After python is installed, there are some requirements to install. Use command ```pip install -r requirements.txt``` to install tested versions of libraries.
@@ -78,10 +80,16 @@ Leader selection could be based on the game score.
 We might also have third client type for observation.
 This could be handy to showcase the game state in the demo situation.
 
-You can serve the client files from local server by loading the environment variables ```source .env``` and then using ```python -m http.server $CLIENT_PORT -d clients``` and opening ```http://localhost:CLIENT_PORT``` with browser.
+### How to start the client
 
-Moving to yarn and parcel: ```yarn start```.
-To visit the site: ```http://localhost:1234```
+Node.js is required, so best is to install it with [nvm](https://github.com/nvm-sh/nvm) by running ```nvm install --lts```. After that we need [yarn](https://yarnpkg.com) and current way to install it and project dependencies is:
+```bash
+$ nvm use --lts
+$ corepack enable
+$ yarn
+```
+When installation is complete, the client development server can be started by running ```yarn start``` and opening ```http://localhost:1234``` in your browser.
+Firefox or Chrome has good inspection tools to run the commands.
 
 ## Message types
 
