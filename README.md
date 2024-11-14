@@ -42,6 +42,9 @@ This is something that will set the message content by removing some of the redu
 
 The main point is to keep the server light and simple and concentrate more on the client.
 
+In the case of specific game rooms, server uses websocket rooms as the base.
+Sessions can be used to to remember client specific room to reduce the need to include it in messages.
+
 ## Game clients
 
 Clients initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
@@ -71,7 +74,7 @@ This could be handy to showcase the game state in the demo situation.
     * ```connect_error``` is sent when connection fails
 ---
 
-To list all existing rooms ```room-list``` with empty payload:
+Client emits ```room-list``` message with empty payload to list all non-empty rooms:
 ```json
 {}
 ```
@@ -89,7 +92,7 @@ Server will send response message with list of the rooms:
 
 ---
 
-In case multiple rooms are implemented, we need message to enter one, ```room-enter```:
+Client emits ```room-enter``` message to enter a specific game room:
 ```json
 {
     "room_code": "code"
@@ -106,7 +109,16 @@ Server will send response message with active room code:
 
 ---
 
-When new client connects, server emits ```room-joined``` message:
+Client emits ```room-exit``` message to leave a room:
+```json
+{
+    "room_code": "code"
+}
+```
+
+---
+
+Server emits ```room-joined``` message when a new client joins a room:
 ```json
 {
     "session_id": "session id"
