@@ -72,6 +72,22 @@ This could be handy to showcase the game state in the demo situation.
 
 ---
 
+In case multiple rooms are implemented, we need message to enter one, ```room-enter```:
+```json
+{
+    "room_code": "code"
+}
+Room code can be empty or any alphanumeric string.
+New room will be created if leaved empty or non-matching existing room found.
+Server will send response message with active room code:
+```json
+{
+    "room_code": "code"
+}
+```
+
+---
+
 When new client connects, server emits ```clientjoin``` message:
 ```json
 {
