@@ -88,7 +88,7 @@ Server will send response message with active room code:
 
 ---
 
-When new client connects, server emits ```clientjoin``` message:
+When new client connects, server emits ```room-joined``` message:
 ```json
 {
     "session_id": "session id"
@@ -102,7 +102,7 @@ Session id is for temporary use for websocket to identify the clients for direct
 ### Websocket, WebRTC related
 
 Client needs to send other clients an offer to describe the connection.
-It emits ```offer``` message type with following payload:
+It emits ```webrtc-offer``` message type with following payload:
 ```json
 {
     "to": "session id",
@@ -126,7 +126,7 @@ Server will transform the message with new payload:
 ---
 
 Client responds and Offer with Answer.
-It emits ```answer``` message type with following payload:
+It emits ```webrtc-answer``` message type with following payload:
 ```json
 {
     "to": "session id",
@@ -150,7 +150,7 @@ Server will transform the message with new payload:
 ---
 
 The peer-to-peer connection needs ICE candidate to determine how the communication is formed
-It emits ```candidate``` message type with following payload:
+It emits ```webrtc-candidate``` message type with following payload:
 ```json
 {
     "to": "session id",
