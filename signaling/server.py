@@ -19,6 +19,13 @@ async def connect(sid, environ):
 async def disconnect(sid):
     print('Client Disconnected', sid)
 
+@sio.on('room-enter')
+async def room_enter(sid, message):
+    room_code = message['room_code'] or 'default'
+    print('Client joins room', room_code)
+    await sio.enter_room(sid, room_code)
+    return {'room_code':room_code}
+
 async def welcome(request):
     return web.Response(text="Signaling server is up and running!")
 app.add_routes([web.get('/', welcome)])
