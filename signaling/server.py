@@ -39,6 +39,11 @@ async def offer(sid, message):
     print("Client {} sent offer {}".format(sid, message))
     await sio.emit('webrtc-offer', {'from':sid, 'data': message['data']}, to=message['to'])
 
+@sio.on('webrtc-answer')
+async def offer(sid, message):
+    print("Client {} sent answer {}".format(sid, message))
+    await sio.emit('webrtc-answer', {'from':sid, 'data': message['data']}, to=message['to'])
+
 async def welcome(request):
     return web.Response(text="Signaling server is up and running!")
 app.add_routes([web.get('/', welcome)])

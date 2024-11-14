@@ -10,6 +10,7 @@ export class Connection {
         this.p2p_connections = {};
         this.socket.on('room-joined', (message) => {this.roomJoined(this, message) });
         this.socket.on('webrtc-offer', (message) => {this.offer(this, message)});
+        this.socket.on('webrtc-answer', (message) => {this.answer(this, message)});
     }
 
     get room() {
@@ -50,6 +51,17 @@ export class Connection {
         console.log('Got new offer from', session_id);
         let pc = new RTCPeerConnection(PC_CONFIG);
         conn.p2p_connections[session_id] = pc;
+        pc.setRemoteDescription(new RTCSessionDescription(message.data));
+        pc.createAnswer().then((sdp) => {
+            pc.setLocalDescription(sdp);
+            conn.socket.emit('webrtc-answer', {'to':session_id, 'data': sdp});
+        });
+    }
+
+    answer(conn, message) {
+        let session_id = message.from;
+        console.log('Got new answer from', session_id);
+        let pc = conn.p2p_connections[session_id];
         pc.setRemoteDescription(new RTCSessionDescription(message.data));
     }
 }
