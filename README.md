@@ -53,11 +53,25 @@ Sessions can be used to to remember client specific room to reduce the need to i
 
 ### How to start the server
 
-At first install python with your prefered method. You can manage different versions with ```pyenv``` and use it to install latest version ```pyenv install 3.13:latest```, also it is advised to use virtualenv for the project. You can create one with ```pyenv virtualenv 3.13 distributed_systems``` and then activate it ```pyenv activate distributed_systems```.
-
-After python is installed, there are some requirements to install. Use command ```pip install -r requirements.txt``` to install tested versions of libraries.
-
-Use ```python signaling/server.py``` to run the server.
+Python is required and [pyenv](https://github.com/pyenv/pyenv) is one way to manage it.
+This guide assumes that you have pyenv installed:
+```bash
+$ pyenv install 3.13:latest
+$ pyenv virtualenv 3.13 distributed_systems
+```
+Remember activate the virtualenv in any terminal at first:
+```bash
+$ pyenv activate distributed_systems
+```
+Install project python dependecies:
+```bash
+$ pip install -r requirements.txt
+```
+To run the server:
+```bash
+$ python signaling/server.py
+```
+By default server runs in localhost port 9999, which is determined in ```.env``` file.
 
 ## Game clients
 
