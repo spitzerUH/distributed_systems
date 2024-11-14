@@ -86,11 +86,12 @@ Server will send response message with list of the rooms:
     "rooms": [
         {
             "room_code": "code",
-            "players": "number of players"
+            "connections": "number of clients"
         }
     ]
 }
 ```
+Number will tell how many clients are connected with websocket connection for simplicity.
 
 ---
 
@@ -126,10 +127,9 @@ Server emits ```room-joined``` message when a new client joins a room:
     "session_id": "session id"
 }
 ```
+Session id is for temporary use for websocket to identify the clients for direct messaging.
 
 ---
-
-Session id is for temporary use for websocket to identify the clients for direct messaging.
 
 ### Websocket, WebRTC related
 
@@ -181,7 +181,7 @@ Server will transform the message with new payload:
 
 ---
 
-The peer-to-peer connection needs ICE candidate to determine how the communication is formed
+The peer-to-peer connection needs ICE candidate to determine how the communication is formed.
 It emits ```webrtc-candidate``` message type with following payload:
 ```json
 {
