@@ -4,7 +4,7 @@ export class Connection {
     constructor(server) {
         this.socket = io(server, { autoConnect: false });
         this.socket.connect();
-        this.room_code;
+        this.room_code = null;
     }
 
     get room() {
@@ -16,6 +16,16 @@ export class Connection {
             'room_code': room_code
         }, (response) => {
             this.room_code = response.room_code;
+        });
+    }
+
+    exitRoom() {
+        if (!this.room_code)
+            throw 'Not in a room';
+        this.socket.emit('room-exit', {
+            'room_code': this.room_code
+        }, (response) => {
+            this.room_code = null;
         });
     }
 }
