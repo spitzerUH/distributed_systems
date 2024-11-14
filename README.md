@@ -72,7 +72,7 @@ This could be handy to showcase the game state in the demo situation.
 
 ---
 
-When new client connects, server emits ```newclient``` message:
+When new client connects, server emits ```clientjoin``` message:
 ```json
 {
     "session_id": "session id"
