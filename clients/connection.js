@@ -1,13 +1,14 @@
 const { io } = require("socket.io-client");
 
 const PC_CONFIG = {};
+const dataChannelParams = {ordered: true, negotiated: true, id: 0};
 
 export class Connection {
     constructor(server) {
         this.socket = io(server, { autoConnect: false });
         this.socket.connect();
         this.room_code = null;
-        this.p2p_connections = {};
+        this.clients = {};
         this.socket.on('room-joined', (message) => {this.roomJoined(this, message) });
         this.socket.on('webrtc-offer', (message) => {this.offer(this, message)});
         this.socket.on('webrtc-answer', (message) => {this.answer(this, message)});
@@ -39,7 +40,8 @@ export class Connection {
         let session_id = message.session_id;
         console.log('New client joined the room,', session_id);
         let pc = new RTCPeerConnection(PC_CONFIG);
-        conn.p2p_connections[session_id] = pc;
+        let dc = conn.createDataChannel(pc);
+        conn.clients[session_id] = {'pc':pc, 'dc':dc};
         pc.createOffer().then((sdp) => {
             pc.setLocalDescription(sdp);
             conn.socket.emit('webrtc-offer', {'to':session_id, 'data': sdp});
@@ -50,7 +52,8 @@ export class Connection {
         let session_id = message.from;
         console.log('Got new offer from', session_id);
         let pc = new RTCPeerConnection(PC_CONFIG);
-        conn.p2p_connections[session_id] = pc;
+        let dc = conn.createDataChannel(pc);
+        conn.clients[session_id] = {'pc':pc, 'dc':dc};
         pc.setRemoteDescription(new RTCSessionDescription(message.data));
         pc.createAnswer().then((sdp) => {
             pc.setLocalDescription(sdp);
@@ -61,7 +64,13 @@ export class Connection {
     answer(conn, message) {
         let session_id = message.from;
         console.log('Got new answer from', session_id);
-        let pc = conn.p2p_connections[session_id];
+        let pc = conn.clients[session_id]['pc'];
         pc.setRemoteDescription(new RTCSessionDescription(message.data));
+    }
+
+    createDataChannel(pc) {
+        let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
+        dc.binaryType = 'arraybuffer';
+        return dc;
     }
 }
