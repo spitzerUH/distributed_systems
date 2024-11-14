@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PORT = int(os.getenv('SIGNALING_SERVER_PORT'))
-ROOM = os.getenv('ROOM')
+ROOM = 'deprecate me'
 
 from aiohttp import web
 import socketio
