@@ -12,6 +12,7 @@ export class Connection {
         this.socket.on('room-joined', (message) => {this.roomJoined(this, message) });
         this.socket.on('webrtc-offer', (message) => {this.offer(this, message)});
         this.socket.on('webrtc-answer', (message) => {this.answer(this, message)});
+        this.socket.on('webrtc-candidate', (message) => {this.candidate(this, message)});
     }
 
     get room() {
@@ -40,6 +41,12 @@ export class Connection {
         let session_id = message.session_id;
         console.log('New client joined the room,', session_id);
         let pc = new RTCPeerConnection(PC_CONFIG);
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                console.log('ICE candidate');
+                conn.socket.emit('webrtc-candidate', {'to':session_id, 'data': event.candidate});
+            }
+        };
         let dc = conn.createDataChannel(pc);
         conn.clients[session_id] = {'pc':pc, 'dc':dc};
         pc.createOffer().then((sdp) => {
@@ -66,6 +73,13 @@ export class Connection {
         console.log('Got new answer from', session_id);
         let pc = conn.clients[session_id]['pc'];
         pc.setRemoteDescription(new RTCSessionDescription(message.data));
+    }
+
+    candidate(conn, message) {
+        let session_id = message.from;
+        console.log('Got new ICE candidate from', session_id);
+        let pc = conn.clients[session_id]['pc'];
+        pc.addIceCandidate(new RTCIceCandidate(message.data));
     }
 
     createDataChannel(pc) {
