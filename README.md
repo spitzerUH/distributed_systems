@@ -51,28 +51,6 @@ The main point is to keep the server light and simple and concentrate more on th
 In the case of specific game rooms, server uses websocket rooms as the base.
 Sessions can be used to to remember client specific room to reduce the need to include it in messages.
 
-### How to start the server
-
-Python is required and [pyenv](https://github.com/pyenv/pyenv) is one way to manage it.
-This guide assumes that you have pyenv installed:
-```bash
-$ pyenv install 3.13:latest
-$ pyenv virtualenv 3.13 distributed_systems
-```
-Remember activate the virtualenv in any terminal at first:
-```bash
-$ pyenv activate distributed_systems
-```
-Install project python dependecies:
-```bash
-$ pip install -r requirements.txt
-```
-To run the server:
-```bash
-$ python signaling/server.py
-```
-By default server runs in localhost port 9999, which is determined in ```.env``` file.
-
 ## Game clients
 
 Clients initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
@@ -93,17 +71,6 @@ Leader selection could be based on the game score.
 
 We might also have third client type for observation.
 This could be handy to showcase the game state in the demo situation.
-
-### How to start the client
-
-Node.js is required, so best is to install it with [nvm](https://github.com/nvm-sh/nvm) by running ```nvm install --lts```. After that we need [yarn](https://yarnpkg.com) and current way to install it and project dependencies is:
-```bash
-$ nvm use --lts
-$ corepack enable
-$ yarn
-```
-When installation is complete, the client development server can be started by running ```yarn start``` and opening ```http://localhost:1234``` in your browser.
-Firefox or Chrome has good inspection tools to run the commands.
 
 ## Message types
 
@@ -289,3 +256,40 @@ Election action could from bully algorithm ```election```, ```ok``` and ```coord
 * how to deal with bad/good internet connection of the different clients? -> Data consistency issues
 * Leader election
 * Order of messages
+
+## How to develop
+
+All the commands are made to be run at project root.
+
+### Spin up the server
+
+Python is required and [pyenv](https://github.com/pyenv/pyenv) is one way to manage it.
+This guide assumes that you have pyenv installed:
+```bash
+$ pyenv install 3.13:latest
+$ pyenv virtualenv 3.13 distributed_systems
+```
+Remember activate the virtualenv in any terminal at first:
+```bash
+$ pyenv activate distributed_systems
+```
+Install project python dependecies:
+```bash
+$ pip install -r requirements.txt
+```
+To run the server:
+```bash
+$ python signaling/server.py
+```
+By default server runs in localhost port 9999, which is determined in ```.env``` file.
+
+### Spin up the client
+
+Node.js is required, so best is to install it with [nvm](https://github.com/nvm-sh/nvm) by running ```nvm install --lts```. After that we need [yarn](https://yarnpkg.com) and current way to install it and project dependencies is:
+```bash
+$ nvm use --lts
+$ corepack enable
+$ yarn
+```
+When installation is complete, the client development server can be started by running ```yarn start``` and opening ```http://localhost:1234``` in your browser.
+Firefox or Chrome has good inspection tools to run the commands.
