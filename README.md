@@ -10,14 +10,20 @@ It uses P2P communication between the clients.
 * Sami Saada @samitheberber
 * Christoph Spitzer @spitzerUH
 
-Our game will work in the browser, where the main computation is also done.
-Game clients connect each other using WebRTC connections and use its datastream functionality to communicate.
-To form the peer-to-peer connection, we need signaling server to deal the messaging at first.
-The signaling server is implemented by using Python.
-The client is implemented by using JavaScript.
-Socket.io is used to provide the websocket functionality, both in server and client side.
+
+## Description
+
+2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage. The game is played in rooms of 2-8 players. A new room can be created by anyone, and anyone can create a room which is identified with a code. These codes are maintained in a public server, where other players can either join a random room, or use a code to join a specific room.  The states of all players are updated by regular intervals, and all players move one coordinate vertically or horizontally every time the room updates. The game is synchronized among players, meaning that the movement of all players is updated at the same time.
+
+## Overview
+
+The game is played using a browser, where the main computation is also done.
+Game clients connect with each other using WebRTC connections and use its datastream functionality to communicate.
+To form the peer-to-peer connection, a signaling server is used.
+The signaling server is implemented in Python.
+The client is implemented in JavaScript. Socket.io is used to provide the websocket functionality, both in server and client side.
 HTTP is used as middleware for websocket connection, it is implemented with aiohttp.
-The server side is fully asyncronous to fit the theme of the course better.
+The server is fully asyncronous to fit the theme of the course better.
 The actual game client is to be determined later.
 There will be different nodes represented by coordinates on a twodimensional space.
 Each node will be able to move across the space.
