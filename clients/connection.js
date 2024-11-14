@@ -85,6 +85,15 @@ export class Connection {
     createDataChannel(pc) {
         let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
         dc.binaryType = 'arraybuffer';
+        dc.addEventListener('open', () => {
+            console.log('Data channel open!');
+        });
+        dc.addEventListener('close', () => {
+            console.log('Data channel closed!');
+        });
+        dc.addEventListener('message', (event) => {
+            console.log('Message: ' + event.data);
+        });
         return dc;
     }
 }
