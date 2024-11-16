@@ -30,25 +30,45 @@ export class Game extends Scene
             .add(this.roominfo, 0, 'left', {left: 10, right: 10, top: 5, bottom: 5}, true)
             .add(this.direction, 0, 'left', {left: 10, right: 10, top: 5, bottom: 5}, true)
             .layout();
+        this.dirr = undefined;
+        this.dirrSending = false;
     }
 
     update (time, delta)
     {
+        var curDirr = undefined;
         if (this.cursors.left.isDown)
         {
             this.direction.setText('left');
+            curDirr = 'left';
         }
         else if (this.cursors.right.isDown)
         {
             this.direction.setText('right');
+            curDirr = 'right';
         }
         else if (this.cursors.up.isDown)
         {
             this.direction.setText('up');
+            curDirr = 'up';
         }
         else if (this.cursors.down.isDown)
         {
             this.direction.setText('down');
+            curDirr = 'down';
+        }
+        if (curDirr && curDirr != this.dirr) {
+            this.sendMovement(curDirr);
+        }
+    }
+
+    sendMovement(movement) {
+        if (!this.dirrSending) {
+            this.dirrSending = true;
+            this.connection.sendMessage(`Moving: ${movement}`).then(() => {
+                this.dirr = movement;
+                this.dirrSending = false;
+            });
         }
     }
 }
