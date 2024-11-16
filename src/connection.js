@@ -21,10 +21,10 @@ export class Connection {
         this.socket = io(server);
         this.room_code = null;
         this.clients = {};
-        this.socket.on('room-joined', (message) => {this.roomJoined(this, message) });
-        this.socket.on('webrtc-offer', (message) => {this.offer(this, message)});
-        this.socket.on('webrtc-answer', (message) => {this.answer(this, message)});
-        this.socket.on('webrtc-candidate', (message) => {this.candidate(this, message)});
+        this.addRoomJoined();
+        this.addWebRTCOffer();
+        this.addWebRTCAnswer();
+        this.addWebRTCCandidate();
     }
 
     get room() {
@@ -56,64 +56,87 @@ export class Connection {
         });
     }
 
-    roomJoined(conn, message) {
-        let session_id = message.session_id;
-        console.log('New client joined the room,', session_id);
+    addRoomJoined() {
+        this.socket.on('room-joined', (message) => {
+            let session_id = message.session_id;
+            console.log('New client joined the room,', session_id);
+            let pc = this.createPeerConnection(session_id);
+            let dc = this.createDataChannel(pc);
+            this.clients[session_id] = {pc:pc, dc:dc};
+            pc.createOffer().then((sdp) => {
+                pc.setLocalDescription(sdp);
+                this.socket.emit('webrtc-offer', {to:session_id, data: sdp});
+            });
+        });
+    }
+
+    addWebRTCOffer() {
+        this.socket.on('webrtc-offer', (message) => {
+            let session_id = message.from;
+            console.log('Got new offer from', session_id);
+            let pc = this.createPeerConnection(session_id);
+            let dc = this.createDataChannel(pc);
+            this.clients[session_id] = {pc:pc, dc:dc};
+            pc.setRemoteDescription(new RTCSessionDescription(message.data));
+            pc.createAnswer().then((sdp) => {
+                pc.setLocalDescription(sdp);
+                this.socket.emit('webrtc-answer', {to:session_id, data: sdp});
+            });
+        });
+    }
+    addWebRTCAnswer() {
+        this.socket.on('webrtc-answer', (message) => {
+            let session_id = message.from;
+            console.log('Got new answer from', session_id);
+            let pc = this.clients[session_id]['pc'];
+            pc.setRemoteDescription(new RTCSessionDescription(message.data));
+        });
+    }
+    addWebRTCCandidate() {
+        this.socket.on('webrtc-candidate', (message) => {
+            let session_id = message.from;
+            console.log('Got new ICE candidate from', session_id);
+            let pc = this.clients[session_id]['pc'];
+            pc.addIceCandidate(new RTCIceCandidate(message.data));
+        });
+    }
+
+    createPeerConnection(session_id) {
         let pc = new RTCPeerConnection(PC_CONFIG);
         pc.onicecandidate = (event) => {
             if (event.candidate) {
                 console.log('ICE candidate');
-                conn.socket.emit('webrtc-candidate', {'to':session_id, 'data': event.candidate});
+                this.socket.emit('webrtc-candidate', {to:session_id, data: event.candidate});
             }
         };
-        let dc = conn.createDataChannel(pc);
-        conn.clients[session_id] = {'pc':pc, 'dc':dc};
-        pc.createOffer().then((sdp) => {
-            pc.setLocalDescription(sdp);
-            conn.socket.emit('webrtc-offer', {'to':session_id, 'data': sdp});
-        });
-    }
-
-    offer(conn, message) {
-        let session_id = message.from;
-        console.log('Got new offer from', session_id);
-        let pc = new RTCPeerConnection(PC_CONFIG);
-        let dc = conn.createDataChannel(pc);
-        conn.clients[session_id] = {'pc':pc, 'dc':dc};
-        pc.setRemoteDescription(new RTCSessionDescription(message.data));
-        pc.createAnswer().then((sdp) => {
-            pc.setLocalDescription(sdp);
-            conn.socket.emit('webrtc-answer', {'to':session_id, 'data': sdp});
-        });
-    }
-
-    answer(conn, message) {
-        let session_id = message.from;
-        console.log('Got new answer from', session_id);
-        let pc = conn.clients[session_id]['pc'];
-        pc.setRemoteDescription(new RTCSessionDescription(message.data));
-    }
-
-    candidate(conn, message) {
-        let session_id = message.from;
-        console.log('Got new ICE candidate from', session_id);
-        let pc = conn.clients[session_id]['pc'];
-        pc.addIceCandidate(new RTCIceCandidate(message.data));
+        return pc;
     }
 
     createDataChannel(pc) {
         let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
         dc.binaryType = 'arraybuffer';
         dc.addEventListener('open', () => {
-            console.log('Data channel open!');
+            this.dataChannelOpen();
         });
         dc.addEventListener('close', () => {
-            console.log('Data channel closed!');
+            this.dataChannelClose();
         });
         dc.addEventListener('message', (event) => {
-            console.log('Message: ' + event.data);
+            this.dataChannelMessage(event.data);
         });
         return dc;
+    }
+
+    dataChannelOpen() {
+        console.log('Data channel open!');
+    }
+
+    dataChannelClose() {
+        console.log('Data channel closed!');
+    }
+
+    dataChannelMessage(message) {
+        console.log('Message:', message);
     }
 
     sendMessage(message) {
