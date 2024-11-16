@@ -32,20 +32,27 @@ export class Connection {
     }
 
     enterRoom(room_code = '') {
-        this.socket.emit('room-enter', {
-            'room_code': room_code
-        }, (response) => {
-            this.room_code = response.room_code;
+        return new Promise((resolve, reject) => {
+            this.socket.emit('room-enter', {
+                'room_code': room_code
+            }, (response) => {
+                this.room_code = response.room_code;
+                resolve(this.room_code);
+            });
         });
     }
 
     exitRoom() {
-        if (!this.room_code)
-            throw 'Not in a room';
-        this.socket.emit('room-exit', {
-            'room_code': this.room_code
-        }, (response) => {
-            this.room_code = null;
+        return new Promise((resolve, reject) => {
+            if (!this.room_code) {
+                reject('Not in a room');
+            }
+            this.socket.emit('room-exit', {
+                'room_code': this.room_code
+            }, (response) => {
+                this.room_code = null;
+                resolve(this.room_code);
+            });
         });
     }
 
