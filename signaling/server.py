@@ -1,8 +1,6 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
 
-PORT = int(os.getenv('SIGNALING_SERVER_PORT'))
+PORT = int(os.getenv('SIGNALING_SERVER_PORT', 9999))
 
 from aiohttp import web
 import socketio

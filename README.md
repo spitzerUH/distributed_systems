@@ -282,7 +282,7 @@ Start the server:
 ```bash
 $ python signaling/server.py
 ```
-By default server runs in localhost port 9999, which is determined in ```.env``` file.
+By default server runs in localhost port 9999 or when specified ```SIGNALING_SERVER_PORT```.
 
 ### Spin up the client
 
