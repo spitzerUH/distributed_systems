@@ -140,8 +140,11 @@ export class Connection {
     }
 
     sendMessage(message) {
-        Object.entries(this.clients).forEach( ([sid, conns]) => {
-            conns.dc.send(message);
+        return new Promise((resolve, reject) => {
+            Object.entries(this.clients).forEach( ([sid, conns]) => {
+                conns.dc.send(message);
+            });
+            resolve();
         });
     }
 }
