@@ -294,3 +294,7 @@ $ yarn
 ```
 When installation is complete, the client development server can be started by running ```yarn start``` and opening ```http://localhost:1234``` in your browser.
 Firefox or Chrome has good inspection tools to run the commands.
+
+### Building the client files
+
+Client will contain only static files, which are built by running ```yarn build```, this will create necessary files under ```dist/``` directory.
