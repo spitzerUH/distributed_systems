@@ -1,18 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Distributed Systems Client</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DS2024-Group16</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            color: rgba(255, 255, 255, 0.87);
+            background-color: #000000;
+        }
+
+        #app {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
+
 <body>
+    <div id="app">
+        <div id="game-container"></div>
+    </div>
     <script type="module" src="./src/main.js"></script>
-
-    <h1>Example commands to use in console</h1>
-
-    <ul>
-        <li><strong>Connection object:</strong> <code>conn</code></li>
-        <li><strong>Join a room:</strong> <code>conn.enterRoom("room code or nothing")</code></li>
-        <li><strong>Send p2p message:</strong> <code>conn.sendMessage("message")</code></li>
-    </ul>
 </body>
+
 </html>

@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { createRoomDialog } from '../room_dialog';
 
 export class MainMenu extends Scene
 {
@@ -7,19 +8,22 @@ export class MainMenu extends Scene
         super('MainMenu');
     }
 
+    init (data) {
+        this.connection = data.connection;
+    }
+
     create ()
     {
+        const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+        const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
 
-        this.add.text(512, 460, 'Main Menu', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5);
-
-        this.input.once('pointerdown', () => {
-
-            this.scene.start('Game');
-
-        });
+        var roomDialog = createRoomDialog(this, {
+            x: screenCenterX,
+            y: screenCenterY
+        }).on('enter', (roomCode) => {
+            this.connection.enterRoom(roomCode).then(() => {
+                this.scene.start('Game', {connection: this.connection});
+            });
+        }).popUp(500);
     }
 }

@@ -7,14 +7,13 @@ export class Game extends Scene
         super('Game');
     }
 
+    init (data) {
+        this.connection = data.connection;
+    }
+
     create ()
     {
         this.cameras.main.setBackgroundColor(0x00ff00);
-
-        this.input.once('pointerdown', () => {
-
-            this.scene.start('GameOver');
-
-        });
+        this.rexUI.add.BBCodeText(0, 0, `Room: ${this.connection.room}`, {color: '#000'});
     }
 }
