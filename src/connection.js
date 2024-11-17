@@ -122,8 +122,9 @@ export class Connection {
             this.dataChannelClose(session_id);
         });
         dc.addEventListener('message', (event) => {
-            this.dataChannelMessage(session_id, event.data);
+            this.dataChannelMessage(session_id, event);
         });
+        this.receivedMessage = (x,y) => {console.log(x,y);};
         return dc;
     }
 
@@ -135,8 +136,9 @@ export class Connection {
         console.log('Data channel closed for', session_id);
     }
 
-    dataChannelMessage(session_id, message) {
-        console.log(`DC ${session_id} sent: ${message}`);
+    dataChannelMessage(session_id, event) {
+        console.log(event);
+        this.receivedMessage(session_id, event.data);
     }
 
     sendMessage(message) {

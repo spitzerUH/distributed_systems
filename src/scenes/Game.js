@@ -33,7 +33,7 @@ export class Game extends Scene
         this.dirr = undefined;
         this.dirrSending = false;
 
-        this.connection.dataChannelMessage = (playerid, message) => {
+        this.connection.receivedMessage = (playerid, message) => {
             console.log(`Player ${playerid} action ${message}`);
         };
     }
