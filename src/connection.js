@@ -61,7 +61,7 @@ export class Connection {
             let session_id = message.session_id;
             console.log('New client joined the room,', session_id);
             let pc = this.createPeerConnection(session_id);
-            let dc = this.createDataChannel(pc);
+            let dc = this.createDataChannel(session_id, pc);
             this.clients[session_id] = {pc:pc, dc:dc};
             pc.createOffer().then((sdp) => {
                 pc.setLocalDescription(sdp);
@@ -75,7 +75,7 @@ export class Connection {
             let session_id = message.from;
             console.log('Got new offer from', session_id);
             let pc = this.createPeerConnection(session_id);
-            let dc = this.createDataChannel(pc);
+            let dc = this.createDataChannel(session_id, pc);
             this.clients[session_id] = {pc:pc, dc:dc};
             pc.setRemoteDescription(new RTCSessionDescription(message.data));
             pc.createAnswer().then((sdp) => {
@@ -112,31 +112,31 @@ export class Connection {
         return pc;
     }
 
-    createDataChannel(pc) {
+    createDataChannel(session_id, pc) {
         let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
         dc.binaryType = 'arraybuffer';
         dc.addEventListener('open', () => {
-            this.dataChannelOpen();
+            this.dataChannelOpen(session_id);
         });
         dc.addEventListener('close', () => {
-            this.dataChannelClose();
+            this.dataChannelClose(session_id);
         });
         dc.addEventListener('message', (event) => {
-            this.dataChannelMessage(event.data);
+            this.dataChannelMessage(session_id, event.data);
         });
         return dc;
     }
 
-    dataChannelOpen() {
-        console.log('Data channel open!');
+    dataChannelOpen(session_id) {
+        console.log('Data channel open for', session_id);
     }
 
-    dataChannelClose() {
-        console.log('Data channel closed!');
+    dataChannelClose(session_id) {
+        console.log('Data channel closed for', session_id);
     }
 
-    dataChannelMessage(message) {
-        console.log('Message:', message);
+    dataChannelMessage(session_id, message) {
+        console.log(`DC ${session_id} sent: ${message}`);
     }
 
     sendMessage(message) {
