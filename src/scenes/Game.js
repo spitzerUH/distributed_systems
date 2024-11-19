@@ -33,6 +33,10 @@ export class Game extends Scene
         this.dirr = undefined;
         this.dirrSending = false;
 
+        this.player = this.add.circle(viewport.centerX, viewport.centerY, 10, 0x000000);
+        this.physics.add.existing(this.player);
+
+
         this.connection.receivedMessage = (playerid, message) => {
             console.log(`Player ${playerid} action ${message}`);
         };
@@ -45,21 +49,25 @@ export class Game extends Scene
         {
             this.direction.setText('left');
             curDirr = 'left';
+            this.player.body.setVelocity(-100,0);
         }
         else if (this.cursors.right.isDown)
         {
             this.direction.setText('right');
             curDirr = 'right';
+            this.player.body.setVelocity(100,0);
         }
         else if (this.cursors.up.isDown)
         {
             this.direction.setText('up');
             curDirr = 'up';
+            this.player.body.setVelocity(0,-100);
         }
         else if (this.cursors.down.isDown)
         {
             this.direction.setText('down');
             curDirr = 'down';
+            this.player.body.setVelocity(0,100);
         }
         if (curDirr && curDirr != this.dirr) {
             this.sendMovement(curDirr);

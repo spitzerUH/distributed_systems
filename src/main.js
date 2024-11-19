@@ -33,7 +33,14 @@ const config = {
             plugin: RexUIPlugin,
             mapping: 'rexUI'
         }]
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: true
+        }
     }
+
 };
 
 export default new Phaser.Game(config);
