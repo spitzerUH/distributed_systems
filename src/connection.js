@@ -124,12 +124,12 @@ export class Connection {
         dc.addEventListener('message', (event) => {
             this.dataChannelMessage(session_id, event);
         });
-        this.receivedMessage = (x,y) => {console.log(x,y);};
         return dc;
     }
 
     dataChannelOpen(session_id) {
         console.log('Data channel open for', session_id);
+        this.openDataChannel(session_id);
     }
 
     dataChannelClose(session_id) {

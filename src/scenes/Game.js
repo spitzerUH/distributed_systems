@@ -36,9 +36,31 @@ export class Game extends Scene
         this.player = this.add.circle(viewport.centerX, viewport.centerY, 10, 0x000000);
         this.physics.add.existing(this.player);
 
+        this.players = {};
+
+        this.connection.openDataChannel = (playerid) => {
+            let otherplayer = this.add.circle(viewport.centerX, viewport.centerY, 10, 0x000000);
+            this.physics.add.existing(otherplayer);
+            this.players[playerid] = otherplayer;
+        }
 
         this.connection.receivedMessage = (playerid, message) => {
-            console.log(`Player ${playerid} action ${message}`);
+            console.log(message);
+            let command = JSON.parse(message);
+            switch (command.moving) {
+                case 'left':
+                    this.players[playerid].body.setVelocity(-100,0);
+                    break;
+                case 'right':
+                    this.players[playerid].body.setVelocity(100,0);
+                    break;
+                case 'up':
+                    this.players[playerid].body.setVelocity(0,-100);
+                    break;
+                case 'down':
+                    this.players[playerid].body.setVelocity(0,100);
+                    break;
+            }
         };
     }
 
@@ -77,7 +99,7 @@ export class Game extends Scene
     sendMovement(movement) {
         if (!this.dirrSending) {
             this.dirrSending = true;
-            this.connection.sendMessage(`Moving: ${movement}`).then(() => {
+            this.connection.sendMessage(`{"moving": "${movement}"}`).then(() => {
                 this.dirr = movement;
                 this.dirrSending = false;
             });
