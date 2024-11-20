@@ -82,25 +82,6 @@ This could be handy to showcase the game state in the demo situation.
     * `connect_error` is sent when connection fails
 ---
 
-Client emits `room-list` message with empty payload to list all non-empty rooms:
-```json
-{}
-```
-Server will send response message with list of the rooms:
-```json
-{
-    "rooms": [
-        {
-            "room_code": "code",
-            "connections": "number of clients"
-        }
-    ]
-}
-```
-Number will tell how many clients are connected with websocket connection for simplicity.
-
----
-
 Client emits `room-enter` message to enter a specific game room:
 ```json
 {
