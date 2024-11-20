@@ -72,7 +72,6 @@ export class Connection {
   handleRoomJoined() {
     this.socket.on('room-joined', (message) => {
       let session_id = message.session_id;
-      console.log('New client joined the room,', session_id);
       let pc = this.createPeerConnection(session_id);
       pc.createOffer().then((sdp) => {
         pc.setLocalDescription(sdp);
@@ -84,7 +83,6 @@ export class Connection {
   handleWebRTCOffer() {
     this.socket.on('webrtc-offer', (message) => {
       let session_id = message.from;
-      console.log('Got new offer from', session_id);
       let pc = this.createPeerConnection(session_id);
       pc.setRemoteDescription(new RTCSessionDescription(message.data));
       pc.createAnswer().then((sdp) => {
@@ -96,7 +94,6 @@ export class Connection {
   handleWebRTCAnswer() {
     this.socket.on('webrtc-answer', (message) => {
       let session_id = message.from;
-      console.log('Got new answer from', session_id);
       let pc = this.clients[session_id]['pc'];
       pc.setRemoteDescription(new RTCSessionDescription(message.data));
     });
@@ -104,8 +101,6 @@ export class Connection {
   handleWebRTCCandidate() {
     this.socket.on('webrtc-candidate', (message) => {
       let session_id = message.from;
-      console.log('Got new ICE candidate from', session_id);
-      console.log(message.data);
       let pc = this.clients[session_id]['pc'];
       pc.addIceCandidate(new RTCIceCandidate(message.data));
     });
@@ -130,23 +125,12 @@ export class Connection {
       this.dataChannelMessage(session_id, event);
     });
     this.clients[session_id] = { pc: pc, dc: dc };
-    let candidates = [];
     pc.oniceconnectionstatechange = () => {
-      console.log(pc.iceConnectionState);
+      //console.log(pc.iceConnectionState);
     };
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        candidates.push(event.candidate);
         this.socket.emit('webrtc-candidate', { to: session_id, data: event.candidate });
-      } else {
-        console.log("ice candidate", event);
-      }
-    };
-    pc.onicegatheringstatechange = () => {
-      console.log(pc.iceGatheringState);
-      if (pc.iceGatheringState === 'complete') {
-        console.log("ICE done");
-        console.log(candidates);
       }
     };
     pc.onicecandidateerror = (error) => {
