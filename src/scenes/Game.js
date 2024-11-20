@@ -83,7 +83,6 @@ export class Game extends Scene {
 
     this.connection.receivedMessage = (playerid, message) => {
       console.log(message);
-      let command = message.moving;
       let player = this.players[playerid];
       if (!player) {
         player = this.add.circle(
@@ -96,21 +95,45 @@ export class Game extends Scene {
         this.players[playerid] = player;
         playerList.emit('join', playerid, playerid);
       }
-      switch (command) {
-        case "left":
-          player.body.setVelocity(-100, 0);
-          break;
-        case "right":
-          player.body.setVelocity(100, 0);
-          break;
-        case "up":
-          player.body.setVelocity(0, -100);
-          break;
-        case "down":
-          player.body.setVelocity(0, 100);
-          break;
+      if (!!message.moving) {
+        let command = message.moving;
+        switch (command) {
+          case "left":
+            player.body.setVelocity(-100, 0);
+            break;
+          case "right":
+            player.body.setVelocity(100, 0);
+            break;
+          case "up":
+            player.body.setVelocity(0, -100);
+            break;
+          case "down":
+            player.body.setVelocity(0, 100);
+            break;
+        }
+      } else if (!!message.status) {
+        switch (message.status) {
+          case 'dead':
+            this.players[playerid].setActive(false).setVisible(false).body.setVelocity(0);
+            break;
+          case 'alive':
+            this.players[playerid].setActive(true).setVisible(true)
+              .setPosition(this.rexUI.viewport.centerX, this.rexUI.viewport.centerY);
+            break;
+        }
       }
     };
+
+    this.add.text((viewport.right - 100), (viewport.bottom - 100), 'KO!', { fontSize: 64, color: "red" })
+      .setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 100), Phaser.Geom.Rectangle.Contains)
+      .on('pointerdown', () => {
+        this.connection.sendMessage({ status: 'dead' }).then(() => {
+          this.scene.start('GameOver', { connection: this.connection, players: this.players });
+        });
+      })
+      .setScrollFactor(0, 0)
+      .setDepth(100);
+    this.connection.sendMessage({ status: 'alive' });
   }
 
   update(time, delta) {
