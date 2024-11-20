@@ -55,32 +55,35 @@ export class Game extends Scene {
     this.players = {};
 
     this.connection.openDataChannel = (playerid) => {
-      let otherplayer = this.add.circle(
-        viewport.centerX,
-        viewport.centerY,
-        10,
-        0x000000
-      );
-      this.physics.add.existing(otherplayer);
-      this.players[playerid] = otherplayer;
-      playerList.emit('join', playerid, playerid);
     }
 
     this.connection.receivedMessage = (playerid, message) => {
       console.log(message);
       let command = message.moving;
+      let player = this.players[playerid];
+      if (!player) {
+        player = this.add.circle(
+          viewport.centerX,
+          viewport.centerY,
+          10,
+          0x000000
+        );
+        this.physics.add.existing(player);
+        this.players[playerid] = player;
+        playerList.emit('join', playerid, playerid);
+      }
       switch (command) {
         case "left":
-          this.players[playerid].body.setVelocity(-100, 0);
+          player.body.setVelocity(-100, 0);
           break;
         case "right":
-          this.players[playerid].body.setVelocity(100, 0);
+          player.body.setVelocity(100, 0);
           break;
         case "up":
-          this.players[playerid].body.setVelocity(0, -100);
+          player.body.setVelocity(0, -100);
           break;
         case "down":
-          this.players[playerid].body.setVelocity(0, 100);
+          player.body.setVelocity(0, 100);
           break;
       }
     };
