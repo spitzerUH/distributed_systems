@@ -55,17 +55,20 @@ Sessions can be used to to remember client specific room to reduce the need to i
 
 ## Game clients
 
-Clients initialize the communication using websockets to form a peer-to-peer communication implemented with WebRTC.
+Game client runs purely in a web browser with keyboard controls as a focus.
 
-Game clients are browser based implemented by using JavaScript.
-Socket.IO provides websocket functionality also for client.
-WebRTC is implemented by the browsers and we use its datastream functionality to communicate between the clients.
-This covers the main functionalities for the communication section of the clients.
+WebSockets provide the initial communication channel between the clients via signaling server.
+It is implemented with Socket.IO JavaScript library.
+WebRTC is used to form the peer-to-peer connection between the clients and then WebRTC's DataStream will deliver the actual messages between the clients.
+
+The game part of the client is made with Phaser game engine.
+There lots of plugin for it and RexUI is used to create the UI.
+
+Player can create a room or join existing one.
+Everytime a new client joins a room, connections between it and existing clients are formed.
 
 Our plan is to demonstrate the usage of communication by using it to share game states between client in multiplayer environment.
 Each client runs an instance of the game and share the state by sending messages.
-
-Client can create/join/leave one room.
 
 We have at least two types of the clients, a regular client running the information and an elected leader client for special cases.
 One of the nodes will be selected as leader node to resolve possible conflicts.
