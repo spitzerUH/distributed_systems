@@ -24,6 +24,10 @@ export class MainMenu extends Scene {
       this.connection.enterRoom(roomCode).then(() => {
         this.scene.start('Game', { connection: this.connection });
       });
+    }).on('observe', (roomCode) => {
+      this.connection.enterRoom(roomCode).then(() => {
+        this.scene.start('Game', { connection: this.connection, observer: true });
+      });
     }).popUp(500);
   }
 }
