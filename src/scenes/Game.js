@@ -8,6 +8,7 @@ export class Game extends Scene {
 
   init(data) {
     this.connection = data.connection;
+    this.observer = !!data.observer;
     this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
     this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
@@ -22,7 +23,6 @@ export class Game extends Scene {
     });
 
     var viewport = this.rexUI.viewport;
-
     this.player = this.add.circle(
       viewport.centerX,
       viewport.centerY,
@@ -31,6 +31,9 @@ export class Game extends Scene {
     );
 
     this.physics.add.existing(this.player);
+    if (this.observer) {
+      this.player.setVisible(false);
+    }
 
     this.mainCamera = this.initMainCamera();
     this.miniMapCamera = this.initMiniMap();
@@ -102,6 +105,8 @@ export class Game extends Scene {
       curDirr = "down";
       this.player.body.setVelocity(0, 100);
     }
+    if (this.observer)
+      return;
     if (curDirr && curDirr != this.dirr) {
       this.sendMovement(curDirr);
     }
