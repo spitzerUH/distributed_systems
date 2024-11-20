@@ -37,21 +37,21 @@ We are unsure if we will be able to implement all of these game specific ideas a
 
 ## Signaling server
 
-The role for the server is purely signaling purpose.
-Server provides websocket communication for the clients.
+The role for the server is purely signaling purpose and it provides the initial WebSocket communication for the clients to send signaling data.
 
-aiohttp provides HTTP server that is used to initialize the websocket connection.
-Socket.IO provides the websocket connectivity and simple interface for events.
-These events happen when clients send websocket messages.
-The nature of websocket means that server needs to send the messages forward or react otherwise.
+The server is written with Python and uses few libraries that provide the technical implementation for the different communication channels.
+aiohttp provides HTTP server that provides means to form the WebSocket communication.
+Socket.IO provides WebSocket implementation and also a simple interface for the events initiated by the clients.
+The server makes sure that the WebSocket messages are delivered to correct participants.
+There are other alternative methods for signaling data delivery, but WebSockets fit well with the rest of the stack.
 
-We can implement the server using simple message structure or tackle in callbacks.
-This is something that will set the message content by removing some of the redundancy.
+The server uses asyncronous version of library functions, but the current server functionality is running it syncronously due lack of need for concurrency.
+The events that transfer data from client to client are one directional for sake of simplicity.
+The main point is to keep the server light and simple so the focus stays on the client side.
 
-The main point is to keep the server light and simple and concentrate more on the client.
-
-In the case of specific game rooms, server uses websocket rooms as the base.
-Sessions can be used to to remember client specific room to reduce the need to include it in messages.
+Only extra functionality for the server beside the signaling is room management.
+Rooms are implemented by using room functionality from Socket.IO.
+They act like multicast groups and this project use them as game lobbies.
 
 ## Game clients
 
