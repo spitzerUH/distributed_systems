@@ -302,3 +302,16 @@ AkshayJangir.phaserjs
 ```
 After those are installed, just press `F5` and it will run the development environment for you.
 There should be no need to manually restart the server or client processes, because they are set up to auto-reload after file changes.
+
+## Production
+
+Server is running in [Fly.io](https://fly.io) and deployed by running `fly deploy`.
+The service uses typical `Procfile` setup with own configuration file `fly.toml`.
+Deploying there takes advantage of docker images and dynamic machine creation.
+Only the required files are included, which is defined in `.dockerignore`-file.
+
+Currently the client files are hosted in [Cloudflare Pages](https://pages.cloudflare.com) and are manually uploaded there.
+Usually NAT adds challenges to this type of connections so we have defined list of [STUN](https://en.wikipedia.org/wiki/STUN) and [TURN](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT) servers.
+At first a list of Google STUN servers were used, but they didn't work in most of cases.
+Current working list of servers are from [TURN/STUN Server by Metered](https://www.metered.ca/stun-turn).
+Their free plan is suitable enough so hosting own TURN-server isn't necessary for the project.
