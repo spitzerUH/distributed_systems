@@ -1,7 +1,7 @@
 # Distributed Systems 2024, group 16
 
-We want to implement a simple multiplayer game.
-It uses P2P communication between the clients.
+The topic of the project is 2-Dimensional arcade multiplayer game, where players try to compete against each other.
+The game communication is made using WebRTC, WebSockets and browser technologies.
 
 ## Team Members
 * Gesche Redlich @gescheredlichj
@@ -10,8 +10,7 @@ It uses P2P communication between the clients.
 * Sami Saada @samitheberber
 * Christoph Spitzer @spitzerUH
 
-
-## Description
+## Overview
 
 2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage.
 The game is played in rooms of 2-8 players.
@@ -19,8 +18,6 @@ A new room can be created by anyone, and anyone can create a room which is ident
 These codes are maintained in a public server, where other players can either join a random room, or use a code to join a specific room.
 The states of all players are updated by regular intervals, and all players move one coordinate vertically or horizontally every time the room updates.
 The game is synchronized among players, meaning that the movement of all players is updated at the same time.
-
-## Overview
 
 The game is played using a browser, where the main computation is also done.
 Game clients connect with each other using WebRTC connections and use its datastream functionality to communicate.
