@@ -2,16 +2,29 @@ const { io } = require("socket.io-client");
 
 const PC_CONFIG = {
   iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun.l.google.com:5349" },
-    { urls: "stun:stun1.l.google.com:3478" },
-    { urls: "stun:stun1.l.google.com:5349" },
-    { urls: "stun:stun2.l.google.com:19302" },
-    { urls: "stun:stun2.l.google.com:5349" },
-    { urls: "stun:stun3.l.google.com:3478" },
-    { urls: "stun:stun3.l.google.com:5349" },
-    { urls: "stun:stun4.l.google.com:19302" },
-    { urls: "stun:stun4.l.google.com:5349" }
+    {
+      urls: "stun:stun.relay.metered.ca:80",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "64a48bc463c9431622d2fb77",
+      credential: "Shbj2tDls5FUddly",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80?transport=tcp",
+      username: "64a48bc463c9431622d2fb77",
+      credential: "Shbj2tDls5FUddly",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "64a48bc463c9431622d2fb77",
+      credential: "Shbj2tDls5FUddly",
+    },
+    {
+      urls: "turns:global.relay.metered.ca:443?transport=tcp",
+      username: "64a48bc463c9431622d2fb77",
+      credential: "Shbj2tDls5FUddly",
+    },
   ]
 };
 const dataChannelParams = { ordered: true, negotiated: true, id: 0 };
@@ -21,10 +34,10 @@ export class Connection {
     this.socket = io(server);
     this.room_code = null;
     this.clients = {};
-    this.addRoomJoined();
-    this.addWebRTCOffer();
-    this.addWebRTCAnswer();
-    this.addWebRTCCandidate();
+    this.handleRoomJoined();
+    this.handleWebRTCOffer();
+    this.handleWebRTCAnswer();
+    this.handleWebRTCCandidate();
   }
 
   get room() {
@@ -56,13 +69,11 @@ export class Connection {
     });
   }
 
-  addRoomJoined() {
+  handleRoomJoined() {
     this.socket.on('room-joined', (message) => {
       let session_id = message.session_id;
       console.log('New client joined the room,', session_id);
       let pc = this.createPeerConnection(session_id);
-      let dc = this.createDataChannel(session_id, pc);
-      this.clients[session_id] = { pc: pc, dc: dc };
       pc.createOffer().then((sdp) => {
         pc.setLocalDescription(sdp);
         this.socket.emit('webrtc-offer', { to: session_id, data: sdp });
@@ -70,13 +81,11 @@ export class Connection {
     });
   }
 
-  addWebRTCOffer() {
+  handleWebRTCOffer() {
     this.socket.on('webrtc-offer', (message) => {
       let session_id = message.from;
       console.log('Got new offer from', session_id);
       let pc = this.createPeerConnection(session_id);
-      let dc = this.createDataChannel(session_id, pc);
-      this.clients[session_id] = { pc: pc, dc: dc };
       pc.setRemoteDescription(new RTCSessionDescription(message.data));
       pc.createAnswer().then((sdp) => {
         pc.setLocalDescription(sdp);
@@ -84,7 +93,7 @@ export class Connection {
       });
     });
   }
-  addWebRTCAnswer() {
+  handleWebRTCAnswer() {
     this.socket.on('webrtc-answer', (message) => {
       let session_id = message.from;
       console.log('Got new answer from', session_id);
@@ -92,10 +101,11 @@ export class Connection {
       pc.setRemoteDescription(new RTCSessionDescription(message.data));
     });
   }
-  addWebRTCCandidate() {
+  handleWebRTCCandidate() {
     this.socket.on('webrtc-candidate', (message) => {
       let session_id = message.from;
       console.log('Got new ICE candidate from', session_id);
+      console.log(message.data);
       let pc = this.clients[session_id]['pc'];
       pc.addIceCandidate(new RTCIceCandidate(message.data));
     });
@@ -103,16 +113,11 @@ export class Connection {
 
   createPeerConnection(session_id) {
     let pc = new RTCPeerConnection(PC_CONFIG);
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        console.log('ICE candidate');
-        this.socket.emit('webrtc-candidate', { to: session_id, data: event.candidate });
-      }
+    pc.ondatachannel = (event) => {
+      event.channel.onmessage = (e) => {
+        this.dataChannelMessage(session_id, e.message);
+      };
     };
-    return pc;
-  }
-
-  createDataChannel(session_id, pc) {
     let dc = pc.createDataChannel('messaging-channel', dataChannelParams);
     dc.binaryType = 'arraybuffer';
     dc.addEventListener('open', () => {
@@ -124,7 +129,30 @@ export class Connection {
     dc.addEventListener('message', (event) => {
       this.dataChannelMessage(session_id, event);
     });
-    return dc;
+    this.clients[session_id] = { pc: pc, dc: dc };
+    let candidates = [];
+    pc.oniceconnectionstatechange = () => {
+      console.log(pc.iceConnectionState);
+    };
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        candidates.push(event.candidate);
+        this.socket.emit('webrtc-candidate', { to: session_id, data: event.candidate });
+      } else {
+        console.log("ice candidate", event);
+      }
+    };
+    pc.onicegatheringstatechange = () => {
+      console.log(pc.iceGatheringState);
+      if (pc.iceGatheringState === 'complete') {
+        console.log("ICE done");
+        console.log(candidates);
+      }
+    };
+    pc.onicecandidateerror = (error) => {
+      //console.error(error);
+    };
+    return pc;
   }
 
   dataChannelOpen(session_id) {
