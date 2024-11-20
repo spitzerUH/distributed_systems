@@ -229,7 +229,7 @@ Player movement message:
 ## How to develop
 
 All the commands are made to be run at project root.
-Necessary environment variables are in `.env` which is loaded automatically.
+Necessary environment variables are in `.env.development` and `.env.production` which are loaded automatically.
 
 ### Spin up the server
 
