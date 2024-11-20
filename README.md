@@ -211,25 +211,13 @@ Datastream messages are all sent with same channel, only the payload will be dif
 
 ---
 
-General game related message:
+Player movement message:
 ```json
 {
-    "type": "game",
-    "data": "relevant game data"
+    "moving": "direction"
 }
 ```
-This can be coordinates or other game state.
-
----
-
-We need message to handle the leader election:
-```json
-{
-    "type": "election",
-    "data": "election action"
-}
-```
-Election action could from bully algorithm `election`, `ok` and `coordinator`.
+`direction` can be `left`, `right`, `up` or `down`.
 
 ---
 
