@@ -13,7 +13,12 @@ It uses P2P communication between the clients.
 
 ## Description
 
-2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage. The game is played in rooms of 2-8 players. A new room can be created by anyone, and anyone can create a room which is identified with a code. These codes are maintained in a public server, where other players can either join a random room, or use a code to join a specific room.  The states of all players are updated by regular intervals, and all players move one coordinate vertically or horizontally every time the room updates. The game is synchronized among players, meaning that the movement of all players is updated at the same time.
+2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage.
+The game is played in rooms of 2-8 players.
+A new room can be created by anyone, and anyone can create a room which is identified with a code.
+These codes are maintained in a public server, where other players can either join a random room, or use a code to join a specific room.
+The states of all players are updated by regular intervals, and all players move one coordinate vertically or horizontally every time the room updates.
+The game is synchronized among players, meaning that the movement of all players is updated at the same time.
 
 ## Overview
 
@@ -63,7 +68,7 @@ This covers the main functionalities for the communication section of the client
 Our plan is to demonstrate the usage of communication by using it to share game states between client in multiplayer environment.
 Each client runs an instance of the game and share the state by sending messages.
 
-Client can list all existing game rooms and create/join/leave one room.
+Client can create/join/leave one room.
 
 We have at least two types of the clients, a regular client running the information and an elected leader client for special cases.
 One of the nodes will be selected as leader node to resolve possible conflicts.
