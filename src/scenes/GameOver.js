@@ -18,5 +18,9 @@ export class GameOver extends Scene {
     this.input.once('pointerdown', () => {
       this.scene.start('Game', { connection: this.connection });
     });
+
+    this.connection.receivedMessage = (playerid, message) => {
+      console.log(playerid, message);
+    };
   }
 }

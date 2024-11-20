@@ -99,16 +99,16 @@ export class Game extends Scene {
         let command = message.moving;
         switch (command) {
           case "left":
-            player.body.setVelocity(-100, 0);
+            player?.body.setVelocity(-100, 0);
             break;
           case "right":
-            player.body.setVelocity(100, 0);
+            player?.body.setVelocity(100, 0);
             break;
           case "up":
-            player.body.setVelocity(0, -100);
+            player?.body.setVelocity(0, -100);
             break;
           case "down":
-            player.body.setVelocity(0, 100);
+            player?.body.setVelocity(0, 100);
             break;
         }
       } else if (!!message.status) {
