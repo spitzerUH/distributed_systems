@@ -77,12 +77,12 @@ This could be handy to showcase the game state in the demo situation.
 ### Websocket, general
 
 * Default Socket.io messages
-    * ```connect``` is sent when client connects to the server
-    * ```disconnect``` is sent when client disconnects from the server
-    * ```connect_error``` is sent when connection fails
+    * `connect` is sent when client connects to the server
+    * `disconnect` is sent when client disconnects from the server
+    * `connect_error` is sent when connection fails
 ---
 
-Client emits ```room-list``` message with empty payload to list all non-empty rooms:
+Client emits `room-list` message with empty payload to list all non-empty rooms:
 ```json
 {}
 ```
@@ -101,7 +101,7 @@ Number will tell how many clients are connected with websocket connection for si
 
 ---
 
-Client emits ```room-enter``` message to enter a specific game room:
+Client emits `room-enter` message to enter a specific game room:
 ```json
 {
     "room_code": "code"
@@ -118,7 +118,7 @@ Server will send response message with active room code:
 
 ---
 
-Client emits ```room-exit``` message to leave a room:
+Client emits `room-exit` message to leave a room:
 ```json
 {
     "room_code": "code"
@@ -127,7 +127,7 @@ Client emits ```room-exit``` message to leave a room:
 
 ---
 
-Server emits ```room-joined``` message when a new client joins a room:
+Server emits `room-joined` message when a new client joins a room:
 ```json
 {
     "session_id": "session id"
@@ -140,7 +140,7 @@ Session id is for temporary use for websocket to identify the clients for direct
 ### Websocket, WebRTC related
 
 Client needs to send other clients an offer to describe the connection.
-It emits ```webrtc-offer``` message type with following payload:
+It emits `webrtc-offer` message type with following payload:
 ```json
 {
     "to": "session id",
@@ -164,7 +164,7 @@ Server will transform the message with new payload:
 ---
 
 Client responds and Offer with Answer.
-It emits ```webrtc-answer``` message type with following payload:
+It emits `webrtc-answer` message type with following payload:
 ```json
 {
     "to": "session id",
@@ -188,7 +188,7 @@ Server will transform the message with new payload:
 ---
 
 The peer-to-peer connection needs ICE candidate to determine how the communication is formed.
-It emits ```webrtc-candidate``` message type with following payload:
+It emits `webrtc-candidate` message type with following payload:
 ```json
 {
     "to": "session id",
@@ -221,7 +221,7 @@ Server will transform the message with new payload:
 
 ---
 
-Notice: ```to``` and ```from``` fields are required for the client to identify with who the connection is formed.
+Notice: `to` and `from` fields are required for the client to identify with who the connection is formed.
 It is also for the server to be able to send a private message to correct target.
 
 ### WebRTC data stream
@@ -248,7 +248,7 @@ We need message to handle the leader election:
     "data": "election action"
 }
 ```
-Election action could from bully algorithm ```election```, ```ok``` and ```coordinator```.
+Election action could from bully algorithm `election`, `ok` and `coordinator`.
 
 ---
 
@@ -260,7 +260,7 @@ Election action could from bully algorithm ```election```, ```ok``` and ```coord
 ## How to develop
 
 All the commands are made to be run at project root.
-Necessary environment variables are in ```.env``` which is loaded automatically.
+Necessary environment variables are in `.env` which is loaded automatically.
 
 ### Spin up the server
 
@@ -282,22 +282,22 @@ Start the server:
 ```bash
 $ python signaling/server.py
 ```
-By default server runs in localhost port 9999 or when specified ```SIGNALING_SERVER_PORT```.
+By default server runs in localhost port 9999 or when specified `SIGNALING_SERVER_PORT`.
 
 ### Spin up the client
 
-Node.js is required, so best is to install it with [nvm](https://github.com/nvm-sh/nvm) by running ```nvm install --lts```. After that we need [yarn](https://yarnpkg.com) and current way to install it and project dependencies is:
+Node.js is required, so best is to install it with [nvm](https://github.com/nvm-sh/nvm) by running `nvm install --lts`. After that we need [yarn](https://yarnpkg.com) and current way to install it and project dependencies is:
 ```bash
 $ nvm use --lts
 $ corepack enable
 $ yarn
 ```
-When installation is complete, the client development server can be started by running ```yarn start``` and opening ```http://localhost:1234``` in your browser.
+When installation is complete, the client development server can be started by running `yarn start` and opening `http://localhost:1234` in your browser.
 Firefox or Chrome has good inspection tools to run the commands.
 
 ### Building the client files
 
-Client will contain only static files, which are built by running ```yarn build```, this will create necessary files under ```dist/``` directory.
+Client will contain only static files, which are built by running `yarn build`, this will create necessary files under `dist/` directory.
 
 ### VisualStudio code
 
