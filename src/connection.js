@@ -138,15 +138,35 @@ export class Connection {
 
     dataChannelMessage(session_id, event) {
         console.log(event);
-        this.receivedMessage(session_id, event.data);
+        const unwrappedMessage = this.unwrapGameMessage(event.data)
+        this.receivedMessage(session_id, unwrappedMessage.payload);
     }
 
-    sendMessage(message) {
+    sendMessage(clock, message) {
+        const wrappedMessage = this.wrapGameMessage(clock, message)
         return new Promise((resolve, reject) => {
             Object.entries(this.clients).forEach( ([sid, conns]) => {
-                conns.dc.send(message);
+                conns.dc.send(wrappedMessage);
             });
             resolve();
         });
+    }
+
+    wrapGameMessage(clock, payload) {
+        console.log("Wrapping starting with values clock:", clock, " payload ", payload)
+        const wrapped = JSON.stringify({
+            "clock": clock,
+            "payload": payload
+        })
+        console.log("Wrapped message", wrapped)
+        return wrapped
+    }
+    
+    unwrapGameMessage(message) {
+        const parsedMessage = JSON.parse(message)
+        return {
+            "clock": parsedMessage["clock"],
+            "payload": parsedMessage["payload"]
+        }
     }
 }
