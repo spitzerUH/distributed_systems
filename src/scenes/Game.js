@@ -14,6 +14,12 @@ export class Game extends Scene {
   create() {
     this.cursors = this.input.keyboard.createCursorKeys();
 
+    this.input.keyboard.addKey('ESC').on('down', (event) => {
+      this.connection.exitRoom().then(() => {
+        this.scene.start('MainMenu', { connection: this.connection });
+      });
+    });
+
     var viewport = this.rexUI.viewport;
 
     this.player = this.add.circle(
