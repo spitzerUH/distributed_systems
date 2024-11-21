@@ -88,11 +88,6 @@ export class Game extends Scene
     if (curDirr && curDirr != this.dirr) {
       this.sendMovement(curDirr);
     }
-
-    this.gameinfo?.setPosition(
-      this.cameras.main.worldView.x + Math.floor(this.gameinfo.width / 2),
-      this.cameras.main.worldView.y + Math.floor(this.gameinfo.height / 2)
-    );
   }
 
   sendMovement(movement) {
@@ -140,6 +135,9 @@ export class Game extends Scene
     mainCamera.setBounds(0, 0, width, height);
     mainCamera.startFollow(this.player);
     mainCamera.setZoom(3);
+
+    this.physics.world.setBounds(0, 0, width, height);
+    this.player.body.setCollideWorldBounds(true);
 
     return mainCamera;
   }
@@ -197,8 +195,12 @@ export class Game extends Scene
         { left: 10, right: 10, top: 5, bottom: 5 },
         true
       )
-      .layout();
+      .layout()
+      .setScrollFactor(0, 0);
 
+    let x = this.rexUI.viewport.left + Math.floor(this.gameinfo.width / 2);
+    let y = this.rexUI.viewport.top + Math.floor(this.gameinfo.height / 2);
+    this.gameinfo.setPosition(x, y);
     this.gameinfo.setDepth(100);
     this.miniMapCamera.ignore(this.gameinfo);
   }
