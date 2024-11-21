@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { createRoomDialog } from '+dialogs';
+import { createRoomDialog } from '+ui/dialogs';
 
 export class MainMenu extends Scene {
   constructor() {
