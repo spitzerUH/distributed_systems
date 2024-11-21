@@ -7,6 +7,8 @@ export class Game extends Scene {
 
   init(data) {
     this.connection = data.connection;
+    this.playerName = JSON.parse(localStorage.getItem('player-name'));
+    this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
 
   create() {
@@ -18,7 +20,7 @@ export class Game extends Scene {
       viewport.centerX,
       viewport.centerY,
       10,
-      0x000000
+      this.playerColor
     );
 
     this.physics.add.existing(this.player);
