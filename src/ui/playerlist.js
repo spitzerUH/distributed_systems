@@ -11,12 +11,22 @@ export function createPlayerList(scene, config) {
     .addBackground(background)
     .setScrollFactor(0, 0)
     .layout();
-  players.on('new', (player) => {
-    players.add(scene.add.text(0, 0, player), { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } })
+  players.on('join', (player) => {
+    players.add(scene.add.text(0, 0, player).setName(player), { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } })
       .layout();
-    let x = scene.rexUI.viewport.right - Math.floor(players.width / 2);;
-    let y = scene.rexUI.viewport.top + Math.floor(players.height / 2);
-    players.setPosition(x, y);
+    resetPosition(scene, players);
+  });
+  players.on('leave', (player) => {
+    let node = players.getElement('#' + player);
+    players.remove(node, true);
+    players.layout();
+    resetPosition(scene, players);
   });
   return players;
+}
+
+function resetPosition(scene, element) {
+  let x = scene.rexUI.viewport.right - Math.floor(element.width / 2);;
+  let y = scene.rexUI.viewport.top + Math.floor(element.height / 2);
+  element.setPosition(x, y);
 }
