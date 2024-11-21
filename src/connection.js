@@ -130,10 +130,20 @@ export class Connection {
 
   sendMessage(message) {
     return new Promise((resolve, reject) => {
-      Object.entries(this.clients).forEach(([sid, conns]) => {
-        conns.dc.send(message);
-      });
-      resolve();
+      let payload = undefined;
+      if (typeof message === 'object' && message !== null) {
+        payload = JSON.stringify(message);
+      } else if (typeof message === 'string') {
+        payload = message;
+      }
+      if (!!payload) {
+        Object.entries(this.clients).forEach(([sid, conns]) => {
+          conns.dc.send(payload);
+        });
+        resolve();
+      } else {
+        reject(`Not an object or string: ${message} ; typeof: ${typeof message}`);
+      }
     });
   }
 }
