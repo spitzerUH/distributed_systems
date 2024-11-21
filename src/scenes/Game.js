@@ -91,7 +91,7 @@ export class Game extends Scene {
   sendMovement(movement) {
     if (!this.dirrSending) {
       this.dirrSending = true;
-      this.connection.sendMessage(`{"moving": "${movement}"}`).then(() => {
+      this.connection.sendMessage({ moving: movement }).then(() => {
         this.dirr = movement;
         this.dirrSending = false;
       });
