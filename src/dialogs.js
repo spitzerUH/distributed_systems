@@ -161,6 +161,15 @@ function createSettingsDialog(scene, config) {
   })
     .setInteractive()
 
+  var playerFields = scene.rexUI.add.sizer({
+    orientation: 'x',
+    x: 0,
+    y: 0
+  })
+    .add(playerColorPicker, 0, 'left', {}, true)
+    .add(nameField, 0, 'left', {}, true)
+    .layout();
+
   var settingsDialog = scene.rexUI.add.sizer({
     orientation: 'y',
     x: x,
@@ -170,8 +179,7 @@ function createSettingsDialog(scene, config) {
   })
     .addBackground(background)
     .add(titleField, 0, 'center', { top: 10, bottom: 10, left: 10, right: 10 }, false)
-    .add(nameField, 0, 'left', { top: 10, bottom: 10, left: 10, right: 10 }, true)
-    .add(playerColorPicker, 0, 'left', { top: 10, bottom: 10, left: 10, right: 10 }, true)
+    .add(playerFields, 0, 'left', { top: 10, bottom: 10, left: 10, right: 10 }, true)
     .add(closeButton, 0, 'center', { top: 10, bottom: 10, left: 10, right: 10 }, false)
     .layout()
     .hide();
