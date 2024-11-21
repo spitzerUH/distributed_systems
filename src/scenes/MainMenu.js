@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { createRoomDialog } from '+room_dialog';
+import { createRoomDialog } from '+dialogs';
 
 export class MainMenu extends Scene {
   constructor() {
@@ -16,7 +16,10 @@ export class MainMenu extends Scene {
 
     var roomDialog = createRoomDialog(this, {
       x: screenCenterX,
-      y: screenCenterY
+      y: screenCenterY,
+      background_color: 0x4444ff,
+      border_color: 0x000000,
+      button_color: 0x2222ff
     }).on('enter', (roomCode) => {
       this.connection.enterRoom(roomCode).then(() => {
         this.scene.start('Game', { connection: this.connection });
