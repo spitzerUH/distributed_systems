@@ -125,7 +125,13 @@ export class Connection {
 
   dataChannelMessage(session_id, event) {
     console.log(event);
-    this.receivedMessage(session_id, event.data);
+    let message = undefined;
+    try {
+      message = JSON.parse(event.data);
+    } catch (e) {
+      message = event.data;
+    }
+    this.receivedMessage(session_id, message);
   }
 
   sendMessage(message) {

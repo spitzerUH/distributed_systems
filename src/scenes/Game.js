@@ -46,8 +46,8 @@ export class Game extends Scene {
 
     this.connection.receivedMessage = (playerid, message) => {
       console.log(message);
-      let command = JSON.parse(message);
-      switch (command.moving) {
+      let command = message.moving;
+      switch (command) {
         case "left":
           this.players[playerid].body.setVelocity(-100, 0);
           break;
