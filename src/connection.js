@@ -137,10 +137,10 @@ export class Connection {
   sendMessage(message) {
     return new Promise((resolve, reject) => {
       let payload = undefined;
-      if (typeof message === 'object' && message !== null) {
-        payload = JSON.stringify(message);
-      } else if (typeof message === 'string') {
+      if (typeof message === 'string') {
         payload = message;
+      } else {
+        payload = JSON.stringify(message);
       }
       if (!!payload) {
         Object.entries(this.clients).forEach(([sid, conns]) => {
@@ -148,7 +148,7 @@ export class Connection {
         });
         resolve();
       } else {
-        reject(`Not an object or string: ${message} ; typeof: ${typeof message}`);
+        reject(`Problem to send the following message: ${message}`);
       }
     });
   }
