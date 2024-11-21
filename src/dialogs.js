@@ -96,6 +96,7 @@ export function createRoomDialog(scene, config) {
 
 function createSettingsDialog(scene, config) {
   const BACKGROUND_COLOR = config.background_color;
+  const BORDER_COLOR = config.border_color;
   const BUTTON_COLOR = config.button_color;
   var x = config.x;
   var y = config.y;
@@ -105,6 +106,52 @@ function createSettingsDialog(scene, config) {
   var background = scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, BACKGROUND_COLOR);
 
   var titleField = scene.add.text(0, 0, 'Settings');
+
+  var playerName = JSON.parse(localStorage.getItem('player-name'));
+  var nameField = scene.rexUI.add.label({
+    orientation: 'x',
+    background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10).setStrokeStyle(2, BORDER_COLOR),
+    text: scene.rexUI.add.BBCodeText(0, 0, playerName, { fixedWidth: 150, fixedHeight: 36, valign: 'center' }),
+    space: { top: 5, bottom: 5, left: 5, right: 5, }
+  })
+    .setInteractive()
+    .on('pointerdown', function () {
+      var config = {
+        onTextChanged: function (textObject, text) {
+          playerName = text;
+          textObject.text = text;
+        }
+      }
+      scene.rexUI.edit(nameField.getElement('text'), config);
+    });
+
+  var playerColor = undefined
+  try {
+    playerColor = JSON.parse(localStorage.getItem('player-color'));
+  } catch (e) {
+    playerColor = 0x000000;
+  }
+  var playerColorPicker = scene.rexUI.add.colorInput({
+    height: 60,
+    inputText: false,
+    space: { left: 10, right: 10, top: 10, bottom: 10, item: 8 },
+
+    colorPicker: {
+      background: {
+        color: BACKGROUND_COLOR,
+        strokeColor: BORDER_COLOR
+      }
+    },
+    colorComponents: {
+      space: { item: 8 }
+    },
+
+    valuechangeCallback: function (newValue, oldValue, colorInput) {
+      playerColor = newValue;
+    },
+
+    value: playerColor
+  });
 
   var closeButton = scene.rexUI.add.label({
     orientation: 'x',
@@ -123,11 +170,15 @@ function createSettingsDialog(scene, config) {
   })
     .addBackground(background)
     .add(titleField, 0, 'center', { top: 10, bottom: 10, left: 10, right: 10 }, false)
+    .add(nameField, 0, 'left', { top: 10, bottom: 10, left: 10, right: 10 }, true)
+    .add(playerColorPicker, 0, 'left', { top: 10, bottom: 10, left: 10, right: 10 }, true)
     .add(closeButton, 0, 'center', { top: 10, bottom: 10, left: 10, right: 10 }, false)
     .layout()
     .hide();
 
   closeButton.on('pointerdown', function () {
+    localStorage.setItem('player-name', JSON.stringify(playerName));
+    localStorage.setItem('player-color', JSON.stringify(playerColor));
     settingsDialog.emit('close');
   });
 
