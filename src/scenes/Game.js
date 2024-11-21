@@ -42,7 +42,7 @@ export class Game extends Scene {
 
     var playerList = createPlayerList(this, {});
     this.miniMapCamera.ignore(playerList);
-    playerList.emit('join', this.playerName);
+    playerList.emit('join', 'player', this.playerName);
 
     this.players = {};
 
@@ -55,7 +55,7 @@ export class Game extends Scene {
       );
       this.physics.add.existing(otherplayer);
       this.players[playerid] = otherplayer;
-      playerList.emit('join', playerid);
+      playerList.emit('join', playerid, playerid);
     }
 
     this.connection.receivedMessage = (playerid, message) => {

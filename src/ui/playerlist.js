@@ -11,13 +11,13 @@ export function createPlayerList(scene, config) {
     .addBackground(background)
     .setScrollFactor(0, 0)
     .layout();
-  players.on('join', (player) => {
-    players.add(scene.add.text(0, 0, player).setName(player), { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } })
+  players.on('join', (pid, name) => {
+    players.add(scene.add.text(0, 0, name).setName(pid), { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } })
       .layout();
     resetPosition(scene, players);
   });
-  players.on('leave', (player) => {
-    let node = players.getElement('#' + player);
+  players.on('leave', (pid) => {
+    let node = players.getElement('#' + pid);
     players.remove(node, true);
     players.layout();
     resetPosition(scene, players);
