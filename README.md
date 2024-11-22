@@ -298,3 +298,18 @@ Firefox or Chrome has good inspection tools to run the commands.
 ### Building the client files
 
 Client will contain only static files, which are built by running ```yarn build```, this will create necessary files under ```dist/``` directory.
+
+### VisualStudio code
+
+Some extensions recommended:
+```
+carlosjs23.vscode-yarn-script
+donjayamanne.python-environment-manager
+editorconfig.editorconfig
+gamunu.vscode-yarn
+ms-python.debugpy
+ms-python.python
+AkshayJangir.phaserjs
+```
+After those are installed, just press `F5` and it will run the development environment for you.
+There should be no need to manually restart the server or client processes, because they are set up to auto-reload after file changes.
