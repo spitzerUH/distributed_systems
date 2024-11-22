@@ -1,8 +1,8 @@
-import { Boot } from './scenes/Boot';
-import { Game } from './scenes/Game';
-import { GameOver } from './scenes/GameOver';
-import { MainMenu } from './scenes/MainMenu';
-import { Preloader } from './scenes/Preloader';
+import { Boot } from '+Boot';
+import { Game } from '+Game';
+import { GameOver } from '+GameOver';
+import { MainMenu } from '+MainMenu';
+import { Preloader } from '+Preloader';
 
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 //  Find out more information about the Game Config at:
