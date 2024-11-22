@@ -21,6 +21,7 @@ Because the game runs purely on the client side, the session ends when last one 
 The rooms or game sessions are mainly a way to decide who the server will broadcast messages when new clients want to connect.
 They are only alive when there is a client connected in a game session.
 First one creates one, last one destroys it.
+The can be multiple rooms at the same time, but client can join only one at the time.
 
 There are two options for the game session that are discussed.
 First one is that the game will go live the moment the session is created.
