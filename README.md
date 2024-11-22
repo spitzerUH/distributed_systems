@@ -12,6 +12,21 @@ The game communication is made using WebRTC, WebSockets and browser technologies
 
 ## Overview
 
+Player opens the game with modern web browser.
+On the main menu player can enter an existing room code or create new room.
+The game starts to run the moment the first player joins the room.
+Other player can join the game session at any time.
+Because the game runs purely on the client side, the session ends when last one leaves the room.
+
+The rooms or game sessions are mainly a way to decide who the server will broadcast messages when new clients want to connect.
+They are only alive when there is a client connected in a game session.
+First one creates one, last one destroys it.
+
+There are two options for the game session that are discussed.
+First one is that the game will go live the moment the session is created.
+Second one is that players can send ready signal to start the game.
+There will be observer mode so in either case new clients can join the room at any point.
+
 2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage.
 The game is played in rooms of 2-8 players.
 A new room can be created by anyone, and anyone can create a room which is identified with a code.
