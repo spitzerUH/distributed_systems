@@ -27,6 +27,11 @@ First one is that the game will go live the moment the session is created.
 Second one is that players can send ready signal to start the game.
 There will be observer mode so in either case new clients can join the room at any point.
 
+The game uses two type of communication methods.
+Client forms a Web Socket connection with the server.
+Clients interconnect using WebRTC connection.
+Server is signaling the data for clients to form their connection.
+
 2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage.
 The game is played in rooms of 2-8 players.
 A new room can be created by anyone, and anyone can create a room which is identified with a code.
