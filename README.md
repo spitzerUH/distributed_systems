@@ -32,26 +32,20 @@ Client forms a Web Socket connection with the server.
 Clients interconnect using WebRTC connection.
 Server is signaling the data for clients to form their connection.
 
-2-Dimensional game, where players can move vertically and horizontally to collect points and to gain advantage.
-The game is played in rooms of 2-8 players.
-A new room can be created by anyone, and anyone can create a room which is identified with a code.
-These codes are maintained in a public server, where other players can either join a random room, or use a code to join a specific room.
-The states of all players are updated by regular intervals, and all players move one coordinate vertically or horizontally every time the room updates.
-The game is synchronized among players, meaning that the movement of all players is updated at the same time.
+Each game client aka nodes will simulate the game logic and communicate its state.
+Node will perform various actions that will constantly affect not only its state, but others too.
+Node has movement and collision information it needs to syncronize with others.
+Node sends occasionally some other information related to the game.
 
-The game is played using a browser, where the main computation is also done.
-Game clients connect with each other using WebRTC connections and use its datastream functionality to communicate.
-To form the peer-to-peer connection, a signaling server is used.
-The signaling server is implemented in Python.
-The client is implemented in JavaScript. Socket.io is used to provide the websocket functionality, both in server and client side.
-HTTP is used as middleware for websocket connection, it is implemented with aiohttp.
-The server is fully asyncronous to fit the theme of the course better.
-The actual game client is to be determined later.
-There will be different nodes represented by coordinates on a twodimensional space.
-Each node will be able to move across the space.
-We would like to implement a "snake"-like game, where there is some kind of reward on the space and the players/nodes want to get there first.
-If they crash they die.
-We are unsure if we will be able to implement all of these game specific ideas as we will first focus on the distributed system in itself.
+Behind the scene nodes are also communicating other than game related information.
+These are part of various algorithms related to distributed systems.
+
+The actual game is 2-Dimensional arcade game where each player is presented as a snake like character.
+Player will instruct their characters to move around the game area and collect points.
+When eating the points, the characters will grow in size.
+This will give them advantage over other players, because if character collides with other characters body, it will perish.
+The movement happens in x or y axis at one time.
+This means that player location is represented as (x,y) coordinate and single direction command.
 
 ![Distributed-System-First-Draft](https://github.com/user-attachments/assets/f672382a-1d7a-40f7-b9f9-a565cf85619f)
 
