@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { createPlayerList } from '+ui/playerlist';
+import { initMainCamera } from '+cameras/main';
 
 export class Game extends Scene {
   constructor() {
@@ -25,8 +26,14 @@ export class Game extends Scene {
     this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     var viewport = this.rexUI.viewport;
 
-    this.mainCamera = this.initMainCamera();
+    initMainCamera(this);
+    const mainCamera = this.cameras.main;
     this.miniMapCamera = this.initMiniMap();
+
+
+    const width = mainCamera.width;
+    const height = mainCamera.height;
+    this.physics.world.setBounds(0, 0, width, height);
 
     this.player = this.add.circle(
       viewport.centerX,
@@ -36,7 +43,7 @@ export class Game extends Scene {
     );
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
-    this.mainCamera.startFollow(this.player);
+    mainCamera.startFollow(this.player);
 
     if (this.observer) {
       this.player.setVisible(false);
@@ -170,20 +177,6 @@ export class Game extends Scene {
         this.dirrSending = false;
       });
     }
-  }
-
-  initMainCamera() {
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
-
-    const mainCamera = this.cameras.main;
-
-    mainCamera.setBounds(0, 0, width, height);
-    mainCamera.setZoom(3);
-
-    this.physics.world.setBounds(0, 0, width, height);
-
-    return mainCamera;
   }
 
   initMiniMap() {
