@@ -1,15 +1,13 @@
 import { Scene } from 'phaser';
 
-export class Game extends Scene
-{
-    constructor ()
-    {
-        super('Game');
-    }
+export class Game extends Scene {
+  constructor() {
+    super('Game');
+  }
 
-    init (data) {
-        this.connection = data.connection;
-    }
+  init(data) {
+    this.connection = data.connection;
+  }
 
   create() {
     this.cursors = this.input.keyboard.createCursorKeys();
