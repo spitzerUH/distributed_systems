@@ -1,0 +1,8 @@
+# Everything
+*
+
+# Except
+!.python-version
+!Procfile
+!requirements.txt
+!signaling/server.py
