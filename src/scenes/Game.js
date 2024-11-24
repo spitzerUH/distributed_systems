@@ -8,6 +8,7 @@ export class Game extends Scene {
 
   init(data) {
     this.connection = data.connection;
+    this.observer = !!data.observer;
     this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
     this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
@@ -21,7 +22,11 @@ export class Game extends Scene {
       });
     });
 
+    this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     var viewport = this.rexUI.viewport;
+
+    this.mainCamera = this.initMainCamera();
+    this.miniMapCamera = this.initMiniMap();
 
     this.player = this.add.circle(
       viewport.centerX,
@@ -29,16 +34,38 @@ export class Game extends Scene {
       10,
       this.playerColor
     );
-
     this.physics.add.existing(this.player);
+    this.player.body.setCollideWorldBounds(true);
+    this.mainCamera.startFollow(this.player);
 
-    this.mainCamera = this.initMainCamera();
-    this.miniMapCamera = this.initMiniMap();
+    if (this.observer) {
+      this.player.setVisible(false);
+
+      var joinButton = this.rexUI.add.label({
+        orientation: 'x',
+        background: this.rexUI.add.roundRectangle(0, 0, 10, 10, 10, 0x2222ff),
+        text: this.add.text(0, 0, 'Join the game'),
+        space: { top: 8, bottom: 8, left: 8, right: 8 }
+      })
+        .layout()
+        .setScrollFactor(0, 0)
+        .setDepth(100)
+        .setInteractive()
+        .on('pointerdown', () => {
+          this.scene.restart({ connection: this.connection });
+        });
+      let obX = this.rexUI.viewport.left + Math.floor(joinButton.width / 2);
+      let obY = this.rexUI.viewport.bottom - Math.floor(joinButton.height / 2);
+      console.log(obX, obY);
+      joinButton.setPosition(obX, obY);
+      //this.miniMapCamera.ignore(joinButton);
+    }
 
     this.addDebugTextField();
 
     this.dirr = undefined;
     this.dirrSending = false;
+
 
     var playerList = createPlayerList(this, {});
     this.miniMapCamera.ignore(playerList);
@@ -52,32 +79,35 @@ export class Game extends Scene {
     this.players = {};
 
     this.connection.openDataChannel = (playerid) => {
-      let otherplayer = this.add.circle(
-        viewport.centerX,
-        viewport.centerY,
-        10,
-        0x000000
-      );
-      this.physics.add.existing(otherplayer);
-      this.players[playerid] = otherplayer;
-      playerList.emit('join', playerid, playerid);
     }
 
     this.connection.receivedMessage = (playerid, message) => {
       console.log(message);
       let command = message.moving;
+      let player = this.players[playerid];
+      if (!player) {
+        player = this.add.circle(
+          viewport.centerX,
+          viewport.centerY,
+          10,
+          0x000000
+        );
+        this.physics.add.existing(player);
+        this.players[playerid] = player;
+        playerList.emit('join', playerid, playerid);
+      }
       switch (command) {
         case "left":
-          this.players[playerid].body.setVelocity(-100, 0);
+          player.body.setVelocity(-100, 0);
           break;
         case "right":
-          this.players[playerid].body.setVelocity(100, 0);
+          player.body.setVelocity(100, 0);
           break;
         case "up":
-          this.players[playerid].body.setVelocity(0, -100);
+          player.body.setVelocity(0, -100);
           break;
         case "down":
-          this.players[playerid].body.setVelocity(0, 100);
+          player.body.setVelocity(0, 100);
           break;
       }
     };
@@ -102,6 +132,8 @@ export class Game extends Scene {
       curDirr = "down";
       this.player.body.setVelocity(0, 100);
     }
+    if (this.observer)
+      return;
     if (curDirr && curDirr != this.dirr) {
       this.sendMovement(curDirr);
     }
@@ -120,41 +152,13 @@ export class Game extends Scene {
   initMainCamera() {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
-    const gradientTexture = this.textures.createCanvas(
-      "gradientBackground",
-      width,
-      height
-    );
-
-    const ctx = gradientTexture.getSourceImage().getContext("2d");
-
-    const gradient = ctx.createRadialGradient(
-      width / 2,
-      height / 2,
-      0,
-      width / 2,
-      height / 2,
-      Math.max(width, height)
-    );
-
-    gradient.addColorStop(0, "#00ff00");
-    gradient.addColorStop(1, "#002200");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-
-    gradientTexture.refresh();
-
-    this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
 
     const mainCamera = this.cameras.main;
 
     mainCamera.setBounds(0, 0, width, height);
-    mainCamera.startFollow(this.player);
     mainCamera.setZoom(3);
 
     this.physics.world.setBounds(0, 0, width, height);
-    this.player.body.setCollideWorldBounds(true);
 
     return mainCamera;
   }
@@ -205,15 +209,25 @@ export class Game extends Scene {
         { left: 10, right: 10, top: 5, bottom: 5 },
         true
       )
-      .add(
+      .setScrollFactor(0, 0);
+    if (this.observer) {
+      this.gameinfo.add(
+        this.add.text(0, 0, 'Observer'),
+        0,
+        'left',
+        { left: 10, right: 10, top: 5, bottom: 5 },
+        true
+      );
+    } else {
+      this.gameinfo.add(
         this.direction,
         0,
         "left",
         { left: 10, right: 10, top: 5, bottom: 5 },
         true
-      )
-      .layout()
-      .setScrollFactor(0, 0);
+      );
+    }
+    this.gameinfo.layout();
 
     let x = this.rexUI.viewport.left + Math.floor(this.gameinfo.width / 2);
     let y = this.rexUI.viewport.top + Math.floor(this.gameinfo.height / 2);

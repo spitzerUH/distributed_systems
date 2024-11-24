@@ -27,6 +27,32 @@ export class Preloader extends Scene {
   preload() {
     //  Load the assets for the game - Replace with your own assets
     this.load.setPath('assets');
+
+    const width = this.cameras.main.width;
+    const height = this.cameras.main.height;
+    const gradientTexture = this.textures.createCanvas(
+      "gradientBackground",
+      width,
+      height
+    );
+    const ctx = gradientTexture.getSourceImage().getContext("2d");
+
+    const gradient = ctx.createRadialGradient(
+      width / 2,
+      height / 2,
+      0,
+      width / 2,
+      height / 2,
+      Math.max(width, height)
+    );
+
+    gradient.addColorStop(0, "#00ff00");
+    gradient.addColorStop(1, "#002200");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    gradientTexture.refresh();
   }
 
   create() {

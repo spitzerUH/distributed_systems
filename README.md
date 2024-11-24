@@ -89,8 +89,7 @@ We have at least two types of the clients, a regular client running the informat
 One of the nodes will be selected as leader node to resolve possible conflicts.
 Leader selection could be based on the game score.
 
-We might also have third client type for observation.
-This could be handy to showcase the game state in the demo situation.
+Client has option to join as observer just to view the game instead of actively participating.
 
 ## Message types
 

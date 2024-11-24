@@ -42,16 +42,15 @@ export function createRoomDialog(scene, config) {
       roomDialog.emit('enter', room);
     });
 
-
-  var createButton = scene.rexUI.add.label({
+  var observerButton = scene.rexUI.add.label({
     orientation: 'x',
     background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, BUTTON_COLOR),
-    text: scene.add.text(0, 0, 'Create'),
+    text: scene.add.text(0, 0, 'Observe'),
     space: { top: 8, bottom: 8, left: 8, right: 8 }
   })
     .setInteractive()
     .on('pointerdown', function () {
-      roomDialog.emit('enter', room);
+      roomDialog.emit('observe', room);
     });
 
   var settingsDialog = createSettingsDialog(scene, config);
@@ -64,6 +63,12 @@ export function createRoomDialog(scene, config) {
   })
     .setInteractive();
 
+  var roomButtons = scene.rexUI.add.sizer({
+    orientation: 'x'
+  })
+    .add(enterButton, 0, 'left', { left: 10, right: 10 }, false)
+    .add(observerButton, 0, 'right', { left: 10, right: 10 }, false);
+
   var roomDialog = scene.rexUI.add.sizer({
     orientation: 'y',
     x: x,
@@ -74,8 +79,7 @@ export function createRoomDialog(scene, config) {
     .addBackground(background)
     .add(titleField, 0, 'center', { top: 10, bottom: 10, left: 10, right: 10 }, false)
     .add(roomField, 0, 'left', { bottom: 10, left: 10, right: 10 }, true)
-    .add(enterButton, 0, 'center', { bottom: 10, left: 10, right: 10 }, false)
-    .add(createButton, 0, 'center', { bottom: 10, left: 10, right: 10 }, false)
+    .add(roomButtons, 0, 'center', { bottom: 10, left: 10, right: 10 }, false)
     .add(settingsButton, 0, 'center', { bottom: 10, left: 10, right: 10 }, false)
     .layout();
 
