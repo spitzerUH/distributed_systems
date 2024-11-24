@@ -145,6 +145,7 @@ export class Connection {
   dataChannelClose(session_id) {
     delete this.clients[session_id];
     console.log('Data channel closed for', session_id);
+    this.gameDCClose(session_id);
   }
 
   dataChannelMessage(session_id, event) {

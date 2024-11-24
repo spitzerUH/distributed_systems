@@ -43,6 +43,11 @@ export class Game extends Scene {
     var playerList = createPlayerList(this, {});
     this.miniMapCamera.ignore(playerList);
     playerList.emit('join', 'player', this.playerName);
+    this.connection.gameDCClose = (playerid) => {
+      playerList.emit('leave', playerid);
+      this.players[playerid].destroy();
+      delete this.players[playerid];
+    };
 
     this.players = {};
 
