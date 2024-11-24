@@ -125,15 +125,31 @@ export class Connection {
 
   dataChannelMessage(session_id, event) {
     console.log(event);
-    this.receivedMessage(session_id, event.data);
+    let message = undefined;
+    try {
+      message = JSON.parse(event.data);
+    } catch (e) {
+      message = event.data;
+    }
+    this.receivedMessage(session_id, message);
   }
 
   sendMessage(message) {
     return new Promise((resolve, reject) => {
-      Object.entries(this.clients).forEach(([sid, conns]) => {
-        conns.dc.send(message);
-      });
-      resolve();
+      let payload = undefined;
+      if (typeof message === 'string') {
+        payload = message;
+      } else {
+        payload = JSON.stringify(message);
+      }
+      if (!!payload) {
+        Object.entries(this.clients).forEach(([sid, conns]) => {
+          conns.dc.send(payload);
+        });
+        resolve();
+      } else {
+        reject(`Problem to send the following message: ${message}`);
+      }
     });
   }
 }
