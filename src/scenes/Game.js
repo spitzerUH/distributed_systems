@@ -52,7 +52,7 @@ export class Game extends Scene {
         .setDepth(100)
         .setInteractive()
         .on('pointerdown', () => {
-          this.scene.start('Game', { connection: this.connection });
+          this.scene.restart({ connection: this.connection });
         });
       let obX = this.rexUI.viewport.left + Math.floor(joinButton.width / 2);
       let obY = this.rexUI.viewport.bottom - Math.floor(joinButton.height / 2);
