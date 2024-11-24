@@ -230,6 +230,16 @@ Datastream messages are all sent with same channel, only the payload will be dif
 
 ---
 
+Player status:
+```json
+{
+    "status": "status"
+}
+```
+Possible values for `status` are `alive` or `dead`.
+
+---
+
 Player movement message:
 ```json
 {
