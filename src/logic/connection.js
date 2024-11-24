@@ -1,4 +1,4 @@
-import { PC_CONFIG } from "+PC_CONFIG";
+import { PC_CONFIG } from "+logic/PC_CONFIG";
 
 const { io } = require("socket.io-client");
 

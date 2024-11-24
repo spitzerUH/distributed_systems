@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { Connection } from "+connection";
+import { Connection } from "+logic/connection";
 const SIGNALING_SERVER_URL = process.env.SIGNALING_SERVER_URL;
 
 
