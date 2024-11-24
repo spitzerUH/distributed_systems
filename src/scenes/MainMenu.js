@@ -11,12 +11,9 @@ export class MainMenu extends Scene {
   }
 
   create() {
-    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
-    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-
-    var roomDialog = createRoomDialog(this, {
-      x: screenCenterX,
-      y: screenCenterY,
+    createRoomDialog(this, {
+      x: this.rexUI.viewport.centerX,
+      y: this.rexUI.viewport.centerY,
       background_color: 0x4444ff,
       border_color: 0x000000,
       button_color: 0x2222ff

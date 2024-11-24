@@ -23,17 +23,12 @@ export class Game extends Scene {
       });
     });
 
-    this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
+    this.add.image(this.rexUI.viewport.centerX, this.rexUI.viewport.centerY, "gradientBackground").setDepth(-2);
     var viewport = this.rexUI.viewport;
 
     initMainCamera(this);
     const mainCamera = this.cameras.main;
     this.miniMapCamera = this.initMiniMap();
-
-
-    const width = mainCamera.width;
-    const height = mainCamera.height;
-    this.physics.world.setBounds(0, 0, width, height);
 
     this.player = this.add.circle(
       viewport.centerX,

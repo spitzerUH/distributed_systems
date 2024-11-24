@@ -28,8 +28,10 @@ export class Preloader extends Scene {
     //  Load the assets for the game - Replace with your own assets
     this.load.setPath('assets');
 
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
+    this.physics.world.setBounds(0, 0, 2000, 2000);
+    const width = this.physics.world.bounds.width;
+    const height = this.physics.world.bounds.height;
+
     const gradientTexture = this.textures.createCanvas(
       "gradientBackground",
       width,
