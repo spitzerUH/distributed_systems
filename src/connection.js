@@ -39,7 +39,9 @@ export class Connection {
         'room_code': this.room_code
       }, (response) => {
         this.room_code = null;
-        resolve(this.room_code);
+        this.clearConnections().then(() => {
+          resolve(this.room_code);
+        });
       });
     });
   }
@@ -114,12 +116,34 @@ export class Connection {
     return pc;
   }
 
+  clearConnections() {
+    return new Promise((resolve, reject) => {
+      var promises = [];
+      Object.entries(this.clients).forEach(([sid, conns]) => {
+        let dc = conns.dc;
+        let pc = conns.pc;
+        promises.push(new Promise((res, rej) => {
+          dc.removeEventListener('close', this.dataChannelClose);
+          dc.addEventListener('close', () => {
+            delete this.clients[sid];
+            res();
+          });
+          pc.close();
+        }));
+      });
+      Promise.all(promises).then(() => {
+        resolve();
+      })
+    });
+  }
+
   dataChannelOpen(session_id) {
     console.log('Data channel open for', session_id);
     this.openDataChannel(session_id);
   }
 
   dataChannelClose(session_id) {
+    delete this.clients[session_id];
     console.log('Data channel closed for', session_id);
   }
 
