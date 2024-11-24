@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { createPlayerList } from '+ui/playerlist';
 
 export class Game extends Scene {
   constructor() {
@@ -7,7 +8,7 @@ export class Game extends Scene {
 
   init(data) {
     this.connection = data.connection;
-    this.playerName = JSON.parse(localStorage.getItem('player-name'));
+    this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
     this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
 
@@ -39,6 +40,15 @@ export class Game extends Scene {
     this.dirr = undefined;
     this.dirrSending = false;
 
+    var playerList = createPlayerList(this, {});
+    this.miniMapCamera.ignore(playerList);
+    playerList.emit('join', 'player', this.playerName);
+    this.connection.gameDCClose = (playerid) => {
+      playerList.emit('leave', playerid);
+      this.players[playerid].destroy();
+      delete this.players[playerid];
+    };
+
     this.players = {};
 
     this.connection.openDataChannel = (playerid) => {
@@ -50,7 +60,8 @@ export class Game extends Scene {
       );
       this.physics.add.existing(otherplayer);
       this.players[playerid] = otherplayer;
-    };
+      playerList.emit('join', playerid, playerid);
+    }
 
     this.connection.receivedMessage = (playerid, message) => {
       console.log(message);
