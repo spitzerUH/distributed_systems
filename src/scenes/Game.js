@@ -126,7 +126,7 @@ export class Game extends Scene {
       }
     };
 
-    this.add.text((viewport.right - 100), (viewport.bottom - 100), 'KO!', { fontSize: 64, color: "red" })
+    let ko = this.add.text(0, 0, 'KO!', { fontSize: 64, color: "red" })
       .setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 100), Phaser.Geom.Rectangle.Contains)
       .on('pointerdown', () => {
         this.connection.sendMessage({ status: 'dead' }).then(() => {
@@ -134,7 +134,9 @@ export class Game extends Scene {
         });
       })
       .setScrollFactor(0, 0)
+      .setOrigin(1)
       .setDepth(100);
+    ko.setPosition(this.rexUI.viewport.left + ko.width, this.rexUI.viewport.bottom);
     this.connection.sendMessage({ status: 'alive' });
   }
 
