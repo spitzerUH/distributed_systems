@@ -233,7 +233,13 @@ Datastream messages are all sent with same channel, only the payload will be dif
 Player status:
 ```json
 {
-    "status": "status"
+    "platform": "game",
+    "data": {
+        "type": "status",
+        "data": {
+            "status": "status value"
+        }
+    }
 }
 ```
 Possible values for `status` are `alive` or `dead`.
@@ -243,7 +249,13 @@ Possible values for `status` are `alive` or `dead`.
 Player movement message:
 ```json
 {
-    "moving": "direction"
+    "platform": "game",
+    "data": {
+        "type": "move",
+        "data": {
+            "direction": "direction value"
+        }
+    }
 }
 ```
 `direction` can be `left`, `right`, `up` or `down`.
