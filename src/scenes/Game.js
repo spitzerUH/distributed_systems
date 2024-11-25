@@ -10,8 +10,6 @@ export class Game extends Scene {
 
   init(data) {
     this.gameState = new GameState(data);
-    this.connection = data.connection;
-    this.observer = !!data.observer;
     this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
     this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
@@ -75,6 +73,7 @@ export class Game extends Scene {
       switch (status) {
         case 'dead':
           if (playerid == 'player') {
+            this.player.body.setVelocity(0);
             this.scene.run('GameOver', { gameState: this.gameState });
           } else {
             playerObjects[playerid].setActive(false).setVisible(false).body.setVelocity(0);
@@ -107,7 +106,7 @@ export class Game extends Scene {
     }
     if (curDirr && curDirr != this.dirr) {
       this.doMovement(this.player, curDirr);
-      if (this.observer)
+      if (this.gameState.observer)
         return;
       this.gameState.emit('move', curDirr);
     }
