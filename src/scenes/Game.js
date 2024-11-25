@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { createPlayerList } from '+ui/playerlist';
 import { initMainCamera } from '+cameras/main';
 import { createMiniMap } from '+cameras/minimap';
+import { createDebugTextField } from '+ui/debug';
 
 export class Game extends Scene {
   constructor() {
@@ -62,8 +63,8 @@ export class Game extends Scene {
       miniMapCamera.ignore(joinButton);
     }
 
-    this.addDebugTextField();
-    miniMapCamera.ignore(this.gameinfo);
+    this.debugFields = createDebugTextField(this, this.connection, this.observer);
+    miniMapCamera.ignore(this.debugFields);
 
     this.dirr = undefined;
     this.dirrSending = false;
@@ -143,25 +144,22 @@ export class Game extends Scene {
   update(time, delta) {
     var curDirr = undefined;
     if (this.cursors.left.isDown) {
-      this.direction?.setText("left");
       curDirr = "left";
       this.player.body.setVelocity(-100, 0);
     } else if (this.cursors.right.isDown) {
-      this.direction?.setText("right");
       curDirr = "right";
       this.player.body.setVelocity(100, 0);
     } else if (this.cursors.up.isDown) {
-      this.direction?.setText("up");
       curDirr = "up";
       this.player.body.setVelocity(0, -100);
     } else if (this.cursors.down.isDown) {
-      this.direction?.setText("down");
       curDirr = "down";
       this.player.body.setVelocity(0, 100);
     }
     if (this.observer)
       return;
     if (curDirr && curDirr != this.dirr) {
+      this.debugFields.emit('move', curDirr);
       this.sendMovement(curDirr);
     }
   }
@@ -174,56 +172,5 @@ export class Game extends Scene {
         this.dirrSending = false;
       });
     }
-  }
-
-  addDebugTextField() {
-    var background = this.add.rectangle(0, 0, 10, 10, 0x000000);
-
-    this.roominfo = this.rexUI.add.BBCodeText(
-      0,
-      0,
-      `Room: ${this.connection.room}`,
-      { color: "#fff", fontSize: "12px" }
-    );
-
-    this.gameinfo = this.rexUI.add
-      .sizer({
-        x: 0,
-        y: 10,
-        orientation: "x",
-      })
-      .addBackground(background)
-      .add(
-        this.roominfo,
-        0,
-        "left",
-        { left: 10, right: 10, top: 5, bottom: 5 },
-        true
-      )
-      .setScrollFactor(0, 0);
-    if (this.observer) {
-      this.gameinfo.add(
-        this.add.text(0, 0, 'Observer'),
-        0,
-        'left',
-        { left: 10, right: 10, top: 5, bottom: 5 },
-        true
-      );
-    } else {
-      this.direction = this.add.text(0, 0, "direction", { fontSize: "12px" });
-      this.gameinfo.add(
-        this.direction,
-        0,
-        "left",
-        { left: 10, right: 10, top: 5, bottom: 5 },
-        true
-      );
-    }
-    this.gameinfo.layout();
-
-    let x = this.rexUI.viewport.left + Math.floor(this.gameinfo.width / 2);
-    let y = this.rexUI.viewport.top + Math.floor(this.gameinfo.height / 2);
-    this.gameinfo.setPosition(x, y);
-    this.gameinfo.setDepth(100);
   }
 }
