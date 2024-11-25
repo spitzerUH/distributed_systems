@@ -1,5 +1,6 @@
 import { Boot } from '+Boot';
 import { Game } from '+Game';
+import { UI } from '+UI';
 import { GameOver } from '+GameOver';
 import { MainMenu } from '+MainMenu';
 import { Preloader } from '+Preloader';
@@ -25,6 +26,7 @@ const config = {
     Preloader,
     MainMenu,
     Game,
+    UI,
     GameOver
   ],
   plugins: {

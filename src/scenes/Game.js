@@ -18,15 +18,10 @@ export class Game extends Scene {
   }
 
   create() {
+    this.scene.launch('UI', {connection: this.connection, observer: this.observer});
     this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.world.setBounds(0, 0, 1000, 1000);
-
-    this.input.keyboard.addKey('ESC').on('down', (event) => {
-      this.connection.exitRoom().then(() => {
-        this.scene.start('MainMenu', { connection: this.connection });
-      });
-    });
 
     const bg = this.add.image(0,0, "gradientBackground").setOrigin(0).setDepth(-2);
     bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
