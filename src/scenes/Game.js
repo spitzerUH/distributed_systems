@@ -3,6 +3,7 @@ import { createPlayerList } from '+ui/playerlist';
 import { initMainCamera } from '+cameras/main';
 import { createMiniMap } from '+cameras/minimap';
 import { createDebugTextField } from '+ui/debug';
+import { createJoinButton } from '+ui/misc';
 
 export class Game extends Scene {
   constructor() {
@@ -43,24 +44,11 @@ export class Game extends Scene {
 
     if (this.observer) {
       this.player.setVisible(false);
-
-      var joinButton = this.rexUI.add.label({
-        orientation: 'x',
-        background: this.rexUI.add.roundRectangle(0, 0, 10, 10, 10, 0x2222ff),
-        text: this.add.text(0, 0, 'Join the game'),
-        space: { top: 8, bottom: 8, left: 8, right: 8 }
-      })
-        .layout()
-        .setScrollFactor(0, 0)
-        .setDepth(100)
-        .setInteractive()
-        .on('pointerdown', () => {
-          this.scene.restart({ connection: this.connection });
-        });
-      let obX = this.rexUI.viewport.left + Math.floor(joinButton.width / 2);
-      let obY = this.rexUI.viewport.bottom - Math.floor(joinButton.height / 2);
-      joinButton.setPosition(obX, obY);
+      var joinButton = createJoinButton(this);
       miniMapCamera.ignore(joinButton);
+      joinButton.on('pointerdown', () => {
+        this.scene.restart({ connection: this.connection });
+      });
     }
 
     this.debugFields = createDebugTextField(this, this.connection, this.observer);
