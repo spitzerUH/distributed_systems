@@ -6,7 +6,7 @@ export class GameOver extends Scene {
   }
 
   init(data) {
-    this.connection = data.connection;
+    this.gameState = data.gameState;
   }
 
   create() {
@@ -16,11 +16,8 @@ export class GameOver extends Scene {
     this.rexUI.add.BBCodeText(viewport.left, viewport.centerY, 'Game over, try again?', { color: '#fff', fontSize: 64 });
 
     this.input.once('pointerdown', () => {
-      this.scene.start('Game', { connection: this.connection });
+      this.gameState.emit('change-status', 'alive');
+      this.scene.stop('GameOver');
     });
-
-    this.connection.receivedMessage = (playerid, message) => {
-      console.log(playerid, message);
-    };
   }
 }

@@ -18,9 +18,11 @@ export function createPlayerList(scene, config) {
   });
   players.on('leave', (pid) => {
     let node = players.getElement('#' + pid);
-    players.remove(node, true);
-    players.layout();
-    resetPosition(scene, players);
+    if (node) {
+      players.remove(node, true);
+      players.layout();
+      resetPosition(scene, players);
+    }
   });
   return players;
 }
