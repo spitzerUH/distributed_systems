@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { createDebugTextField } from '+ui/debug';
 import { createPlayerList } from '+ui/playerlist';
 import { createJoinButton, createKOButton } from '+ui/misc';
+import { createMiniMap } from '+cameras/minimap';
 
 export class UI extends Scene {
   constructor() {
@@ -15,6 +16,7 @@ export class UI extends Scene {
   }
 
   create() {
+    var minimap = createMiniMap(this, this.scene.get('Game'));
     this.input.keyboard.addKey('ESC').on('down', (event) => {
       this.gameState.emit('leave');
       this.scene.stop('Game').stop('UI').run('MainMenu', { connection: this.gameState.connection });
@@ -36,7 +38,6 @@ export class UI extends Scene {
 
     if (this.gameState.observer) {
       var joinButton = createJoinButton(this);
-      //miniMapCamera.ignore(joinButton);
       joinButton.on('pointerdown', () => {
         this.scene.stop().start('Game', { connection: this.gameState.connection, observer: false });
       });

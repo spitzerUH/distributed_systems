@@ -1,6 +1,5 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
-import { createMiniMap } from '+cameras/minimap';
 import { drawBorders } from '+ui/debug';
 import { GameState } from '+logic/gamestate';
 
@@ -18,6 +17,9 @@ export class Game extends Scene {
   }
 
   create() {
+
+    const mainCamera = initMainCamera(this);
+
     this.scene.launch('UI', { gameState: this.gameState });
     this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -25,9 +27,6 @@ export class Game extends Scene {
 
     const bg = this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
-
-    const mainCamera = initMainCamera(this);
-    const miniMapCamera = createMiniMap(this);
 
     const playerStartingX = this.physics.world.bounds.width / 2;
     const playerStartingY = this.physics.world.bounds.height / 2;
