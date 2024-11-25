@@ -28,7 +28,10 @@ export class UI extends Scene {
     });
 
     var playerList = createPlayerList(this, {});
-    playerList.emit('join', 'player', this.playerName);
+
+    if (!this.gameState.observer) {
+      playerList.emit('join', 'player', this.playerName);
+    }
     this.gameState.on('player-joins', (playerid, playername) => {
       playerList.emit('join', playerid, playername);
     });
