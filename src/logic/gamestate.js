@@ -9,7 +9,11 @@ export class GameState extends EventEmitter {
     this.connection.gameChannelOpen = this.gameChannelOpen.bind(this);
     this.connection.gameChannelMessage = this.gameChannelMessage.bind(this);
     this.connection.gameChannelClose = this.gameChannelClose.bind(this);
-    this.sendMovement();
+    this.handleMovement();
+    this.handleStatusChange();
+    this.on('leave', () => {
+      this.connection.exitRoom();
+    });
   }
 
   get observer() {
@@ -40,12 +44,23 @@ export class GameState extends EventEmitter {
       case 'move':
         this.emit('player-moves', playerid, message.data.direction);
         break;
+      case 'status':
+        this.emit('status-change', playerid, message.data.status);
+        break;
     }
   }
 
-  sendMovement() {
+  handleMovement() {
     this.on('move', (direction) => {
       this._connection.sendGameMessage({ type: 'move', data: { direction: direction } }).then(() => {
+      });
+    });
+  }
+
+  handleStatusChange() {
+    this.on('change-status', (status) => {
+      this._connection.sendGameMessage({ type: 'status', data: { status: status } }).then(() => {
+        this.emit('status-change', 'player', status);
       });
     });
   }

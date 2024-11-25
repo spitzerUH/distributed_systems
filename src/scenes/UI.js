@@ -15,9 +15,8 @@ export class UI extends Scene {
 
   create() {
     this.input.keyboard.addKey('ESC').on('down', (event) => {
-      this.connection.exitRoom().then(() => {
-        this.scene.stop('Game').run('MainMenu', { connection: this.gameState.connection });
-      });
+      this.gameState.emit('leave');
+      this.scene.stop('Game').run('MainMenu', { connection: this.gameState.connection });
     });
 
     this.debugFields = createDebugTextField(this, this.gameState.connection, this.gameState.observer);

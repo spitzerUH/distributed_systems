@@ -78,34 +78,34 @@ export class Game extends Scene {
       this.doMovement(player, direction);
     });
     this.gameState.on('player-leaves', (playerid) => {
-      playerObjects[playerid].destroy();
-      delete playerObjects[playerid];
-    });
-
-    this.connection.receivedMessage = (playerid, message) => {
-      console.log(message);
-      let player = this.players[playerid];
-      if (!!message.status) {
-        switch (message.status) {
-          case 'dead':
-            this.players[playerid].setActive(false).setVisible(false).body.setVelocity(0);
-            break;
-          case 'alive':
-            this.players[playerid].setActive(true).setVisible(true)
-              .setPosition(this.rexUI.viewport.centerX, this.rexUI.viewport.centerY);
-            break;
-        }
+      let player = playerObjects[playerid];
+      if (player) {
+        playerObjects[playerid].destroy();
+        delete playerObjects[playerid];
       }
-    };
+    });
+    this.gameState.on('status-change', (playerid, status) => {
+      switch (status) {
+        case 'dead':
+          if (playerid == 'player') {
+            console.log('You died');
+            //this.scene.start('GameOver', {  });
+          } else {
+            playerObjects[playerid].setActive(false).setVisible(false).body.setVelocity(0);
+          }
+          break;
+        case 'alive':
+          playerObjects[playerid].setActive(true).setVisible(true)
+            .setPosition(playerStartingX, playerStartingY);
+          break;
+      }
+    });
 
     if (!this.observer) {
       let ko = createKOButton(this);
       ko.on('pointerdown', () => {
-        this.connection.sendMessage({ status: 'dead' }).then(() => {
-          this.scene.start('GameOver', { connection: this.connection, players: this.players });
-        });
+        this.gameState.emit('change-status', 'dead');
       });
-      this.connection.sendMessage({ status: 'alive' });
     }
   }
 
