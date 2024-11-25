@@ -2,7 +2,7 @@ import { Scene } from 'phaser';
 import { createPlayerList } from '+ui/playerlist';
 import { initMainCamera } from '+cameras/main';
 import { createMiniMap } from '+cameras/minimap';
-import { createDebugTextField } from '+ui/debug';
+import { createDebugTextField, drawBorders } from '+ui/debug';
 import { createJoinButton, createKOButton } from '+ui/misc';
 
 export class Game extends Scene {
@@ -18,7 +18,9 @@ export class Game extends Scene {
   }
 
   create() {
+    this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
+    this.physics.world.setBounds(0, 0, 1000, 1000);
 
     this.input.keyboard.addKey('ESC').on('down', (event) => {
       this.connection.exitRoom().then(() => {
@@ -26,15 +28,19 @@ export class Game extends Scene {
       });
     });
 
-    this.add.image(this.rexUI.viewport.centerX, this.rexUI.viewport.centerY, "gradientBackground").setDepth(-2);
-    var viewport = this.rexUI.viewport;
+    const bg = this.add.image(0,0, "gradientBackground").setOrigin(0).setDepth(-2);
+    bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
 
     const mainCamera = initMainCamera(this);
     const miniMapCamera = createMiniMap(this);
 
+    const playerStartingX = this.physics.world.bounds.width / 2;
+    const playerStartingY = this.physics.world.bounds.height / 2;
+    drawBorders(this, this.physics.world.bounds);
+
     this.player = this.add.circle(
-      viewport.centerX,
-      viewport.centerY,
+      playerStartingX,
+      playerStartingY,
       10,
       this.playerColor
     );
@@ -77,8 +83,8 @@ export class Game extends Scene {
       let player = this.players[playerid];
       if (!player) {
         player = this.add.circle(
-          viewport.centerX,
-          viewport.centerY,
+          playerStartingX,
+          playerStartingY,
           10,
           0x000000
         );

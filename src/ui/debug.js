@@ -57,3 +57,8 @@ function adjust(gameinfo) {
   gameinfo.setPosition(x, y);
 }
 
+export function drawBorders(scene, rect) {
+  var graphics = scene.add.graphics();
+  graphics.lineStyle(10, 0x000000, 1);
+  graphics.strokeRectShape(rect);
+}
