@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { createDebugTextField } from '+ui/debug';
 import { createPlayerList } from '+ui/playerlist';
+import { createJoinButton, createKOButton } from '+ui/misc';
 
 export class UI extends Scene {
   constructor() {
@@ -16,7 +17,7 @@ export class UI extends Scene {
   create() {
     this.input.keyboard.addKey('ESC').on('down', (event) => {
       this.gameState.emit('leave');
-      this.scene.stop('Game').run('MainMenu', { connection: this.gameState.connection });
+      this.scene.stop('Game').stop('UI').run('MainMenu', { connection: this.gameState.connection });
     });
 
     this.debugFields = createDebugTextField(this, this.gameState.connection, this.gameState.observer);
@@ -32,5 +33,19 @@ export class UI extends Scene {
     this.gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });
+
+    if (this.gameState.observer) {
+      //var joinButton =
+      createJoinButton(this);
+      //miniMapCamera.ignore(joinButton);
+      //joinButton.on('pointerdown', () => {
+      //  this.scene.restart({ connection: this.connection });
+      //});
+    } else {
+      let ko = createKOButton(this);
+      ko.on('pointerdown', () => {
+        this.gameState.emit('change-status', 'dead');
+      });
+    }
   }
 }

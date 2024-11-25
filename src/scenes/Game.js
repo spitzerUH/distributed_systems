@@ -44,22 +44,11 @@ export class Game extends Scene {
     this.player.body.setCollideWorldBounds(true);
     mainCamera.startFollow(this.player);
 
-    if (this.observer) {
+    if (this.gameState.observer) {
       this.player.setVisible(false);
-      var joinButton = createJoinButton(this);
-      miniMapCamera.ignore(joinButton);
-      joinButton.on('pointerdown', () => {
-        this.scene.restart({ connection: this.connection });
-      });
     }
 
-    //miniMapCamera.ignore(this.debugFields);
-
     this.dirr = undefined;
-    this.dirrSending = false;
-
-
-    //miniMapCamera.ignore(playerList);
 
     var playerObjects = {};
     this.gameState.on('player-joins', (playerid, playerName) => {
@@ -88,25 +77,23 @@ export class Game extends Scene {
       switch (status) {
         case 'dead':
           if (playerid == 'player') {
-            console.log('You died');
-            //this.scene.start('GameOver', {  });
+            this.scene.run('GameOver', { gameState: this.gameState });
           } else {
             playerObjects[playerid].setActive(false).setVisible(false).body.setVelocity(0);
           }
           break;
         case 'alive':
-          playerObjects[playerid].setActive(true).setVisible(true)
-            .setPosition(playerStartingX, playerStartingY);
+          let player = undefined;
+          if (playerid === 'player') {
+            player = this.player;
+          } else {
+            player = playerObjects[playerid].setActive(true).setVisible(true);
+          }
+          player.setPosition(playerStartingX, playerStartingY);
           break;
       }
     });
 
-    if (!this.observer) {
-      let ko = createKOButton(this);
-      ko.on('pointerdown', () => {
-        this.gameState.emit('change-status', 'dead');
-      });
-    }
   }
 
   update(time, delta) {
@@ -120,10 +107,10 @@ export class Game extends Scene {
     } else if (this.cursors.down.isDown) {
       curDirr = "down";
     }
-    if (this.observer)
-      return;
     if (curDirr && curDirr != this.dirr) {
       this.doMovement(this.player, curDirr);
+      if (this.observer)
+        return;
       this.gameState.emit('move', curDirr);
     }
   }
