@@ -58,9 +58,8 @@ export class Game extends Scene {
         });
       let obX = this.rexUI.viewport.left + Math.floor(joinButton.width / 2);
       let obY = this.rexUI.viewport.bottom - Math.floor(joinButton.height / 2);
-      console.log(obX, obY);
       joinButton.setPosition(obX, obY);
-      //this.miniMapCamera.ignore(joinButton);
+      miniMapCamera.ignore(joinButton);
     }
 
     this.addDebugTextField();
@@ -184,7 +183,6 @@ export class Game extends Scene {
       `Room: ${this.connection.room}`,
       { color: "#fff", fontSize: "12px" }
     );
-    this.direction = this.add.text(0, 0, "direction", { fontSize: "12px" });
 
     this.gameinfo = this.rexUI.add
       .sizer({
@@ -210,6 +208,7 @@ export class Game extends Scene {
         true
       );
     } else {
+      this.direction = this.add.text(0, 0, "direction", { fontSize: "12px" });
       this.gameinfo.add(
         this.direction,
         0,
