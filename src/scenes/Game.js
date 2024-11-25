@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { createPlayerList } from '+ui/playerlist';
 import { initMainCamera } from '+cameras/main';
+import { createMiniMap } from '+cameras/minimap';
 
 export class Game extends Scene {
   constructor() {
@@ -26,9 +27,8 @@ export class Game extends Scene {
     this.add.image(this.rexUI.viewport.centerX, this.rexUI.viewport.centerY, "gradientBackground").setDepth(-2);
     var viewport = this.rexUI.viewport;
 
-    initMainCamera(this);
-    const mainCamera = this.cameras.main;
-    this.miniMapCamera = this.initMiniMap();
+    const mainCamera = initMainCamera(this);
+    const miniMapCamera = createMiniMap(this);
 
     this.player = this.add.circle(
       viewport.centerX,
@@ -64,13 +64,14 @@ export class Game extends Scene {
     }
 
     this.addDebugTextField();
+    miniMapCamera.ignore(this.gameinfo);
 
     this.dirr = undefined;
     this.dirrSending = false;
 
 
     var playerList = createPlayerList(this, {});
-    this.miniMapCamera.ignore(playerList);
+    miniMapCamera.ignore(playerList);
     playerList.emit('join', 'player', this.playerName);
     this.connection.gameDCClose = (playerid) => {
       playerList.emit('leave', playerid);
@@ -174,27 +175,6 @@ export class Game extends Scene {
     }
   }
 
-  initMiniMap() {
-    const miniMapFactor = 0.2;
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
-    const miniMapWidth = width * miniMapFactor;
-    const miniMapHeight = height * miniMapFactor;
-
-    const miniMapCamera = this.cameras.add(
-      width - miniMapWidth,
-      height - miniMapHeight,
-      width,
-      height,
-      false,
-      "miniMap"
-    );
-    miniMapCamera.setZoom(miniMapFactor);
-    miniMapCamera.setBounds(0, 0, width, height);
-
-    return miniMapCamera;
-  }
-
   addDebugTextField() {
     var background = this.add.rectangle(0, 0, 10, 10, 0x000000);
 
@@ -244,6 +224,5 @@ export class Game extends Scene {
     let y = this.rexUI.viewport.top + Math.floor(this.gameinfo.height / 2);
     this.gameinfo.setPosition(x, y);
     this.gameinfo.setDepth(100);
-    this.miniMapCamera.ignore(this.gameinfo);
   }
 }
