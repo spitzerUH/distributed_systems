@@ -3,7 +3,7 @@ import { createPlayerList } from '+ui/playerlist';
 import { initMainCamera } from '+cameras/main';
 import { createMiniMap } from '+cameras/minimap';
 import { createDebugTextField } from '+ui/debug';
-import { createJoinButton } from '+ui/misc';
+import { createJoinButton, createKOButton } from '+ui/misc';
 
 export class Game extends Scene {
   constructor() {
@@ -115,18 +115,15 @@ export class Game extends Scene {
       }
     };
 
-    let ko = this.add.text(0, 0, 'KO!', { fontSize: 64, color: "red" })
-      .setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 100), Phaser.Geom.Rectangle.Contains)
-      .on('pointerdown', () => {
+    if (!this.observer) {
+      let ko = createKOButton(this);
+      ko.on('pointerdown', () => {
         this.connection.sendMessage({ status: 'dead' }).then(() => {
           this.scene.start('GameOver', { connection: this.connection, players: this.players });
         });
-      })
-      .setScrollFactor(0, 0)
-      .setOrigin(1)
-      .setDepth(100);
-    ko.setPosition(this.rexUI.viewport.left + ko.width, this.rexUI.viewport.bottom);
-    this.connection.sendMessage({ status: 'alive' });
+      });
+      this.connection.sendMessage({ status: 'alive' });
+    }
   }
 
   update(time, delta) {

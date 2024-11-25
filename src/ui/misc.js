@@ -14,3 +14,13 @@ export function createJoinButton(scene) {
   joinButton.setPosition(obX, obY);
   return joinButton;
 }
+
+export function createKOButton(scene) {
+  let ko = scene.add.text(0, 0, 'KO!', { fontSize: 64, color: "red" })
+    .setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 100), Phaser.Geom.Rectangle.Contains)
+    .setScrollFactor(0, 0)
+    .setOrigin(1)
+    .setDepth(100);
+  ko.setPosition(scene.rexUI.viewport.left + ko.width, scene.rexUI.viewport.bottom);
+  return ko;
+}
