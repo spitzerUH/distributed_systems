@@ -1,5 +1,3 @@
-import { drawBorders } from "./debug";
-
 export function createJoinButton(scene) {
   var joinButton = scene.rexUI.add.label({
     orientation: 'x',
