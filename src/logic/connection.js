@@ -139,24 +139,27 @@ export class Connection {
 
   dataChannelOpen(session_id) {
     console.log('Data channel open for', session_id);
-    this.openDataChannel(session_id);
+    this.gameChannelOpen(session_id);
   }
 
   dataChannelClose(session_id) {
     delete this.clients[session_id];
     console.log('Data channel closed for', session_id);
-    this.gameDCClose(session_id);
+    this.gameChannelClose(session_id);
   }
 
   dataChannelMessage(session_id, event) {
-    console.log(event);
     let message = undefined;
     try {
       message = JSON.parse(event.data);
     } catch (e) {
       message = event.data;
     }
-    this.receivedMessage(session_id, message);
+    if (message.platform === 'game') {
+      this.gameChannelMessage(session_id, message.data);
+    } else {
+      console.log(event);
+    }
   }
 
   sendMessage(message) {
@@ -176,5 +179,9 @@ export class Connection {
         reject(`Problem to send the following message: ${message}`);
       }
     });
+  }
+
+  sendGameMessage(message) {
+    return this.sendMessage({ platform: 'game', data: message });
   }
 }

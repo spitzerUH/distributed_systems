@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { createDebugTextField } from '+ui/debug';
+import { createPlayerList } from '+ui/playerlist';
 
 export class UI extends Scene {
   constructor() {
@@ -22,6 +23,15 @@ export class UI extends Scene {
     this.debugFields = createDebugTextField(this, this.gameState.connection, this.gameState.observer);
     this.gameState.on('move', (direction) => {
       this.debugFields.emit('move', direction);
+    });
+
+    var playerList = createPlayerList(this, {});
+    playerList.emit('join', 'player', this.playerName);
+    this.gameState.on('player-joins', (playerid, playername) => {
+      playerList.emit('join', playerid, playername);
+    });
+    this.gameState.on('player-leaves', (playerid) => {
+      playerList.emit('leave', playerid);
     });
   }
 }

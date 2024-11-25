@@ -1,5 +1,4 @@
 import { Scene } from 'phaser';
-import { createPlayerList } from '+ui/playerlist';
 import { initMainCamera } from '+cameras/main';
 import { createMiniMap } from '+cameras/minimap';
 import { createDebugTextField, drawBorders } from '+ui/debug';
@@ -54,58 +53,39 @@ export class Game extends Scene {
       });
     }
 
-    this.debugFields = createDebugTextField(this, this.connection, this.observer);
-    miniMapCamera.ignore(this.debugFields);
+    //miniMapCamera.ignore(this.debugFields);
 
     this.dirr = undefined;
     this.dirrSending = false;
 
 
-    var playerList = createPlayerList(this, {});
-    miniMapCamera.ignore(playerList);
-    playerList.emit('join', 'player', this.playerName);
-    this.connection.gameDCClose = (playerid) => {
-      playerList.emit('leave', playerid);
-      this.players[playerid].destroy();
-      delete this.players[playerid];
-    };
+    //miniMapCamera.ignore(playerList);
 
-    this.players = {};
-
-    this.connection.openDataChannel = (playerid) => {
-    }
+    var playerObjects = {};
+    this.gameState.on('player-joins', (playerid, playerName) => {
+      console.log(playerid, playerName);
+      let player = this.add.circle(
+        playerStartingX,
+        playerStartingY,
+        10,
+        0x000000
+      );
+      this.physics.add.existing(player);
+      playerObjects[playerid] = player;
+    });
+    this.gameState.on('player-moves', (playerid, direction) => {
+      let player = playerObjects[playerid];
+      this.doMovement(player, direction);
+    });
+    this.gameState.on('player-leaves', (playerid) => {
+      playerObjects[playerid].destroy();
+      delete playerObjects[playerid];
+    });
 
     this.connection.receivedMessage = (playerid, message) => {
       console.log(message);
       let player = this.players[playerid];
-      if (!player) {
-        player = this.add.circle(
-          playerStartingX,
-          playerStartingY,
-          10,
-          0x000000
-        );
-        this.physics.add.existing(player);
-        this.players[playerid] = player;
-        playerList.emit('join', playerid, playerid);
-      }
-      if (!!message.moving) {
-        let command = message.moving;
-        switch (command) {
-          case "left":
-            player?.body.setVelocity(-100, 0);
-            break;
-          case "right":
-            player?.body.setVelocity(100, 0);
-            break;
-          case "up":
-            player?.body.setVelocity(0, -100);
-            break;
-          case "down":
-            player?.body.setVelocity(0, 100);
-            break;
-        }
-      } else if (!!message.status) {
+      if (!!message.status) {
         switch (message.status) {
           case 'dead':
             this.players[playerid].setActive(false).setVisible(false).body.setVelocity(0);
@@ -133,32 +113,36 @@ export class Game extends Scene {
     var curDirr = undefined;
     if (this.cursors.left.isDown) {
       curDirr = "left";
-      this.player.body.setVelocity(-100, 0);
     } else if (this.cursors.right.isDown) {
       curDirr = "right";
-      this.player.body.setVelocity(100, 0);
     } else if (this.cursors.up.isDown) {
       curDirr = "up";
-      this.player.body.setVelocity(0, -100);
     } else if (this.cursors.down.isDown) {
       curDirr = "down";
-      this.player.body.setVelocity(0, 100);
     }
     if (this.observer)
       return;
     if (curDirr && curDirr != this.dirr) {
+      this.doMovement(this.player, curDirr);
       this.gameState.emit('move', curDirr);
-      this.sendMovement(curDirr);
     }
   }
 
-  sendMovement(movement) {
-    if (!this.dirrSending) {
-      this.dirrSending = true;
-      this.connection.sendMessage({ moving: movement }).then(() => {
-        this.dirr = movement;
-        this.dirrSending = false;
-      });
+  doMovement(player, movement) {
+    switch (movement) {
+      case "left":
+        player.body.setVelocity(-100, 0);
+        break;
+      case "right":
+        player.body.setVelocity(100, 0);
+        break;
+      case "up":
+        player.body.setVelocity(0, -100);
+        break;
+      case "down":
+        player.body.setVelocity(0, 100);
+        break
     }
   }
+
 }
