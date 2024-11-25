@@ -35,12 +35,11 @@ export class UI extends Scene {
     });
 
     if (this.gameState.observer) {
-      //var joinButton =
-      createJoinButton(this);
+      var joinButton = createJoinButton(this);
       //miniMapCamera.ignore(joinButton);
-      //joinButton.on('pointerdown', () => {
-      //  this.scene.restart({ connection: this.connection });
-      //});
+      joinButton.on('pointerdown', () => {
+        this.scene.stop().start('Game', { connection: this.gameState.connection, observer: false });
+      });
     } else {
       let ko = createKOButton(this);
       ko.on('pointerdown', () => {
