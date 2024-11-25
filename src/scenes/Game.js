@@ -4,6 +4,7 @@ import { initMainCamera } from '+cameras/main';
 import { createMiniMap } from '+cameras/minimap';
 import { createDebugTextField, drawBorders } from '+ui/debug';
 import { createJoinButton, createKOButton } from '+ui/misc';
+import { GameState } from '+logic/gamestate';
 
 export class Game extends Scene {
   constructor() {
@@ -11,6 +12,7 @@ export class Game extends Scene {
   }
 
   init(data) {
+    this.gameState = new GameState(data);
     this.connection = data.connection;
     this.observer = !!data.observer;
     this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
@@ -18,7 +20,7 @@ export class Game extends Scene {
   }
 
   create() {
-    this.scene.launch('UI', {connection: this.connection, observer: this.observer});
+    this.scene.launch('UI', { gameState: this.gameState });
     this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.world.setBounds(0, 0, 1000, 1000);
@@ -145,7 +147,7 @@ export class Game extends Scene {
     if (this.observer)
       return;
     if (curDirr && curDirr != this.dirr) {
-      this.debugFields.emit('move', curDirr);
+      this.gameState.emit('move', curDirr);
       this.sendMovement(curDirr);
     }
   }
