@@ -26,8 +26,9 @@ export class Game extends Scene {
     const bg = this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
 
-    const playerStartingX = this.physics.world.bounds.width / 2;
-    const playerStartingY = this.physics.world.bounds.height / 2;
+    const randomPoint = this.physics.world.bounds.getRandomPoint();
+    const playerStartingX = randomPoint.x;
+    const playerStartingY = randomPoint.y;
     drawBorders(this, this.physics.world.bounds);
 
     this.player = this.add.circle(
@@ -49,9 +50,10 @@ export class Game extends Scene {
     var playerObjects = {};
     this.gameState.on('player-joins', (playerid, playerName) => {
       console.log(playerid, playerName);
+      const randomPoint = this.physics.world.bounds.getRandomPoint();
       let player = this.add.circle(
-        playerStartingX,
-        playerStartingY,
+        randomPoint.x,
+        randomPoint.y,
         10,
         0x000000
       );
