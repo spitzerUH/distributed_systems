@@ -7,12 +7,16 @@ export class GameState extends EventEmitter {
     this._observer = !!data.observer;
     this._players = {};
     this._restarted = false;
+    this._spawnpoint = { x: 0, y: 0 };
     this.connection.gameChannelOpen = this.gameChannelOpen.bind(this);
     this.connection.gameChannelMessage = this.gameChannelMessage.bind(this);
     this.connection.gameChannelClose = this.gameChannelClose.bind(this);
     this.handleMovement();
     this.handleStatusChange();
     this.bindWhoEvents();
+    this.on('spawnpoint', (point) => {
+      this.spawnpoint = point;
+    });
     this.on('leave', () => {
       this.connection.exitRoom();
     });
@@ -47,6 +51,14 @@ export class GameState extends EventEmitter {
 
   get players() {
     return this._players;
+  }
+
+  get spawnpoint() {
+    return this._spawnpoint;
+  }
+
+  set spawnpoint(spawnpoint) {
+    this._spawnpoint = spawnpoint;
   }
 
   stopObserving() {
@@ -87,6 +99,7 @@ export class GameState extends EventEmitter {
         data: {
           name: this.playerName,
           color: this.playerColor,
+          spawnpoint: this.spawnpoint,
           observing: this.observer
         }
       };
@@ -100,7 +113,8 @@ export class GameState extends EventEmitter {
       id: playerid,
       name: data.name,
       color: data.color,
-      observing: data.observing
+      observing: data.observing,
+      spawnpoint: data.spawnpoint
     };
     this._players[playerid] = playerData;
     this.emit('player-joins', playerid);

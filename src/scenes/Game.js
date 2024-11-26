@@ -23,14 +23,12 @@ export class Game extends Scene {
     const bg = this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
 
-    const randomPoint = this.physics.world.bounds.getRandomPoint();
-    const playerStartingX = randomPoint.x;
-    const playerStartingY = randomPoint.y;
+    this.generateSpawnpoint();
     drawBorders(this, this.physics.world.bounds);
 
     this.player = this.add.circle(
-      playerStartingX,
-      playerStartingY,
+      this.gameState.spawnpoint.x,
+      this.gameState.spawnpoint.y,
       10,
       this.gameState.playerColor
     );
@@ -68,6 +66,7 @@ export class Game extends Scene {
         case 'dead':
           if (playerid == 'player') {
             this.player.body.setVelocity(0);
+            this.generateSpawnpoint();
             this.scene.run('GameOver', { gameState: this.gameState });
           } else {
             playerObjects[playerid].setActive(false).setVisible(false).body.setVelocity(0);
@@ -76,11 +75,12 @@ export class Game extends Scene {
         case 'alive':
           let player = undefined;
           if (playerid === 'player') {
-            player = this.player;
+            this.player.setPosition(this.gameState.spawnpoint.x, this.gameState.spawnpoint.y);
           } else {
+            let playerData = this.gameState.players[playerid];
             player = playerObjects[playerid].setActive(true).setVisible(true);
+            player.setPosition(playerData.spawnpoint.x, playerData.spawnpoint.y);
           }
-          player.setPosition(playerStartingX, playerStartingY);
           break;
       }
     });
@@ -128,15 +128,12 @@ export class Game extends Scene {
   }
 
   getPlayerObject(playerObjects, playerid) {
-    const randomPoint = this.physics.world.bounds.getRandomPoint();
-    const playerStartingX = randomPoint.x;
-    const playerStartingY = randomPoint.y;
     let playerData = this.gameState.players[playerid];
     let player = playerObjects[playerid];
     if (!player) {
       player = this.add.circle(
-        playerStartingX,
-        playerStartingY,
+        playerData.spawnpoint.x,
+        playerData.spawnpoint.y,
         10,
         playerData.color
       );
@@ -158,6 +155,12 @@ export class Game extends Scene {
     player.setActive(true);
     player.setVisible(true);
     this.physics.add.existing(player);
+  }
+
+  generateSpawnpoint() {
+    let randomPoint = this.physics.world.bounds.getRandomPoint();
+    let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
+    this.gameState.emit('spawnpoint', spawnpoint);
   }
 
 }

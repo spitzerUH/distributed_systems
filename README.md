@@ -239,6 +239,7 @@ Player identification:
         "data": {
             "name": "Player name",
             "color": "color code",
+            "observer": "is observing",
             "spawnpoint": {
                 "x": "x",
                 "y": "y"
