@@ -10,8 +10,6 @@ export class Game extends Scene {
 
   init(data) {
     this.gameState = new GameState(data);
-    this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
-    this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
 
   create() {
@@ -35,7 +33,7 @@ export class Game extends Scene {
       playerStartingX,
       playerStartingY,
       10,
-      this.playerColor
+      this.gameState.playerColor
     );
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
@@ -46,22 +44,17 @@ export class Game extends Scene {
     }
 
     this.dirr = undefined;
+    this.gameState.emit('whoami');
 
     var playerObjects = {};
-    this.gameState.on('player-joins', (playerid, playerName) => {
-      console.log(playerid, playerName);
-      const randomPoint = this.physics.world.bounds.getRandomPoint();
-      let player = this.add.circle(
-        randomPoint.x,
-        randomPoint.y,
-        10,
-        0x000000
-      );
-      this.physics.add.existing(player);
-      playerObjects[playerid] = player;
+    this.gameState.on('gameChannelOpen', (playerid) => {
+      this.gameState.emit('whoami');
+    });
+    this.gameState.on('player-joins', (playerid, data) => {
+      let player = this.getPlayerObject(playerObjects, playerid, data);
     });
     this.gameState.on('player-moves', (playerid, direction) => {
-      let player = playerObjects[playerid];
+      let player = this.getPlayerObject(playerObjects, playerid);
       this.doMovement(player, direction);
     });
     this.gameState.on('player-leaves', (playerid) => {
@@ -129,6 +122,25 @@ export class Game extends Scene {
         player.body.setVelocity(0, 100);
         break
     }
+  }
+
+  getPlayerObject(playerObjects, playerid, data = { observing: false }) {
+    const randomPoint = this.physics.world.bounds.getRandomPoint();
+    const playerStartingX = randomPoint.x;
+    const playerStartingY = randomPoint.y;
+    let player = playerObjects[playerid];
+    if (!player) {
+      player = this.add.circle(
+        playerStartingX,
+        playerStartingY,
+        10,
+        data.color
+      );
+      this.physics.add.existing(player);
+    }
+    player.setVisible(!data.observing);
+    playerObjects[playerid] = player;
+    return player;
   }
 
 }

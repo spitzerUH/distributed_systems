@@ -230,6 +230,22 @@ Datastream messages are all sent with same channel, only the payload will be dif
 
 ---
 
+Player identification:
+```json
+{
+    "platform": "game",
+    "data": {
+        "type": "whoami",
+        "data": {
+            "name": "Player name",
+            "color": "color code"
+        }
+    }
+}
+```
+
+---
+
 Player status:
 ```json
 {

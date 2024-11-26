@@ -11,8 +11,6 @@ export class UI extends Scene {
 
   init(data) {
     this.gameState = data.gameState;
-    this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
-    this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
 
   create() {
@@ -29,11 +27,9 @@ export class UI extends Scene {
 
     var playerList = createPlayerList(this, {});
 
-    if (!this.gameState.observer) {
-      playerList.emit('join', 'player', this.playerName);
-    }
-    this.gameState.on('player-joins', (playerid, playername) => {
-      playerList.emit('join', playerid, playername);
+    playerList.emit('join', 'player', { name: this.gameState.playerName });
+    this.gameState.on('player-joins', (playerid, data) => {
+      playerList.emit('join', playerid, data);
     });
     this.gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
