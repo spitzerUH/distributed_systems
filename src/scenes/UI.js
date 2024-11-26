@@ -38,7 +38,8 @@ export class UI extends Scene {
     if (this.gameState.observer) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.scene.stop().start('Game', { connection: this.gameState.connection, observer: false });
+        this.gameState.stopObserving();
+        this.scene.stop().start('Game', { gamestate: this.gameState });
       });
     } else {
       let ko = createKOButton(this);

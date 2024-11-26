@@ -1,7 +1,6 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { GameState } from '+logic/gamestate';
 
 export class Game extends Scene {
   constructor() {
@@ -9,7 +8,7 @@ export class Game extends Scene {
   }
 
   init(data) {
-    this.gameState = new GameState(data);
+    this.gameState = data.gamestate;
   }
 
   create() {

@@ -5,17 +5,19 @@ export class GameState extends EventEmitter {
     super();
     this._connection = data.connection;
     this._observer = !!data.observer;
-    this._name = JSON.parse(localStorage.getItem('player-name')) || 'You';
-    this._color = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
     this._players = {};
+    this._restarted = false;
     this.connection.gameChannelOpen = this.gameChannelOpen.bind(this);
     this.connection.gameChannelMessage = this.gameChannelMessage.bind(this);
     this.connection.gameChannelClose = this.gameChannelClose.bind(this);
     this.handleMovement();
     this.handleStatusChange();
-    this.bindWhoAmI();
+    this.bindWhoEvents();
     this.on('leave', () => {
       this.connection.exitRoom();
+    });
+    this.on('restart', () => {
+      this._restarted = true;
     });
   }
 
@@ -28,11 +30,24 @@ export class GameState extends EventEmitter {
   }
 
   get playerName() {
-    return this._name;
+    return JSON.parse(localStorage.getItem('player-name')) || 'You';
   }
 
   get playerColor() {
-    return this._color;
+    return JSON.parse(localStorage.getItem('player-color')) || 0x000000;
+  }
+
+  get restarted() {
+    if (this._restarted) {
+      this._restarted = false;
+      return true;
+    }
+    return false;
+  }
+
+  stopObserving() {
+    this._observer = false;
+    this.emit('restart');
   }
 
   gameChannelOpen(playerid) {
@@ -61,7 +76,7 @@ export class GameState extends EventEmitter {
     }
   }
 
-  bindWhoAmI() {
+  bindWhoEvents() {
     this.on('whoami', () => {
       let payload = {
         type: 'whoami',
