@@ -29,7 +29,7 @@ export class UI extends Scene {
 
     playerList.emit('join', 'player', { name: this.gameState.playerName });
     this.gameState.on('player-joins', (playerid, data) => {
-      playerList.emit('join', playerid, data);
+      playerList.emit('join', playerid, this.gameState.players[playerid]);
     });
     this.gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);

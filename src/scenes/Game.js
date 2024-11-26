@@ -43,17 +43,17 @@ export class Game extends Scene {
     }
 
     this.dirr = undefined;
-    this.gameState.emit('whoami');
 
     var playerObjects = {};
     this.gameState.on('gameChannelOpen', (playerid) => {
       this.gameState.emit('whoami');
     });
     this.gameState.on('player-joins', (playerid, data) => {
-      let player = this.getPlayerObject(playerObjects, playerid, data);
+      let player = this.getPlayerObject(playerObjects, playerid);
     });
     this.gameState.on('player-moves', (playerid, direction) => {
-      let player = this.getPlayerObject(playerObjects, playerid);
+      let player = playerObjects[playerid];
+      this.makeMovable(player);
       this.doMovement(player, direction);
     });
     this.gameState.on('player-leaves', (playerid) => {
@@ -85,6 +85,10 @@ export class Game extends Scene {
       }
     });
 
+    if (this.gameState.restarted) {
+      this.gameState.emit('whoami');
+      this.refreshPlayers(playerObjects);
+    }
   }
 
   update(time, delta) {
@@ -123,23 +127,37 @@ export class Game extends Scene {
     }
   }
 
-  getPlayerObject(playerObjects, playerid, data = { observing: false }) {
+  getPlayerObject(playerObjects, playerid) {
     const randomPoint = this.physics.world.bounds.getRandomPoint();
     const playerStartingX = randomPoint.x;
     const playerStartingY = randomPoint.y;
+    let playerData = this.gameState.players[playerid];
     let player = playerObjects[playerid];
     if (!player) {
       player = this.add.circle(
         playerStartingX,
         playerStartingY,
         10,
-        data.color
+        playerData.color
       );
-      this.physics.add.existing(player);
     }
-    player.setVisible(!data.observing);
+    this.physics.add.existing(player);
+    player.setActive(true);
+    player.setVisible(!playerData.observing);
     playerObjects[playerid] = player;
     return player;
+  }
+
+  refreshPlayers(playerObjects) {
+    Object.keys(this.gameState.players).forEach((playerid) => {
+      let player = this.getPlayerObject(playerObjects, playerid);
+    });
+  }
+
+  makeMovable(player) {
+    player.setActive(true);
+    player.setVisible(true);
+    this.physics.add.existing(player);
   }
 
 }

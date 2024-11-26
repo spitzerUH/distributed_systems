@@ -45,6 +45,10 @@ export class GameState extends EventEmitter {
     return false;
   }
 
+  get players() {
+    return this._players;
+  }
+
   stopObserving() {
     this._observer = false;
     this.emit('restart');
@@ -99,7 +103,7 @@ export class GameState extends EventEmitter {
       observing: data.observing
     };
     this._players[playerid] = playerData;
-    this.emit('player-joins', playerid, playerData);
+    this.emit('player-joins', playerid);
   }
 
   handleMovement() {
