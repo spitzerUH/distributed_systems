@@ -238,7 +238,11 @@ Player identification:
         "type": "whoami",
         "data": {
             "name": "Player name",
-            "color": "color code"
+            "color": "color code",
+            "spawnpoint": {
+                "x": "x",
+                "y": "y"
+            }
         }
     }
 }
