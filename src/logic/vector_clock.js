@@ -2,6 +2,8 @@ class VectorClock {
     constructor() {
         this.clientId = this.createId()
         this.clock = { [this.clientId]: 0 }
+        // queue element: {clientId, clock}
+        this.outOfOrderMessageQueue = []
     }
 
     createId() {
@@ -19,17 +21,34 @@ class VectorClock {
         }
     }
 
-    validateMessageOrder(senderId, receivedClock) {
+    validateMessageOrder(clientId, receivedClock) {
         // Expect only senderId to increament their clock
-        if (receivedClock[senderId] == this.clock[senderId] + 1) {
+        if (receivedClock[clientId] == this.clock[clientId] + 1) {
             return true
         }
         return false
     }
 
-    handleOutOfOrderMessage(clock) {
-        // TODO save out-of-order message to in memory list
-        // loop through out of order messages to see if any can be consumed
+    getOldMessagesFromQueue() {
+        // Return consumable old messages in consumable order
+        let consumableOldMessages = []
+        let tempClock = structuredClone(this.clock)
+
+        for (let i = 0; i < this.outOfOrderMessageQueue.length; i++) {
+            const message = this.outOfOrderMessageQueue[i]   
+            console.log("Checking if possible to consume old message", message)
+            console.log(message.clock[clientId],"==",tempClock[clientId]+1)
+            if (this.validateMessageOrder(message.clientId, message.clock)) {
+                console.log("Old consumable message found")
+                consumableOldMessages.push(message)
+                tempClock[message.clientId] += 1
+            }
+        }
+        return consumableOldMessages
+    }
+
+    pushToOutOfOrderMessageQueue(clientId, clock) {
+        this.outOfOrderMessageQueue.push({clientId, clock})
     }
 }
 

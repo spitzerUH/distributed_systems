@@ -150,7 +150,7 @@ export class Connection {
     this.gameChannelClose(session_id);
   }
 
-  // Receive datacnahhel message
+  // Receive datachannel message
   dataChannelMessage(session_id, event) {
     let message = undefined;
     try {
@@ -158,11 +158,15 @@ export class Connection {
     } catch (e) {
       message = event.data;
     }
-    this.handleReceivedClock(message.clientId, message.clock)
-    if (message.platform === 'game') {
-      this.gameChannelMessage(session_id, message.data);
-    } else {
-      console.log(event);
+    // handle clock and return consumable messages IN ORDER
+    const consumableMessages = this.handleClockAndMessageQueue(message)
+    for (let i = 0; i < consumableMessages.length; i++){
+      const consumableMessage = consumableMessages[i]
+      if (consumableMessage.platform === 'game') {
+        this.gameChannelMessage(session_id, message.data);
+      } else {
+        console.log(event);
+      }
     }
   }
 
@@ -201,29 +205,23 @@ export class Connection {
     return wrapped
   }
 
-  unwrapMessage(message) {
-    const parsedMessage = JSON.parse(message)
-    return {
-      "clientId": parsedMessage["clientId"],
-      "clock": parsedMessage["clock"],
-      "payload": parsedMessage["payload"]
+  handleClockAndMessageQueue(message) {
+    const clientId = message.clientId
+    const receivedClock = message.clock
+    // check if client is known
+    if (!this.clientVectorValueExists(clientId)) {
+      console.log(`Added client ${clientId} to local clock`)
+      this.clock.merge(receivedClock)
     }
-  }
-
-  handleReceivedClock(clientId, receivedClock) {
-      // check if client is known
-      if (!this.clientVectorValueExists(clientId)) {
-        console.log(`Added client ${clientId} to local clock`)
-        this.clock.merge(receivedClock)
-      }
-      if (this.clock.validateMessageOrder(clientId, receivedClock)) {
-        // Message was in order
-        this.clock.merge(receivedClock)
-      }
-      else {
-        console.log("Message received OUT OF ORDER")
-        this.clock.handleOutOfOrderMessage(receivedClock)
-      }
+    if (this.clock.validateMessageOrder(clientId, receivedClock)) {
+      // Message was in order
+      this.clock.merge(receivedClock)
+    }
+    else {
+      console.log("Message received OUT OF ORDER")
+      this.clock.pushToOutOfOrderMessageQueue(clientId, receivedClock)
+    }
+    return this.clock.getOldMessagesFromQueue(clientId, receivedClock)
   }
 
   clientVectorValueExists(clientId) {
