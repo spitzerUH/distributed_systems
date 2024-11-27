@@ -51,7 +51,7 @@ export class Game extends Scene {
       this.doMovement(player, direction);
     });
     this.gameState.on('player-leaves', (playerid) => {
-      this.gameState.players[playerid].object.destroy();
+      this.gameState.players[playerid]?.object?.destroy();
     });
     this.gameState.on('status-change', (playerid, status) => {
       switch (status) {

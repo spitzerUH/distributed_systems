@@ -78,6 +78,8 @@ export class GameState extends EventEmitter {
         }
       };
       this._connection.sendGameMessage(payload).then(() => {
+      }).catch((e) => {
+        console.log(e);
       });
     });
   }
@@ -114,6 +116,8 @@ export class GameState extends EventEmitter {
       this.players['player'].status = status;
       this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
         this.emit('status-change', 'player', status);
+      }).catch((e) => {
+        console.log(e);
       });
     });
   }

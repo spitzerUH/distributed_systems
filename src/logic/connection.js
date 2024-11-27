@@ -172,6 +172,11 @@ export class Connection {
       }
       if (!!payload) {
         Object.entries(this.clients).forEach(([sid, conns]) => {
+          if (conns.dc.readyState !== 'open') {
+            reject(`Data channel not open for ${sid}`);
+          } else {
+            conns.dc.send(payload);
+          }
           conns.dc.send(payload);
         });
         resolve();
