@@ -27,18 +27,18 @@ export class UI extends Scene {
 
     var playerList = createPlayerList(this, {});
 
-    playerList.emit('join', 'player', { name: this.gameState.playerName });
-    this.gameState.on('player-joins', (playerid, data) => {
+    playerList.emit('join', 'player', this.gameState.players['player']);
+    this.gameState.on('player-joins', (playerid) => {
       playerList.emit('join', playerid, this.gameState.players[playerid]);
     });
     this.gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });
 
-    if (this.gameState.observer) {
+    if (this.gameState.players['player'].observing) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.gameState.stopObserving();
+        this.gameState.players['player'].observing = false;
         this.scene.stop().start('Game', { gamestate: this.gameState });
       });
     } else {

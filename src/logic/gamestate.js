@@ -4,10 +4,16 @@ export class GameState extends EventEmitter {
   constructor(data = {}) {
     super();
     this._connection = data.connection;
-    this._observer = !!data.observer;
     this._players = {};
-    this._restarted = false;
-    this._spawnpoint = { x: 0, y: 0 };
+    this.players['player'] = {
+      id: 'player',
+      name: (JSON.parse(localStorage.getItem('player-name')) || 'You'),
+      color: (JSON.parse(localStorage.getItem('player-color')) || 0x000000),
+      observing: !!data.observer,
+      spawnpoint: { x: 0, y: 0 },
+      status: undefined,
+      object: undefined
+    };
     this.connection.gameChannelOpen = this.gameChannelOpen.bind(this);
     this.connection.gameChannelMessage = this.gameChannelMessage.bind(this);
     this.connection.gameChannelClose = this.gameChannelClose.bind(this);
@@ -15,59 +21,23 @@ export class GameState extends EventEmitter {
     this.handleStatusChange();
     this.bindWhoEvents();
     this.on('spawnpoint', (point) => {
-      this.spawnpoint = point;
+      this.players['player'].spawnpoint = point;
     });
     this.on('leave', () => {
       this.connection.exitRoom();
     });
-    this.on('restart', () => {
-      this._restarted = true;
-    });
-  }
-
-  get observer() {
-    return this._observer;
   }
 
   get connection() {
     return this._connection;
   }
 
-  get playerName() {
-    return JSON.parse(localStorage.getItem('player-name')) || 'You';
-  }
-
-  get playerColor() {
-    return JSON.parse(localStorage.getItem('player-color')) || 0x000000;
-  }
-
-  get restarted() {
-    if (this._restarted) {
-      this._restarted = false;
-      return true;
-    }
-    return false;
-  }
-
   get players() {
     return this._players;
   }
 
-  get spawnpoint() {
-    return this._spawnpoint;
-  }
-
-  set spawnpoint(spawnpoint) {
-    this._spawnpoint = spawnpoint;
-  }
-
-  stopObserving() {
-    this._observer = false;
-    this.emit('restart');
-  }
-
   gameChannelOpen(playerid) {
-    this.emit('gameChannelOpen', playerid);
+    this.emit('whoami');
   }
 
   gameChannelClose(playerid) {
@@ -84,6 +54,8 @@ export class GameState extends EventEmitter {
         this.emit('player-moves', playerid, message.data.direction);
         break;
       case 'status':
+        this.players[playerid].status = message.data.status;
+        this.players[playerid].spawnpoint = message.data.spawnpoint;
         this.emit('status-change', playerid, message.data.status);
         break;
       default:
@@ -97,10 +69,9 @@ export class GameState extends EventEmitter {
       let payload = {
         type: 'whoami',
         data: {
-          name: this.playerName,
-          color: this.playerColor,
-          spawnpoint: this.spawnpoint,
-          observing: this.observer
+          name: this.players['player'].name,
+          color: this.players['player'].color,
+          observing: this.players['player'].observing
         }
       };
       this._connection.sendGameMessage(payload).then(() => {
@@ -114,7 +85,9 @@ export class GameState extends EventEmitter {
       name: data.name,
       color: data.color,
       observing: data.observing,
-      spawnpoint: data.spawnpoint
+      spawnpoint: undefined,
+      status: undefined,
+      object: undefined
     };
     this._players[playerid] = playerData;
     this.emit('player-joins', playerid);
@@ -129,7 +102,13 @@ export class GameState extends EventEmitter {
 
   handleStatusChange() {
     this.on('change-status', (status) => {
-      this._connection.sendGameMessage({ type: 'status', data: { status: status } }).then(() => {
+      let data = undefined;
+      if (status === 'dead') {
+        data = { status: status };
+      } else {
+        data = { status: status, spawnpoint: this.players['player'].spawnpoint };
+      }
+      this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
         this.emit('status-change', 'player', status);
       });
     });
