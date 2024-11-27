@@ -5,6 +5,7 @@ export class GameState extends EventEmitter {
     super();
     this._connection = data.connection;
     this._players = {};
+    this._food = [];
     this.players['player'] = {
       id: 'player',
       name: (JSON.parse(localStorage.getItem('player-name'))),
@@ -20,11 +21,16 @@ export class GameState extends EventEmitter {
     this.handleMovement();
     this.handleStatusChange();
     this.bindWhoEvents();
+    this.handleFood();
     this.on('spawnpoint', (point) => {
       this.players['player'].spawnpoint = point;
     });
     this.on('leave', () => {
       this.connection.exitRoom();
+    });
+    this.on('ready', () => {
+      this.emit('change-status', 'alive');
+      this.emit('generate-food', 20);
     });
   }
 
@@ -34,6 +40,14 @@ export class GameState extends EventEmitter {
 
   get players() {
     return this._players;
+  }
+
+  get food() {
+    return this._food;
+  }
+
+  set food(food) {
+    this._food = food;
   }
 
   gameChannelOpen(playerid) {
@@ -115,6 +129,18 @@ export class GameState extends EventEmitter {
       this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
         this.emit('status-change', 'player', status);
       });
+    });
+  }
+
+  handleFood() {
+    this.on('create-food', (data) => {
+      this.food = this.food.concat(data);
+    });
+    this.on('food-created', (food) => {
+      console.log('food created', food);
+    });
+    this.on('food-eaten', (food) => {
+      console.log('food eaten', food);
     });
   }
 }

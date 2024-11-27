@@ -87,6 +87,18 @@ export class Game extends Scene {
           break;
       }
     });
+    this.gameState.on('generate-food', (count) => {
+      let food = [];
+      for (let i = 0; i < count; i++) {
+        let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
+        let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
+        let size = Phaser.Math.Between(5, 10);
+        let color = Phaser.Display.Color.RandomRGB().color;
+        food.push({ x: x, y: y, size: size, color: color });
+      }
+      this.gameState.emit('create-food', { food: food });
+
+    });
 
     if (this.gameState.players['player'].observing) {
       myplayer
@@ -94,11 +106,11 @@ export class Game extends Scene {
         .setPosition(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2);
     } else {
       this.generateSpawnpoint();
-      this.gameState.emit('change-status', 'alive');
     }
     startFoodProcessing(this);
     this.generateNewObjects();
-    this.generateFood(10);
+
+    this.gameState.emit('ready');
   }
 
   update(time, delta) {
@@ -194,18 +206,6 @@ export class Game extends Scene {
 
       }
     }
-  }
-
-  generateFood(count) {
-    let food = [];
-    for (let i = 0; i < count; i++) {
-      let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
-      let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
-      let size = Phaser.Math.Between(5, 10);
-      let color = Phaser.Display.Color.RandomRGB().color;
-      food.push({ x: x, y: y, size: size, color: color });
-    }
-    this.gameState.emit('create-food', { food: food });
   }
 
 }

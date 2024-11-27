@@ -12,13 +12,15 @@ export class Food extends Hexagon {
     scene.physics.add.existing(this.graphics);
     this.graphics.body.setCircle(size, -size, -size);
     this.graphics.body.setImmovable(true);
+    let foodData = { x: x, y: y, size: size, color: color }
     scene.physics.add.overlap(
       scene.gameState.players['player'].object,
       this.graphics,
       (player, food) => {
         food.destroy();
-        scene.gameState.emit('food-eaten', { x: x, y: y, size: size, color: color });
+        scene.gameState.emit('food-eaten', foodData);
       });
+      scene.gameState.emit('food-created', foodData);
   }
 }
 
