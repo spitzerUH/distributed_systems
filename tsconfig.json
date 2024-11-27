@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "allowJs": true,
+    "module": "ESNext",
+    "target": "ES6",
+    "baseUrl": "src",
+    "paths": {
+      "+*": [
+        "scenes/*",
+        "*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "include": [
+    "src/**/*"
+  ]
+}

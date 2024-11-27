@@ -1,108 +1,176 @@
 import { Scene } from 'phaser';
+import { initMainCamera } from '+cameras/main';
+import { drawBorders } from '+ui/debug';
 
-export class Game extends Scene
-{
-    constructor ()
-    {
-        super('Game');
+export class Game extends Scene {
+  constructor() {
+    super('Game');
+  }
+
+  init(data) {
+    this.gameState = data.gamestate;
+  }
+
+  create() {
+    this.clearOldObjects();
+    const mainCamera = initMainCamera(this);
+
+    this.scene.launch('UI', { gameState: this.gameState });
+    this.cameras.main.setBackgroundColor(0x002200);
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.physics.world.setBounds(0, 0, 1000, 1000);
+
+    const bg = this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
+    bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
+
+    drawBorders(this, this.physics.world.bounds);
+
+    let myplayer = this.createPlayer(this.gameState.players['player']);
+    this.gameState.players['player'].object = myplayer;
+    this.physics.add.existing(myplayer);
+    myplayer.body.setCollideWorldBounds(true);
+    mainCamera.startFollow(myplayer);
+
+    this.dirr = undefined;
+
+    this.gameState.on('player-joins', (playerid) => {
+      let data = this.gameState.players[playerid];
+      let player = this.createPlayer(data);
+      this.gameState.players[playerid].object = player;
+      if (data.observing || !data.status || data.status == 'dead') {
+        player
+          .setActive(false)
+          .setVisible(false);
+      }
+      if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
+        this.gameState.emit('change-status', 'alive');
+      }
+    });
+    this.gameState.on('player-moves', (playerid, direction) => {
+      let player = this.gameState.players[playerid].object;
+      this.doMovement(player, direction);
+    });
+    this.gameState.on('player-leaves', (playerid) => {
+      this.gameState.players[playerid].object.destroy();
+    });
+    this.gameState.on('status-change', (playerid, status) => {
+      switch (status) {
+        case 'dead':
+          let deadPlayer = this.gameState.players[playerid].object;
+          deadPlayer.body.setVelocity(0);
+          if (playerid == 'player') {
+            this.generateSpawnpoint();
+            this.scene.run('GameOver', { gameState: this.gameState });
+          } else {
+            deadPlayer
+              .setActive(false)
+              .setVisible(false);
+          }
+          break;
+        case 'alive':
+          let spawn = this.gameState.players[playerid].spawnpoint;
+          let alivePlayer = this.gameState.players[playerid].object;
+          alivePlayer
+            .setActive(true)
+            .setVisible(true)
+            .setPosition(spawn.x, spawn.y);
+          break;
+      }
+    });
+
+    if (this.gameState.players['player'].observing) {
+      myplayer
+        .setVisible(false)
+        .setPosition(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2);
+    } else {
+      this.generateSpawnpoint();
+      this.gameState.emit('change-status', 'alive');
     }
+    this.generateNewObjects();
+  }
 
-    init (data) {
-        this.connection = data.connection;
+  update(time, delta) {
+    var curDirr = undefined;
+    if (this.cursors.left.isDown) {
+      curDirr = "left";
+    } else if (this.cursors.right.isDown) {
+      curDirr = "right";
+    } else if (this.cursors.up.isDown) {
+      curDirr = "up";
+    } else if (this.cursors.down.isDown) {
+      curDirr = "down";
     }
-
-    create ()
-    {
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-        this.cameras.main.setBackgroundColor(0x00ff00);
-        var background = this.add.rectangle(0, 0, 10, 10, 0x000000);
-        this.roominfo = this.rexUI.add.BBCodeText(0, 0, `Room: ${this.connection.room}`, {color: '#fff'});
-        this.direction = this.add.text(0,0, 'direction');
-        var viewport = this.rexUI.viewport;
-        this.gameinfo = this.rexUI.add.sizer({
-            x: viewport.centerX,
-            y: 10,
-            orientation: 'x',
-        })
-            .addBackground(background)
-            .add(this.roominfo, 0, 'left', {left: 10, right: 10, top: 5, bottom: 5}, true)
-            .add(this.direction, 0, 'left', {left: 10, right: 10, top: 5, bottom: 5}, true)
-            .layout();
-        this.dirr = undefined;
-        this.dirrSending = false;
-
-        this.player = this.add.circle(viewport.centerX, viewport.centerY, 10, 0x000000);
-        this.physics.add.existing(this.player);
-
-        this.players = {};
-
-        this.connection.openDataChannel = (playerid) => {
-            let otherplayer = this.add.circle(viewport.centerX, viewport.centerY, 10, 0x000000);
-            this.physics.add.existing(otherplayer);
-            this.players[playerid] = otherplayer;
-        }
-
-        this.connection.receivedMessage = (playerid, message) => {
-            console.log(message);
-            let command = JSON.parse(message);
-            switch (command.moving) {
-                case 'left':
-                    this.players[playerid].body.setVelocity(-100,0);
-                    break;
-                case 'right':
-                    this.players[playerid].body.setVelocity(100,0);
-                    break;
-                case 'up':
-                    this.players[playerid].body.setVelocity(0,-100);
-                    break;
-                case 'down':
-                    this.players[playerid].body.setVelocity(0,100);
-                    break;
-            }
-        };
+    if (curDirr && curDirr != this.dirr) {
+      this.doMovement(this.gameState.players['player'].object, curDirr);
+      if (this.gameState.players['player'].observing)
+        return;
+      this.gameState.emit('move', curDirr);
     }
+  }
 
-    update (time, delta)
-    {
-        var curDirr = undefined;
-        if (this.cursors.left.isDown)
-        {
-            this.direction.setText('left');
-            curDirr = 'left';
-            this.player.body.setVelocity(-100,0);
-        }
-        else if (this.cursors.right.isDown)
-        {
-            this.direction.setText('right');
-            curDirr = 'right';
-            this.player.body.setVelocity(100,0);
-        }
-        else if (this.cursors.up.isDown)
-        {
-            this.direction.setText('up');
-            curDirr = 'up';
-            this.player.body.setVelocity(0,-100);
-        }
-        else if (this.cursors.down.isDown)
-        {
-            this.direction.setText('down');
-            curDirr = 'down';
-            this.player.body.setVelocity(0,100);
-        }
-        if (curDirr && curDirr != this.dirr) {
-            this.sendMovement(curDirr);
-        }
+  doMovement(player, movement) {
+    switch (movement) {
+      case "left":
+        player.body.setVelocity(-100, 0);
+        break;
+      case "right":
+        player.body.setVelocity(100, 0);
+        break;
+      case "up":
+        player.body.setVelocity(0, -100);
+        break;
+      case "down":
+        player.body.setVelocity(0, 100);
+        break
     }
+  }
 
-    sendMovement(movement) {
-        if (!this.dirrSending) {
-            this.dirrSending = true;
-            this.connection.sendMessage(`{"moving": "${movement}"}`).then(() => {
-                this.dirr = movement;
-                this.dirrSending = false;
-            });
-        }
+  createPlayer(data) {
+    let player = this.add.circle(
+      (data.spawnpoint?.x || 0),
+      (data.spawnpoint?.y || 0),
+      10,
+      data.color
+    );
+    this.physics.add.existing(player);
+    return player;
+  }
+
+  generateSpawnpoint() {
+    let randomPoint = this.physics.world.bounds.getRandomPoint();
+    let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
+    this.gameState.emit('spawnpoint', spawnpoint);
+  }
+
+  clearOldObjects() {
+    for (let playerid in this.gameState.players) {
+      let player = this.gameState.players[playerid].object;
+      if (player) {
+        player.destroy();
+        this.gameState.players[playerid].object = undefined;
+      }
     }
+  }
+
+  generateNewObjects() {
+    for (let playerid in this.gameState.players) {
+      if (this.gameState.players[playerid].object) {
+        continue;
+      }
+      let playerData = this.gameState.players[playerid];
+      let player = this.createPlayer(playerData);
+      this.gameState.players[playerid].object = player;
+      this.physics.add.existing(player);
+      if (playerData.observing || !playerData.status || playerData.status == 'dead') {
+        player
+          .setActive(false)
+          .setVisible(false);
+      } else {
+        player
+          .setActive(true)
+          .setVisible(true);
+      }
+    }
+  }
+
 }
