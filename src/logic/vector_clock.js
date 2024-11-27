@@ -22,10 +22,8 @@ class VectorClock {
     validateMessageOrder(senderId, receivedClock) {
         // Expect only senderId to increament their clock
         if (receivedClock[senderId] == this.clock[senderId] + 1) {
-            console.log("Message received in order")
             return true
         }
-        console.log("Message received out of order")
         return false
     }
 
