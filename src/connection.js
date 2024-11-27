@@ -1,3 +1,5 @@
+import VectorClock from "./vector_clock.js"
+
 const { io } = require("socket.io-client");
 
 const PC_CONFIG = {
@@ -25,6 +27,7 @@ export class Connection {
         this.addWebRTCOffer();
         this.addWebRTCAnswer();
         this.addWebRTCCandidate();
+        this.clock = new VectorClock()
     }
 
     get room() {
@@ -136,14 +139,16 @@ export class Connection {
         console.log('Data channel closed for', session_id);
     }
 
+    // Receive message here
     dataChannelMessage(session_id, event) {
-        console.log(event);
         const unwrappedMessage = this.unwrapGameMessage(event.data)
+        this.handleReceivedClock(unwrappedMessage.clientId, unwrappedMessage.clock)
         this.receivedMessage(session_id, unwrappedMessage.payload);
     }
 
-    sendMessage(clock, message) {
-        const wrappedMessage = this.wrapGameMessage(clock, message)
+    sendMessage(message) {
+        this.clock.increment()
+        const wrappedMessage = this.wrapGameMessage(this.clock, message)
         return new Promise((resolve, reject) => {
             Object.entries(this.clients).forEach( ([sid, conns]) => {
                 conns.dc.send(wrappedMessage);
@@ -153,20 +158,41 @@ export class Connection {
     }
 
     wrapGameMessage(clock, payload) {
-        console.log("Wrapping starting with values clock:", clock, " payload ", payload)
         const wrapped = JSON.stringify({
-            "clock": clock,
+            "clientId": clock.clientId,
+            "clock": clock.clock,
             "payload": payload
         })
-        console.log("Wrapped message", wrapped)
         return wrapped
     }
     
     unwrapGameMessage(message) {
         const parsedMessage = JSON.parse(message)
         return {
+            "clientId": parsedMessage["clientId"],
             "clock": parsedMessage["clock"],
             "payload": parsedMessage["payload"]
         }
+    }
+
+    handleReceivedClock(clientId, receivedClock) {
+        // check if client is known
+        if (!this.clientVectorValueExists(clientId)) {
+            this.clock.merge(receivedClock)
+        }
+        if (this.clock.validateMessageOrder(clientId, receivedClock)) {
+            // Message was in order
+            this.clock.merge(receivedClock)
+        }
+        else {
+            this.clock.handleOutOfOrderMessage(receivedClock)
+        }
+    }
+
+    clientVectorValueExists(clientId) {
+        if (clientId in this.clock.clock) {
+            return true
+        }
+        return false
     }
 }
