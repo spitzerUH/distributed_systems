@@ -1,8 +1,9 @@
 {
   "name": "ds2024-g16",
   "source": "./index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "start": "parcel index.html --no-cache --config ./parcel/.parcel.dev --open",
+    "start": "parcel index.html --no-cache --config ./parcel/.parcel.dev",
     "build": "parcel build index.html --public-url _relativeroute_ --no-source-maps --log-level error --config ./parcel/.parcel.prod"
   },
   "devDependencies": {
