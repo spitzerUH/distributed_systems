@@ -56,6 +56,7 @@ export class GameState extends EventEmitter {
       case 'status':
         this.players[playerid].status = message.data.status;
         this.players[playerid].spawnpoint = message.data.spawnpoint;
+        this.players[playerid].observing = false;
         this.emit('status-change', playerid, message.data.status);
         break;
       default:
@@ -71,7 +72,9 @@ export class GameState extends EventEmitter {
         data: {
           name: this.players['player'].name,
           color: this.players['player'].color,
-          observing: this.players['player'].observing
+          observing: this.players['player'].observing,
+          status: this.players['player'].status,
+          spawnpoint: this.players['player'].spawnpoint
         }
       };
       this._connection.sendGameMessage(payload).then(() => {
@@ -85,8 +88,8 @@ export class GameState extends EventEmitter {
       name: data.name,
       color: data.color,
       observing: data.observing,
-      spawnpoint: undefined,
-      status: undefined,
+      spawnpoint: data.spawnpoint,
+      status: data.status,
       object: undefined
     };
     this._players[playerid] = playerData;
@@ -108,6 +111,7 @@ export class GameState extends EventEmitter {
       } else {
         data = { status: status, spawnpoint: this.players['player'].spawnpoint };
       }
+      this.players['player'].status = status;
       this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
         this.emit('status-change', 'player', status);
       });

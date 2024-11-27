@@ -37,12 +37,12 @@ export class Game extends Scene {
       let data = this.gameState.players[playerid];
       let player = this.createPlayer(data);
       this.gameState.players[playerid].object = player;
-      if (data.observing) {
+      if (data.observing || !data.status || data.status == 'dead') {
         player
           .setActive(false)
           .setVisible(false);
       }
-      if (!this.gameState.players['player'].observing) {
+      if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
         this.gameState.emit('change-status', 'alive');
       }
     });
@@ -157,10 +157,11 @@ export class Game extends Scene {
       if (this.gameState.players[playerid].object) {
         continue;
       }
-      let player = this.createPlayer(this.gameState.players[playerid]);
+      let playerData = this.gameState.players[playerid];
+      let player = this.createPlayer(playerData);
       this.gameState.players[playerid].object = player;
       this.physics.add.existing(player);
-      if (this.gameState.players['player'].observing) {
+      if (playerData.observing || !playerData.status || playerData.status == 'dead') {
         player
           .setActive(false)
           .setVisible(false);

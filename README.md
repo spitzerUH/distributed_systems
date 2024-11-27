@@ -239,11 +239,14 @@ Player identification:
         "data": {
             "name": "Player name",
             "color": "color code",
-            "observer": "is observing"
+            "observer": "is observing",
+            "status": "status",
+            "spawnpoint": ...
         }
     }
 }
 ```
+Field for `spawnpoint` is either `undefined` or `{"x": "x", "y": "y"}`.
 
 ---
 
