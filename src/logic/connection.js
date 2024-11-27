@@ -24,8 +24,12 @@ export class Connection {
       this.socket.emit('room-enter', {
         'room_code': room_code
       }, (response) => {
-        this.room_code = response.room_code;
-        resolve(this.room_code);
+        if (response.room_code === room_code) {
+          this.room_code = response.room_code;
+          resolve(this.room_code);
+        } else {
+          reject(response.error);
+        }
       });
     });
   }

@@ -19,6 +19,10 @@ async def disconnect(sid):
 
 @sio.on('room-enter')
 async def room_enter(sid, message):
+    rooms = sio.rooms(sid)
+    rooms.remove(sid)
+    if rooms:
+        return {'error':'Client already in a room'}
     room_code = message['room_code'] or 'default'
     print("Client {} joins room {}".format(sid, room_code))
     await sio.enter_room(sid, room_code)
