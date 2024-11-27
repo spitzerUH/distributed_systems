@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
+import { generateFood } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -96,6 +97,7 @@ export class Game extends Scene {
       this.gameState.emit('change-status', 'alive');
     }
     this.generateNewObjects();
+    generateFood(this, 11, myplayer);
   }
 
   update(time, delta) {
