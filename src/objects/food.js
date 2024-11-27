@@ -12,30 +12,20 @@ export class Food extends Hexagon {
     scene.physics.add.existing(this.graphics);
     this.graphics.body.setCircle(size, -size, -size);
     this.graphics.body.setImmovable(true);
-  }
-
-  isEatenBy(player) {
-    console.log('Food eaten by player');
-    this.graphics.destroy();
-  }
-
-  addCollision(scene, player) {
-    scene.physics.add.overlap(player, this.graphics, (player, food) => {
-      this.isEatenBy(player);
-    });
+    scene.physics.add.overlap(
+      scene.gameState.players['player'].object,
+      this.graphics,
+      (player, food) => {
+        food.destroy();
+        scene.gameState.emit('food-eaten', { x: x, y: y, size: size, color: color });
+      });
   }
 }
 
-export function generateFood(scene, count, myplayer) {
-  let genfood = [];
-  for (let i = 0; i < count; i++) {
-    let x = Phaser.Math.Between(0, scene.physics.world.bounds.width);
-    let y = Phaser.Math.Between(0, scene.physics.world.bounds.height);
-    let size = Phaser.Math.Between(5, 10);
-    let color = Phaser.Display.Color.RandomRGB().color;
-    let food = new Food(scene, x, y, size, color);
-    food.addCollision(scene, myplayer);
-    genfood.push(food);
-  }
-  return genfood;
+export function startFoodProcessing(scene) {
+  scene.gameState.on('create-food', (data) => {
+    data.food.forEach(food => {
+      new Food(scene, food.x, food.y, food.size, food.color);
+    });
+  });
 }

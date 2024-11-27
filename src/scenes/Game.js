@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { generateFood } from '+objects/food';
+import { startFoodProcessing } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -96,8 +96,9 @@ export class Game extends Scene {
       this.generateSpawnpoint();
       this.gameState.emit('change-status', 'alive');
     }
+    startFoodProcessing(this);
     this.generateNewObjects();
-    generateFood(this, 11, myplayer);
+    this.generateFood(10);
   }
 
   update(time, delta) {
@@ -193,6 +194,18 @@ export class Game extends Scene {
 
       }
     }
+  }
+
+  generateFood(count) {
+    let food = [];
+    for (let i = 0; i < count; i++) {
+      let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
+      let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
+      let size = Phaser.Math.Between(5, 10);
+      let color = Phaser.Display.Color.RandomRGB().color;
+      food.push({ x: x, y: y, size: size, color: color });
+    }
+    this.gameState.emit('create-food', { food: food });
   }
 
 }
