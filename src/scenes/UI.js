@@ -11,8 +11,6 @@ export class UI extends Scene {
 
   init(data) {
     this.gameState = data.gameState;
-    this.playerName = JSON.parse(localStorage.getItem('player-name')) || 'You';
-    this.playerColor = JSON.parse(localStorage.getItem('player-color')) || 0x000000;
   }
 
   create() {
@@ -29,20 +27,19 @@ export class UI extends Scene {
 
     var playerList = createPlayerList(this, {});
 
-    if (!this.gameState.observer) {
-      playerList.emit('join', 'player', this.playerName);
-    }
-    this.gameState.on('player-joins', (playerid, playername) => {
-      playerList.emit('join', playerid, playername);
+    playerList.emit('join', 'player', this.gameState.players['player']);
+    this.gameState.on('player-joins', (playerid) => {
+      playerList.emit('join', playerid, this.gameState.players[playerid]);
     });
     this.gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });
 
-    if (this.gameState.observer) {
+    if (this.gameState.players['player'].observing) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.scene.stop().start('Game', { connection: this.gameState.connection, observer: false });
+        this.gameState.players['player'].observing = false;
+        this.scene.stop().start('Game', { gamestate: this.gameState });
       });
     } else {
       let ko = createKOButton(this);

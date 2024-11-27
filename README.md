@@ -230,6 +230,26 @@ Datastream messages are all sent with same channel, only the payload will be dif
 
 ---
 
+Player identification:
+```json
+{
+    "platform": "game",
+    "data": {
+        "type": "whoami",
+        "data": {
+            "name": "Player name",
+            "color": "color code",
+            "observer": "is observing",
+            "status": "status",
+            "spawnpoint": ...
+        }
+    }
+}
+```
+Field for `spawnpoint` is either `undefined` or `{"x": "x", "y": "y"}`.
+
+---
+
 Player status:
 ```json
 {
@@ -237,7 +257,11 @@ Player status:
     "data": {
         "type": "status",
         "data": {
-            "status": "status value"
+            "status": "status value",
+            "spawnpoint": {
+                "x": "x",
+                "y": "y"
+            }
         }
     }
 }

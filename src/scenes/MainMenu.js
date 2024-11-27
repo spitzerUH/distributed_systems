@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { createRoomDialog } from '+ui/dialogs';
+import { GameState } from '+logic/gamestate';
 
 export class MainMenu extends Scene {
   constructor() {
@@ -19,11 +20,11 @@ export class MainMenu extends Scene {
       button_color: 0x2222ff
     }).on('enter', (roomCode) => {
       this.connection.enterRoom(roomCode).then(() => {
-        this.scene.start('Game', { connection: this.connection });
+        this.scene.start('Game', { gamestate: new GameState({ connection: this.connection, observer: false }) });
       });
     }).on('observe', (roomCode) => {
       this.connection.enterRoom(roomCode).then(() => {
-        this.scene.start('Game', { connection: this.connection, observer: true });
+        this.scene.start('Game', { gamestate: new GameState({ connection: this.connection, observer: true }) });
       });
     }).popUp(500);
   }
