@@ -155,7 +155,7 @@ export class Connection {
   }
 
   // Receive datachannel message
-  dataChannelMessage(session_id, event) {
+  dataChannelMessage(sid, event) {
     let message = undefined;
     try {
       message = JSON.parse(event.data);
@@ -163,11 +163,11 @@ export class Connection {
       message = event.data;
     }
     // handle clock and return consumable messages IN ORDER
-    const consumableMessages = this.handleClockAndMessageQueue(message)
+    const consumableMessages = this.handleClockAndMessageQueue(sid, message)
     for (let i = 0; i < consumableMessages.length; i++) {
       const consumableMessage = consumableMessages[i]
       if (consumableMessage.platform === 'game') {
-        this.gameChannelMessage(session_id, message.data);
+        this.gameChannelMessage(sid, message.data);
       } else {
         console.log(event);
       }
@@ -175,7 +175,7 @@ export class Connection {
   }
 
   sendMessage(message) {
-    this.clock.increment()
+    message = this.addClockFields(message);
     return new Promise((resolve, reject) => {
       let payload = undefined;
       if (typeof message === 'string') {
@@ -195,22 +195,20 @@ export class Connection {
   }
 
   sendGameMessage(message) {
-    const wrappedMessage = this.wrapGameMessage(message)
-    return this.sendMessage(wrappedMessage);
+    return this.sendMessage({ platform: 'game', data: message });
   }
 
-  wrapGameMessage(data) {
-    const wrapped = JSON.stringify({
-      "clientId": this.clock.clientId,
-      "clock": this.clock.clock,
-      "platform": "game",
-      "data": data
-    })
-    return wrapped
+  addClockFields(message) {
+    this.clock.increment();
+    let fields = {
+      clock: this.clock.clock
+    };
+    message = { ...fields, ...message };
+    return message;
   }
 
-  handleClockAndMessageQueue(message) {
-    const clientId = message.clientId
+  handleClockAndMessageQueue(sid, message) {
+    const clientId = sid;
     const receivedClock = message.clock
     // check if client is known
     if (!this.clientVectorValueExists(clientId)) {
