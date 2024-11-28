@@ -7,7 +7,7 @@ export class GameState extends EventEmitter {
     this._players = {};
     this.players['player'] = {
       id: 'player',
-      name: (JSON.parse(localStorage.getItem('player-name')) || 'You'),
+      name: (JSON.parse(localStorage.getItem('player-name'))),
       color: (JSON.parse(localStorage.getItem('player-color')) || 0x000000),
       observing: !!data.observer,
       spawnpoint: { x: 0, y: 0 },
