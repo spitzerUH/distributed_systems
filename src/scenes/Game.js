@@ -90,13 +90,23 @@ export class Game extends Scene {
     this.gameState.on('generate-food', (count) => {
       let food = [];
       for (let i = 0; i < count; i++) {
+        let id = this.gameState.nextFoodIndex;
         let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
         let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
         let size = Phaser.Math.Between(5, 10);
         let color = Phaser.Display.Color.RandomRGB().color;
-        food.push({ x: x, y: y, size: size, color: color });
+        food.push(
+          {
+            id: id,
+            details: {
+              x: x,
+              y: y,
+              size: size,
+              color: color
+            }
+          });
       }
-      this.gameState.emit('create-food', { food: food });
+      this.gameState.emit('create-food', food);
 
     });
 

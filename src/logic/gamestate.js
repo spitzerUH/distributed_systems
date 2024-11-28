@@ -87,6 +87,19 @@ export class GameState extends EventEmitter {
         this.players[playerid].observing = false;
         this.emit('status-change', playerid, message.data.status);
         break;
+      case 'food':
+        switch (message.subtype) {
+          case 'create':
+            this.emit('create-food', message.data);
+            break;
+          case 'eat':
+            this.emit('eat-food', message.id);
+            break;
+          default:
+            console.log('Unknown food message subtype', message.subtype);
+            break;
+        }
+        break;
       default:
         console.log('Unknown message type', message.type);
         break;
@@ -148,21 +161,29 @@ export class GameState extends EventEmitter {
 
   handleFood() {
     this.on('create-food', (data) => {
-      this.foodToSend += data.food.length;
+      this.foodToSend += data.length;
     });
     this.on('food-created', (food) => {
+      if (food.id > this._currentFoodIndex) {
+        this._currentFoodIndex = food.id;
+      }
       this.food.push(food);
       if (this._connection.isLeader) {
         this.foodToSendArray.push(food);
         this.foodToSend--;
         if (this.foodToSend === 0) {
-          this._connection.sendGameMessage({ type: 'food', data: this.foodToSendArray }).then(() => {
+          this._connection.sendGameMessage({ type: 'food', subtype: 'create', data: this.foodToSendArray }).then(() => {
             this.foodToSendArray = [];
           });
         }
       }
     });
     this.on('food-eaten', (foodId) => {
+      this._connection.sendGameMessage({ type: 'food', subtype: 'eat', id: foodId }).then(() => {
+        this.emit('eat-food', foodId);
+      });
+    });
+    this.on('eat-food', (foodId) => {
       let food = this.food.find(f => f.id === foodId);
       food.object.destroy();
       let index = this.food.indexOf(food);
