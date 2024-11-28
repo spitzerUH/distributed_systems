@@ -31,7 +31,11 @@ export class GameState extends EventEmitter {
     });
     this.on('ready', () => {
       this.emit('change-status', 'alive');
-      this.emit('generate-food', 20);
+    });
+    this.on('leader-actions', () => {
+      if (this.food.length === 0) {
+        this.emit('generate-food', 20);
+      }
     });
   }
 
@@ -57,6 +61,9 @@ export class GameState extends EventEmitter {
 
   gameChannelOpen(playerid) {
     this.emit('whoami');
+    if (this.connection.isLeader) {
+      this.emit('leader-actions');
+    }
   }
 
   gameChannelClose(playerid) {

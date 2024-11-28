@@ -13,10 +13,15 @@ export class Connection {
     this.handleWebRTCOffer();
     this.handleWebRTCAnswer();
     this.handleWebRTCCandidate();
+    this.wasFirst = undefined;
   }
 
   get room() {
     return this.room_code;
+  }
+
+  get isLeader() {
+    return !!this.wasFirst;
   }
 
   enterRoom(room_code = '') {
@@ -48,6 +53,9 @@ export class Connection {
 
   handleRoomJoined() {
     this.socket.on('room-joined', (message) => {
+      if (this.wasFirst === undefined) {
+        this.wasFirst = true;
+      }
       let session_id = message.session_id;
       let pc = this.createPeerConnection(session_id);
       pc.createOffer().then((sdp) => {
@@ -59,6 +67,9 @@ export class Connection {
 
   handleWebRTCOffer() {
     this.socket.on('webrtc-offer', (message) => {
+      if (this.wasFirst === undefined) {
+        this.wasFirst = false;
+      }
       let session_id = message.from;
       let pc = this.createPeerConnection(session_id);
       pc.setRemoteDescription(new RTCSessionDescription(message.data));
