@@ -32,7 +32,9 @@ export class GameState extends EventEmitter {
       this.connection.exitRoom();
     });
     this.on('ready', () => {
-      this.emit('change-status', 'alive');
+      if (!this.players['player'].observing) {
+        this.emit('change-status', 'alive');
+      }
     });
     this.on('leader-actions', () => {
       if (this.food.length === 0) {
