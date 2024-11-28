@@ -1,6 +1,6 @@
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
-export class Food extends Hexagon {
+class Food extends Hexagon {
   constructor(scene, data) {
     let id = data.id;
     let details = data.details;
@@ -23,12 +23,14 @@ export class Food extends Hexagon {
       details: details,
       object: this.graphics
     };
-    scene.physics.add.overlap(
-      scene.gameState.players['player'].object,
-      this.graphics,
-      (player, food) => {
-        scene.gameState.emit('food-eaten', id);
-      });
+    if (!scene.gameState.players['player'].observing) {
+      scene.physics.add.overlap(
+        scene.gameState.players['player'].object,
+        this.graphics,
+        (player, food) => {
+          scene.gameState.emit('food-eaten', id);
+        });
+    }
     scene.gameState.emit('food-created', foodData);
   }
 }

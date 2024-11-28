@@ -5,7 +5,7 @@ export class GameState extends EventEmitter {
     super();
     this._connection = data.connection;
     this._players = {};
-    this._food = [];
+    this._food = {};
     this._currentFoodIndex = 0;
     this.foodToSend = 0;
     this.foodToSendArray = [];
@@ -37,7 +37,7 @@ export class GameState extends EventEmitter {
       }
     });
     this.on('leader-actions', () => {
-      if (this.food.length === 0) {
+      if (Object.keys(this.food).length === 0) {
         this.emit('generate-food', 20);
       }
     });
@@ -95,7 +95,7 @@ export class GameState extends EventEmitter {
       case 'food':
         switch (message.subtype) {
           case 'create':
-            let data = message.data.filter(f => this.food.findIndex(f2 => f2.id === f.id) === -1);
+            let data = message.data.filter(f => this.food[f.id] === undefined);
             this.emit('create-food', data);
             break;
           case 'eat':
@@ -173,7 +173,7 @@ export class GameState extends EventEmitter {
       if (food.id > this._currentFoodIndex) {
         this._currentFoodIndex = food.id;
       }
-      this.food.push(food);
+      this.food[food.id] = food;
       if (this._connection.isLeader) {
         this.foodToSendArray.push(food);
         this.foodToSend--;
@@ -190,21 +190,23 @@ export class GameState extends EventEmitter {
       });
     });
     this.on('eat-food', (foodId) => {
-      let food = this.food.find(f => f.id === foodId);
+      let food = this.food[foodId];
       if (!food) {
         console.log('Dup message? Food not found', foodId);
         return;
       }
       food.object.destroy();
-      let index = this.food.indexOf(food);
-      this.food.splice(index, 1);
-      if (this.connection.isLeader && this.food.length < 10) {
+      delete this.food[foodId];
+      if (this.connection.isLeader && Object.keys(this.food).length < 10) {
         this.emit('generate-food', 10);
       }
     });
     this.on('send-food', (playerid) => {
-      let food = this.food.map(f => {
-        return { id: f.id, details: f.details };
+      let food = Object.values(this.food).map(f => {
+        return {
+          id: f.id,
+          details: f.details
+        };
       });
       this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: food }).then(() => {
       });

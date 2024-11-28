@@ -13,6 +13,7 @@ export class Game extends Scene {
   }
 
   create() {
+    startFoodProcessing(this);
     this.clearOldObjects();
     const mainCamera = initMainCamera(this);
 
@@ -84,6 +85,9 @@ export class Game extends Scene {
             .setActive(true)
             .setVisible(true)
             .setPosition(spawn.x, spawn.y);
+          if (this.gameState.connection.isLeader && playerid !== 'player') {
+            this.gameState.emit('send-food', playerid);
+          }
           break;
       }
     });
@@ -117,7 +121,6 @@ export class Game extends Scene {
     } else {
       this.generateSpawnpoint();
     }
-    startFoodProcessing(this);
     this.generateNewObjects();
 
     this.gameState.emit('ready');
