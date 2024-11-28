@@ -201,6 +201,6 @@ export class Connection {
   }
 
   sendGameMessageTo(id, message) {
-    return this.sendGameMessageTo(id, { platform: 'game', data: message });
+    return this.sendMessageTo(id, { platform: 'game', data: message });
   }
 }

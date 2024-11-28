@@ -77,6 +77,9 @@ export class GameState extends EventEmitter {
     switch (message.type) {
       case 'whoami':
         this.handlePlayerInfo(playerid, message.data);
+        if (this.connection.isLeader) {
+          this.emit('send-food', playerid);
+        }
         break;
       case 'move':
         this.emit('player-moves', playerid, message.data.direction);
@@ -90,7 +93,8 @@ export class GameState extends EventEmitter {
       case 'food':
         switch (message.subtype) {
           case 'create':
-            this.emit('create-food', message.data);
+            let data = message.data.filter(f => this.food.findIndex(f2 => f2.id === f.id) === -1);
+            this.emit('create-food', data);
             break;
           case 'eat':
             this.emit('eat-food', message.id);
@@ -185,14 +189,23 @@ export class GameState extends EventEmitter {
     });
     this.on('eat-food', (foodId) => {
       let food = this.food.find(f => f.id === foodId);
+      if (!food) {
+        console.log('Dup message? Food not found', foodId);
+        return;
+      }
       food.object.destroy();
       let index = this.food.indexOf(food);
       this.food.splice(index, 1);
-
-
       if (this.connection.isLeader && this.food.length < 10) {
         this.emit('generate-food', 10);
       }
+    });
+    this.on('send-food', (playerid) => {
+      let food = this.food.map(f => {
+        return { id: f.id, details: f.details };
+      });
+      this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: food }).then(() => {
+      });
     });
   }
 }
