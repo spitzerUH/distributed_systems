@@ -270,6 +270,45 @@ Possible values for `status` are `alive` or `dead`.
 
 ---
 
+There is couple food related messages divided in subtypes.
+
+Creating food, single or multiple at once:
+```json
+{
+    "platform": "game",
+    "data": {
+        "type": "food",
+        "subtype": "create",
+        "data": [
+            {
+                "id": "id number",
+                "details": {
+                    "x": "x",
+                    "y": "y",
+                    "size": "size",
+                    "color": "color code"
+                }
+            },
+            ...
+        ]
+    }
+}
+```
+
+Eating food:
+```json
+{
+    "platform": "game",
+    "data": {
+        "type": "food",
+        "subtype": "eat",
+        "id": "id"
+    }
+}
+```
+
+---
+
 Player movement message:
 ```json
 {
