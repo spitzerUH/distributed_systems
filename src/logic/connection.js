@@ -7,14 +7,18 @@ const dataChannelParams = { ordered: true, negotiated: true, id: 0 };
 
 export class Connection {
   constructor(server) {
-    this.socket = io(server);
+    this.socket = io(server, { autoConnect: false });
     this.room_code = null;
     this.clients = {};
     this.handleRoomJoined();
     this.handleWebRTCOffer();
     this.handleWebRTCAnswer();
     this.handleWebRTCCandidate();
-    this.clock = new VectorClock()
+    this.clock = null;
+    this.socket.on('connect', () => {
+      this.clock = new VectorClock(this.socket.id);
+    });
+    this.socket.connect();
   }
 
   get room() {

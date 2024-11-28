@@ -1,13 +1,9 @@
 class VectorClock {
-  constructor() {
-    this.clientId = this.createId()
-    this.clock = { [this.clientId]: 0 }
-    // queue element: {clientId, clock}
-    this.outOfOrderMessageQueue = []
-  }
-
-  createId() {
-    return Math.floor(Math.random() * 999999)
+  constructor(id) {
+    this.clientId = id;
+    this.clock = {};
+    this.clock[this.clientId] = 0;
+    this.outOfOrderMessageQueue = [];
   }
 
   increment() {
