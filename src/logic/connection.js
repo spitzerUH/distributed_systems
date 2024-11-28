@@ -174,6 +174,12 @@ export class Connection {
   }
 
   sendMessage(message) {
+    return Promise.all(Object.keys(this.clients).map((id) => {
+      return this.sendMessageTo(id, message);
+    }));
+  }
+
+  sendMessageTo(id, message) {
     return new Promise((resolve, reject) => {
       let payload = undefined;
       if (typeof message === 'string') {
@@ -182,17 +188,19 @@ export class Connection {
         payload = JSON.stringify(message);
       }
       if (!!payload) {
-        Object.entries(this.clients).forEach(([sid, conns]) => {
-          conns.dc.send(payload);
-        });
+        this.clients[id].dc.send(payload);
         resolve();
       } else {
-        reject(`Problem to send the following message: ${message}`);
+        reject(`Message: ${message} could not be sent to ${id}`);
       }
     });
   }
 
   sendGameMessage(message) {
     return this.sendMessage({ platform: 'game', data: message });
+  }
+
+  sendGameMessageTo(id, message) {
+    return this.sendGameMessageTo(id, { platform: 'game', data: message });
   }
 }
