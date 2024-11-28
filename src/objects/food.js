@@ -42,3 +42,23 @@ export function startFoodProcessing(scene) {
     });
   });
 }
+
+export function clearFood(scene) {
+  for (let foodid in scene.gameState.food) {
+    let food = scene.gameState.food[foodid].object;
+    if (food) {
+      food.destroy();
+      scene.gameState.food[foodid].object = undefined;
+    }
+  }
+}
+
+export function recreateFood(scene) {
+  for (let foodid in scene.gameState.food) {
+    let food = scene.gameState.food[foodid];
+    if (food.object) {
+      continue;
+    }
+    new Food(scene, food);
+  }
+}

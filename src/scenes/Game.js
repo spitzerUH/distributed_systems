@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { startFoodProcessing } from '+objects/food';
+import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -187,6 +187,7 @@ export class Game extends Scene {
         this.gameState.players[playerid].object = undefined;
       }
     }
+    clearFood(this);
   }
 
   generateNewObjects() {
@@ -219,6 +220,7 @@ export class Game extends Scene {
 
       }
     }
+    recreateFood(this);
   }
 
 }
