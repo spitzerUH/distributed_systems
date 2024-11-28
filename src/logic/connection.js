@@ -160,7 +160,7 @@ export class Connection {
     }
     // handle clock and return consumable messages IN ORDER
     const consumableMessages = this.handleClockAndMessageQueue(message)
-    for (let i = 0; i < consumableMessages.length; i++){
+    for (let i = 0; i < consumableMessages.length; i++) {
       const consumableMessage = consumableMessages[i]
       if (consumableMessage.platform === 'game') {
         this.gameChannelMessage(session_id, message.data);
@@ -197,10 +197,10 @@ export class Connection {
 
   wrapGameMessage(data) {
     const wrapped = JSON.stringify({
-        "clientId": this.clock.clientId,
-        "clock": this.clock.clock,
-        "platform": "game",
-        "data": data
+      "clientId": this.clock.clientId,
+      "clock": this.clock.clock,
+      "platform": "game",
+      "data": data
     })
     return wrapped
   }
