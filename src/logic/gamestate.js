@@ -188,6 +188,11 @@ export class GameState extends EventEmitter {
       food.object.destroy();
       let index = this.food.indexOf(food);
       this.food.splice(index, 1);
+
+
+      if (this.connection.isLeader && this.food.length < 10) {
+        this.emit('generate-food', 10);
+      }
     });
   }
 }
