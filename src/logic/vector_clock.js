@@ -27,21 +27,30 @@ class VectorClock {
 
   getOldMessagesFromQueue() {
     // Return consumable old messages in consumable order
+    console.log("--------- Starting old message ordering -----")
     let consumableOldMessages = []
     let tempClock = structuredClone(this.clock)
 
-    for (let i = 0; i < this.outOfOrderMessageQueue.length; i++) {
-      const message = this.outOfOrderMessageQueue[i]
-      console.log("Checking if possible to consume old message", message)
-      console.log(message.clock[clientId], "==", tempClock[clientId] + 1)
-      if (this.validateMessageOrder(message.clientId, message.clock)) {
-        console.log("Old consumable message found")
-        consumableOldMessages.push(message)
-        tempClock[message.clientId] += 1
-      }
+        for (let i = 0; i < this.outOfOrderMessageQueue.length; i++) {
+            const i_message = this.outOfOrderMessageQueue[i] 
+            const i_messageSender = Object.keys(i_message)[0]
+            const i_messageClock = i_message[i_messageSender]
+            //console.log("Checking if possible to consume old message", message)
+            //console.log(messageClock[messageSender],"==",tempClock[messageSender]+1)
+
+            for (let y = 0; y < this.outOfOrderMessageQueue.length; y++) {
+                if (this.validateMessageOrder(i_messageSender, i_messageClock)) {
+                    console.log("Old consumable message found")
+                    consumableOldMessages.push(i_message)
+                    tempClock[i_message.clientId] += 1
+            }
+            }
+            
+        }
+        console.log("----- Finished ordering old messages, result:")
+        console.log(consumableOldMessages)
+        return consumableOldMessages
     }
-    return consumableOldMessages
-  }
 
   pushToOutOfOrderMessageQueue(clientId, clock) {
     this.outOfOrderMessageQueue.push({ clientId, clock })
