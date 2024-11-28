@@ -6,6 +6,7 @@ export class GameState extends EventEmitter {
     this._connection = data.connection;
     this._players = {};
     this._food = [];
+    this._currentFoodIndex = 0;
     this.players['player'] = {
       id: 'player',
       name: (JSON.parse(localStorage.getItem('player-name'))),
@@ -48,6 +49,10 @@ export class GameState extends EventEmitter {
 
   set food(food) {
     this._food = food;
+  }
+
+  get nextFoodIndex() {
+    return this._currentFoodIndex++;
   }
 
   gameChannelOpen(playerid) {
@@ -133,14 +138,14 @@ export class GameState extends EventEmitter {
   }
 
   handleFood() {
-    this.on('create-food', (data) => {
-      this.food = this.food.concat(data);
-    });
     this.on('food-created', (food) => {
-      console.log('food created', food);
+      this.food.push(food);
     });
-    this.on('food-eaten', (food) => {
-      console.log('food eaten', food);
+    this.on('food-eaten', (foodId) => {
+      let food = this.food.find(f => f.id === foodId);
+      food.object.destroy();
+      let index = this.food.indexOf(food);
+      this.food.splice(index, 1);
     });
   }
 }

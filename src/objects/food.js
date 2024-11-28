@@ -3,6 +3,7 @@ import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 export class Food extends Hexagon {
   constructor(scene, x, y, size, color) {
     super(0, 0, size, color);
+    this.index = scene.gameState.nextFoodIndex;
     this.graphics = scene.add.graphics()
       .fillStyle(color)
       .fillPoints(this.points)
@@ -12,15 +13,23 @@ export class Food extends Hexagon {
     scene.physics.add.existing(this.graphics);
     this.graphics.body.setCircle(size, -size, -size);
     this.graphics.body.setImmovable(true);
-    let foodData = { x: x, y: y, size: size, color: color }
+    let foodData = {
+      id: this.index,
+      details: {
+        x: x,
+        y: y,
+        size: size,
+        color: color
+      },
+      object: this.graphics
+    };
     scene.physics.add.overlap(
       scene.gameState.players['player'].object,
       this.graphics,
       (player, food) => {
-        food.destroy();
-        scene.gameState.emit('food-eaten', foodData);
+        scene.gameState.emit('food-eaten', this.index);
       });
-      scene.gameState.emit('food-created', foodData);
+    scene.gameState.emit('food-created', foodData);
   }
 }
 
