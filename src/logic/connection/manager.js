@@ -4,7 +4,7 @@ import createWebSocketConnection from './websocket';
 class ConnectionManager {
   constructor(server) {
     this.wsc = createWebSocketConnection(server);
-    this.webrtc = createWebRTCConnection();
+    this.webrtcs = {};
   }
 }
 

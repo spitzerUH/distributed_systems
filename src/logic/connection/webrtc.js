@@ -3,7 +3,7 @@ import EventEmitter from 'events';
 class WebRTCConnection {
 
   constructor() {
-    this.peerConnections = {};
+    this.peerConnection = null;
     this.em = new EventEmitter();
   }
 
