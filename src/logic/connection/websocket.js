@@ -7,17 +7,14 @@ class WebSocketConnection {
       autoConnect: false
     });
     this.em = new EventEmitter();
-    this._sid = null;
   }
 
   bindIncomingEvents() {
     this.socket.on('connect', () => {
-      this._sid = this.socket.id;
       this.em.emit('connect');
     });
 
     this.socket.on('disconnect', () => {
-      this._sid = null;
       this.em.emit('disconnect');
     });
 
@@ -72,4 +69,11 @@ class WebSocketConnection {
 
 }
 
-export default WebSocketConnection;
+function createWebSocketConnection(server) {
+  let wsc = new WebSocketConnection(server);
+  wsc.bindIncomingEvents();
+  wsc.bindOutgoingEvents();
+  return wsc;
+}
+
+export default createWebSocketConnection;
