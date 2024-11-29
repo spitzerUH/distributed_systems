@@ -12,6 +12,9 @@ class ConnectionManager {
       if (!this.wsc.socket.connected) {
         reject('Not connected to server');
       }
+      if (this._room) {
+        reject('Already in a room');
+      }
       this.wsc.em.once('room-entered', (response) => {
         if (response.room_code) {
           this._room = response.room_code;
