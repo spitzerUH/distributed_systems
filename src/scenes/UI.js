@@ -42,10 +42,10 @@ export class UI extends Scene {
         this.scene.stop().start('Game', { gamestate: this.gameState });
       });
     } else {
-      let ko = createKOButton(this);
-      ko.on('pointerdown', () => {
-        this.gameState.emit('change-status', 'dead');
-      });
+      // let ko = createKOButton(this);
+      // ko.on('pointerdown', () => {
+      //   this.gameState.emit('change-status', 'dead');
+      // });
     }
   }
 }
