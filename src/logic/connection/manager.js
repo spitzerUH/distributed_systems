@@ -5,6 +5,7 @@ class ConnectionManager {
   constructor(server) {
     this.wsc = createWebSocketConnection(server);
     this.webrtcs = {};
+    this.id = self.crypto.randomUUID();
     this._room = undefined;
   }
   connect() {
