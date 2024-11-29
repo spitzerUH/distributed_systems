@@ -1,7 +1,7 @@
 class VectorClock:
-    def __init__(self, id):
+    def __init__(self, id, clock={}):
         self.id = id
-        self.clock = {id: 0}
+        self.clock = clock if clock else {id: 0}
 
     def increment(self):
         self.clock[self.id] += 1
