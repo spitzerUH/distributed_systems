@@ -48,7 +48,7 @@ class WebSocketConnection {
       });
     });
     this.em.on('room-exit', (data) => {
-      this.socket.emit('room-leave', data, (response) => {
+      this.socket.emit('room-exit', data, (response) => {
         this.em.emit('room-exited', response);
       });
     });
