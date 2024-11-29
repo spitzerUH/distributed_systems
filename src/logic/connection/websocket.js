@@ -43,7 +43,7 @@ class WebSocketConnection {
 
   bindOutgoingEvents() {
     this.em.on('room-enter', (data) => {
-      this.socket.emit('room-join', data, (response) => {
+      this.socket.emit('room-enter', data, (response) => {
         this.em.emit('room-entered', response);
       });
     });
