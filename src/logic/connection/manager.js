@@ -60,6 +60,11 @@ class ConnectionManager {
       this.wsc.em.emit('room-exit', { room_code: this._room });
     });
   }
+  bindRoomEvents() {
+    this.wsc.em.on('room-joined', (data) => {
+      console.log('room-joined', data);
+    });
+  }
 }
 
 export default ConnectionManager;
