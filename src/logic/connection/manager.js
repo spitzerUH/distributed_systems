@@ -7,6 +7,20 @@ class ConnectionManager {
     this.webrtcs = {};
     this._room = undefined;
   }
+  connect() {
+    return new Promise((resolve, reject) => {
+      if (this.wsc.socket.connected) {
+        reject('Already connected to server');
+      }
+      this.wsc.em.once('connected', () => {
+        resolve();
+      });
+      this.wsc.em.once('connect-error', (error) => {
+        reject(error);
+      });
+      this.wsc.socket.connect();
+    });
+  }
   joinRoom(room_code = '') {
     return new Promise((resolve, reject) => {
       if (!this.wsc.socket.connected) {

@@ -11,7 +11,14 @@ class WebSocketConnection {
 
   bindIncomingEvents() {
     this.socket.on('connect', () => {
-      this.em.emit('connect');
+      this.em.emit('connected');
+    });
+    this.socket.on('connect_error', (error) => {
+      if (this.socket.active) {
+        console.log('connect_error', error);
+      } else {
+        this.em.emit('connect_error', error);
+      }
     });
 
     this.socket.on('disconnect', () => {
@@ -61,10 +68,6 @@ class WebSocketConnection {
     this.em.on('webrtc-candidate', (data) => {
       this.socket.emit('webrtc-candidate', data);
     });
-  }
-
-  connect() {
-    return this.socket.connect();
   }
 
 }
