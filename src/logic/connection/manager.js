@@ -1,5 +1,6 @@
 import createWebRTCConnection from './webrtc';
 import createWebSocketConnection from './websocket';
+import { VectorClock } from './vc';
 
 class ConnectionManager {
   constructor(server) {
@@ -7,6 +8,7 @@ class ConnectionManager {
     this.webrtcs = {};
     this.id = self.crypto.randomUUID();
     this._room = undefined;
+    this.vc = undefined;
   }
   connect() {
     return new Promise((resolve, reject) => {
@@ -33,6 +35,7 @@ class ConnectionManager {
       this.wsc.em.once('room-entered', (response) => {
         if (response.room_code) {
           this._room = response.room_code;
+          this.vc = new VectorClock();
           resolve(response);
         } else {
           reject(response);
@@ -52,6 +55,7 @@ class ConnectionManager {
       this.wsc.em.once('room-exited', (response) => {
         if (response.room_code && response.room_code === this._room) {
           this._room = undefined;
+          this.vc = undefined;
           resolve(response);
         } else {
           reject(response);
@@ -64,7 +68,7 @@ class ConnectionManager {
     this.wsc.em.on('room-joined', (data) => {
       let sid = data.sid;
       let uuid = data.uuid;
-      let webrtc = createWebRTCConnection();
+      let webrtc = createWebRTCConnection(this.id, this.vc);
       this.bindWebRTCEvents(webrtc, sid);
       webrtc.em.emit('start-connection');
       this.webrtcs[uuid] = webrtc;
@@ -73,7 +77,7 @@ class ConnectionManager {
       let sid = data.sid;
       let uuid = data.uuid;
       let sdp = data.sdp;
-      let webrtc = createWebRTCConnection();
+      let webrtc = createWebRTCConnection(this.id, this.vc);
       this.bindWebRTCEvents(webrtc, sid);
       webrtc.em.emit('got-webrtc-offer', sdp);
       this.webrtcs[uuid] = webrtc;

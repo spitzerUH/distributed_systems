@@ -1,13 +1,16 @@
 import EventEmitter from 'events';
 import { PC_CONFIG, DC_CONFIG } from '+config/webrtc';
+import { createVectorClock } from './vc';
 
 class WebRTCConnection {
 
-  constructor() {
+  constructor(uuid, vc) {
     this.peerConnection = new RTCPeerConnection(PC_CONFIG);
     this.dataChannel = this.peerConnection.createDataChannel('messages', DC_CONFIG);
     this.dataChannel.binaryType = 'arraybuffer';
     this.em = new EventEmitter();
+    this.uuid = uuid;
+    this.vc = vc;
   }
 
   bindEmitterEvents() {
@@ -65,19 +68,32 @@ class WebRTCConnection {
 
   bindDataChannelEvents() {
     this.dataChannel.addEventListener('open', () => {
+      this.vc.increment(this.uuid);
+      this.em.emit('data-channel-open');
     });
 
     this.dataChannel.addEventListener('close', () => {
+      this.vc.increment(this.uuid);
+      this.em.emit('data-channel-close');
     });
 
     this.dataChannel.addEventListener('message', (event) => {
+      this.vc.increment(this.uuid);
+      let data = undefined;
+      try {
+        data = JSON.parse(event.data);
+      } catch (error) {
+        data = event.data;
+      }
+      let message = data.data;
+      this.em.emit('data-channel-message', message);
     });
   }
 
 }
 
-function createWebRTCConnection() {
-  let webrtc = new WebRTCConnection();
+function createWebRTCConnection(uuid, vc) {
+  let webrtc = new WebRTCConnection(uuid, vc);
   webrtc.bindEmitterEvents();
   webrtc.bindConnectionEvents();
   webrtc.bindDataChannelEvents();
