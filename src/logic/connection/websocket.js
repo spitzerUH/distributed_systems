@@ -57,7 +57,7 @@ class WebSocketConnection {
       autoConnect: false
     });
     this.em = new EventEmitter();
-    this.vc = new VectorClock();
+    this.vc = undefined;
   }
 
   bindIncomingEvents() {
@@ -119,6 +119,7 @@ class WebSocketConnection {
 
   bindOutgoingEvents() {
     this.em.on('room-enter', (data) => {
+      this.vc = new VectorClock()
       this.vc.increment(this.socket.id);
       this.socket.emit('room-enter', this.createMessage(data), (response) => {
         this.vc.increment(this.socket.id);
@@ -130,9 +131,7 @@ class WebSocketConnection {
     this.em.on('room-exit', (data) => {
       this.vc.increment(this.socket.id);
       this.socket.emit('room-exit', this.createMessage(data), (response) => {
-        this.vc.increment(this.socket.id);
-        let svc = createVectorClock(response.clock);
-        this.vc.merge(svc);
+        this.vc = undefined;
         this.em.emit('room-exited', response.data);
       });
     });
