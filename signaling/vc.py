@@ -1,3 +1,5 @@
+import json
+
 class VectorClock:
     def __init__(self, id, clock={}):
         self.id = id
@@ -14,7 +16,10 @@ class VectorClock:
                 self.clock[key] = max(self.clock[key], other.clock[key])
 
     def __str__(self):
-        return str(self.clock)
+        return json.dumps(self.clock)
+
+    def __repr__(self):
+        return json.dumps(self.clock)
 
     def __lt__(self, other):
         for key in self.clock:

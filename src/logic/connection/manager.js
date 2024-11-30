@@ -25,10 +25,10 @@ class ConnectionManager {
   joinRoom(room_code = '') {
     return new Promise((resolve, reject) => {
       if (!this.wsc.socket.connected) {
-        reject('Not connected to server');
+        return reject('Not connected to server');
       }
       if (this._room) {
-        reject('Already in a room');
+        return reject('Already in a room');
       }
       this.wsc.em.once('room-entered', (response) => {
         if (response.room_code) {
@@ -62,6 +62,7 @@ class ConnectionManager {
   }
   bindRoomEvents() {
     this.wsc.em.on('room-joined', (data) => {
+      let sid = data.sid;
       console.log('room-joined', data);
     });
   }
