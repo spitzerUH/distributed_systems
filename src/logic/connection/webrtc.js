@@ -85,8 +85,21 @@ class WebRTCConnection {
       } catch (error) {
         data = event.data;
       }
+      let ovc = createVectorClock(data.clock);
+      this.vc.merge(ovc);
       let message = data.data;
-      this.em.emit('data-channel-message', message);
+      this.em.emit('receive-data-channel-message', message);
+    });
+
+    this.em.on('send-data-channel-message', (message) => {
+      this.vc.increment(this.uuid);
+      let payload = {
+        method: 'webrtc',
+        clock: this.vc.clock,
+        data: message
+      };
+      console.log('Sending data channel message', payload);
+      this.dataChannel.send(JSON.stringify(payload));
     });
   }
 

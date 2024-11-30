@@ -36,15 +36,23 @@ class VectorClock {
     }
   }
 
-  toObj(json) {
-    this.clock = JSON.parse(json);
+  fromStr(str) {
+    this.clock = JSON.parse(str);
+  }
+
+  fromJSON(json) {
+    this.clock = json;
   }
 
 }
 
 function createVectorClock(str) {
   let vc = new VectorClock();
-  vc.toObj(str);
+  try {
+    vc.fromStr(str);
+  } catch (error) {
+    vc.fromJSON(str);
+  }
   return vc;
 }
 

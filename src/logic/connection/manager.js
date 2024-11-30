@@ -78,7 +78,7 @@ class ConnectionManager {
       let uuid = data.uuid;
       let sdp = data.sdp;
       let webrtc = createWebRTCConnection(this.id, this.vc);
-      this.bindWebRTCEvents(webrtc, sid);
+      this.bindWebRTCEvents(webrtc, sid, uuid);
       webrtc.em.emit('got-webrtc-offer', sdp);
       this.webrtcs[uuid] = webrtc;
     });
@@ -90,7 +90,7 @@ class ConnectionManager {
     });
   }
 
-  bindWebRTCEvents(webrtc, sid) {
+  bindWebRTCEvents(webrtc, sid, uuid) {
     webrtc.em.on('send-webrtc-offer', (sdp) => {
       let data = {
         sid: sid,
@@ -115,7 +115,21 @@ class ConnectionManager {
       };
       this.wsc.em.emit('send-webrtc-candidate', data);
     });
+    webrtc.em.on('receive-data-channel-message', (message) => {
+      this.receiveMessage(uuid, message);
+    });
   }
+
+  receiveMessage(uuid, message) {
+    console.log('Received message from', uuid, message);
+  }
+
+  sendMessage(uuid, message) {
+    if (this.webrtcs[uuid]) {
+      this.webrtcs[uuid].em.emit('send-data-channel-message', message);
+    }
+  }
+
 }
 
 export default ConnectionManager;
