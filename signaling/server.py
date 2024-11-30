@@ -19,16 +19,37 @@ def createPayload(clock, data):
         'data': data
     }
 
+def findRoom(sid):
+    rooms = list(sio.rooms(sid) or [])
+    rooms.remove(sid)
+    return rooms[0] if rooms else None
+
+async def notifyRoom(sid, room_code, event, message):
+    roomClocks[room_code].increment()
+    payload = createPayload(roomClocks[room_code], message)
+    await sio.emit(event, payload, room=room_code, skip_sid=sid)
+
 @sio.event
 async def connect(sid, environ):
     print('New Client Connected', sid)
 
 @sio.event
 async def disconnect(sid):
+    room_code = findRoom(sid)
+    if room_code:
+        data = {
+            'sid': sid,
+            'room_code': room_code
+        }
+        await notifyRoom(sid, room_code, 'room-left', data)
     print('Client Disconnected', sid)
 
 @sio.on('room-enter')
 async def room_enter(sid, message):
+    if room_code := findRoom(sid):
+        roomClocks[room_code].increment()
+        return createPayload(roomClocks[room_code], {'error': 'Already in a room'})
+
     room_code = message['data']['room_code'] or 'default'
     if room_code not in roomClocks:
         roomClocks[room_code] = vc.VectorClock('server')
@@ -43,8 +64,9 @@ async def room_enter(sid, message):
         'room_code': room_code
     }
     payload = createPayload(roomClocks[room_code], data)
-    await sio.emit('room-joined', payload, room=room_code, skip_sid=sid)
+    await notifyRoom(sid, room_code, 'room-joined', payload)
 
+    print("Client {} joins room {}".format(sid, room_code))
     roomClocks[room_code].increment()
     return createPayload(roomClocks[room_code], data)
 
@@ -65,7 +87,7 @@ async def room_exit(sid, message):
         'room_code': room_code
     }
     payload = createPayload(roomClocks[room_code], data)
-    await sio.emit('room-left', payload, room=room_code, skip_sid=sid)
+    await notifyRoom(sid, room_code, 'room-left', payload)
 
     roomClocks[room_code].increment()
     return createPayload(roomClocks[room_code], data)
