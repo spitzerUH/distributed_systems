@@ -38,7 +38,7 @@ class ConnectionManager {
           reject(response);
         }
       });
-      this.wsc.em.emit('room-enter', { room_code: room_code });
+      this.wsc.em.emit('room-enter', { uuid: this.id, room_code: room_code });
     });
   }
   exitRoom() {

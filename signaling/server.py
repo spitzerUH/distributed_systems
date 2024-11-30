@@ -61,6 +61,7 @@ async def room_enter(sid, message):
     roomClocks[room_code].increment()
     data = {
         'sid': sid,
+        'uuid': message['data']['uuid'],
         'room_code': room_code
     }
     payload = createPayload(roomClocks[room_code], data)

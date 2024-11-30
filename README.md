@@ -110,6 +110,7 @@ Client emits `room-enter` message to enter a specific game room:
     "method": "ws",
     "clock": ...,
     "data": {
+        "uuid": "unique identifier",
         "room_code": "code"
     }
 }
@@ -123,6 +124,7 @@ Server will send response message with active room code:
     "clock": ...,
     "data": {
         "sid": "sid",
+        "uuid": "unique identifier",
         "room_code": "code"
     }
 }
@@ -161,6 +163,7 @@ Server emits `room-joined` message when a new client joins a room:
     "clock": ...,
     "data": {
         "sid": "sid",
+        "uuid": "unique identifier",
         "room_code": "code"
     }
 }
