@@ -63,7 +63,18 @@ class ConnectionManager {
   bindRoomEvents() {
     this.wsc.em.on('room-joined', (data) => {
       let sid = data.sid;
-      console.log('room-joined', data);
+      let uuid = data.uuid;
+      let webrtc = createWebRTCConnection();
+      webrtc.em.on('send-webrtc-offer', (sdp) => {
+        let data = {
+          sid: sid,
+          uuid: this.id,
+          sdp: sdp
+        };
+        this.wsc.em.emit('webrtc-offer', data);
+      });
+      webrtc.em.emit('start-connection');
+      this.webrtcs[uuid] = webrtc;
     });
   }
 }
