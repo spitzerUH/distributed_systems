@@ -100,19 +100,23 @@ class WebSocketConnection {
       this.vc.increment(this.socket.id);
       let svc = createVectorClock(message.clock);
       this.vc.merge(svc);
-      this.em.emit('webrtc-offer', message.data);
+      let data = message.data;
+      data['sid'] = message.from;
+      this.em.emit('new-webrtc-offer', data);
     });
     this.socket.on('webrtc-answer', (message) => {
       this.vc.increment(this.socket.id);
       let svc = createVectorClock(message.clock);
       this.vc.merge(svc);
-      this.em.emit('webrtc-answer', message.data);
+      let data = message.data;
+      data['sid'] = message.from;
+      this.em.emit('new-webrtc-answer', data);
     });
     this.socket.on('webrtc-candidate', (message) => {
       this.vc.increment(this.socket.id);
       let svc = createVectorClock(message.clock);
       this.vc.merge(svc);
-      this.em.emit('webrtc-candidate', message.data);
+      this.em.emit('new-webrtc-candidate', message.data);
     });
 
   }
@@ -135,17 +139,45 @@ class WebSocketConnection {
         this.em.emit('room-exited', response.data);
       });
     });
-    this.em.on('webrtc-offer', (data) => {
+    this.em.on('send-webrtc-offer', (offer) => {
+      let sid = offer.sid;
+      let uuid = offer.uuid;
+      let sdp = offer.sdp;
+      let data = {
+        uuid: uuid,
+        sdp: sdp
+      };
       this.vc.increment(this.socket.id);
-      this.socket.emit('webrtc-offer', this.createMessage(data));
+      let message = this.createMessage(data);
+      message.to = sid;
+      this.socket.emit('webrtc-offer', message);
     });
-    this.em.on('webrtc-answer', (data) => {
+    this.em.on('send-webrtc-answer', (answer) => {
+      let sid = answer.sid;
+      let uuid = answer.uuid;
+      let sdp = answer.sdp;
+      let data = {
+        uuid: uuid,
+        sdp: sdp
+      };
       this.vc.increment(this.socket.id);
-      this.socket.emit('webrtc-answer', this.createMessage(data));
+      let message = this.createMessage(data);
+      message.to = sid;
+      this.socket.emit('webrtc-answer', message);
     });
-    this.em.on('webrtc-candidate', (data) => {
+    this.em.on('send-webrtc-candidate', (cand) => {
+      console.log('send-webrtc-candidate', cand);
+      let sid = cand.sid;
+      let uuid = cand.uuid;
+      let candidate = cand.candidate;
+      let data = {
+        uuid: uuid,
+        candidate: candidate
+      };
       this.vc.increment(this.socket.id);
-      this.socket.emit('webrtc-candidate', this.createMessage(data));
+      let message = this.createMessage(data);
+      message.to = sid;
+      this.socket.emit('webrtc-candidate', message);
     });
   }
 

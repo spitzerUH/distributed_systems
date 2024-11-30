@@ -65,16 +65,51 @@ class ConnectionManager {
       let sid = data.sid;
       let uuid = data.uuid;
       let webrtc = createWebRTCConnection();
-      webrtc.em.on('send-webrtc-offer', (sdp) => {
-        let data = {
-          sid: sid,
-          uuid: this.id,
-          sdp: sdp
-        };
-        this.wsc.em.emit('webrtc-offer', data);
-      });
+      this.bindWebRTCEvents(webrtc, sid);
       webrtc.em.emit('start-connection');
       this.webrtcs[uuid] = webrtc;
+    });
+    this.wsc.em.on('new-webrtc-offer', (data) => {
+      let sid = data.sid;
+      let uuid = data.uuid;
+      let sdp = data.sdp;
+      let webrtc = createWebRTCConnection();
+      this.bindWebRTCEvents(webrtc, sid);
+      webrtc.em.emit('got-webrtc-offer', sdp);
+      this.webrtcs[uuid] = webrtc;
+    });
+    this.wsc.em.on('new-webrtc-answer', (data) => {
+      this.webrtcs[data.uuid].em.emit('got-webrtc-answer', data.sdp);
+    });
+    this.wsc.em.on('new-webrtc-candidate', (data) => {
+      this.webrtcs[data.uuid].em.emit('got-webrtc-candidate', data.candidate);
+    });
+  }
+
+  bindWebRTCEvents(webrtc, sid) {
+    webrtc.em.on('send-webrtc-offer', (sdp) => {
+      let data = {
+        sid: sid,
+        uuid: this.id,
+        sdp: sdp
+      };
+      this.wsc.em.emit('send-webrtc-offer', data);
+    });
+    webrtc.em.on('send-webrtc-answer', (sdp) => {
+      let data = {
+        sid: sid,
+        uuid: this.id,
+        sdp: sdp
+      };
+      this.wsc.em.emit('send-webrtc-answer', data);
+    });
+    webrtc.em.on('send-webrtc-candidate', (candidate) => {
+      let data = {
+        sid: sid,
+        uuid: this.id,
+        candidate: candidate
+      };
+      this.wsc.em.emit('send-webrtc-candidate', data);
     });
   }
 }

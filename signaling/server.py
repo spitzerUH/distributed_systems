@@ -29,6 +29,11 @@ async def notifyRoom(sid, room_code, event, message):
     payload = createPayload(roomClocks[room_code], message)
     await sio.emit(event, payload, room=room_code, skip_sid=sid)
 
+async def sendToSid(fromSid, toSid, event, message):
+    payload = createPayload(roomClocks[findRoom(fromSid)], message)
+    payload['from'] = fromSid
+    await sio.emit(event, payload, to=toSid)
+
 @sio.event
 async def connect(sid, environ):
     print('New Client Connected', sid)
@@ -93,22 +98,22 @@ async def room_exit(sid, message):
 async def offer(sid, message):
     room_code = findRoom(sid)
     roomClocks[room_code].increment()
-    print("Client {} sent offer {}".format(sid, message))
-    await sio.emit('webrtc-offer', {'from':sid, 'data': message['data']}, to=message['to'])
+    print("Client {} sent offer to {}".format(sid, message['to']))
+    await sendToSid(sid, message['to'], 'webrtc-offer', message['data'])
 
 @sio.on('webrtc-answer')
 async def offer(sid, message):
     room_code = findRoom(sid)
     roomClocks[room_code].increment()
-    print("Client {} sent answer {}".format(sid, message))
-    await sio.emit('webrtc-answer', {'from':sid, 'data': message['data']}, to=message['to'])
+    print("Client {} sent answer to {}".format(sid, message['to']))
+    await sendToSid(sid, message['to'], 'webrtc-answer', message['data'])
 
 @sio.on('webrtc-candidate')
 async def candidate(sid, message):
     room_code = findRoom(sid)
     roomClocks[room_code].increment()
-    print("Client {} sent ICE candidate message: {}".format(sid, message))
-    await sio.emit('webrtc-candidate', {'from':sid, 'data': message['data']}, to=message['to'])
+    print("Client {} sent ICE candidate to {}".format(sid, message['to']))
+    await sendToSid(sid, message['to'], 'webrtc-candidate', message['data'])
 
 async def welcome(request):
     return web.Response(text="Signaling server is up and running!")

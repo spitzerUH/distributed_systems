@@ -11,19 +11,40 @@ class WebRTCConnection {
   }
 
   bindEmitterEvents() {
-    this.em.on('start-connection', (data) => {
-      console.log('start-connection', data);
+    this.em.on('start-connection', () => {
       this.peerConnection.createOffer().then((sdp) => {
         this.peerConnection.setLocalDescription(sdp).then(() => {
           this.em.emit('send-webrtc-offer', sdp);
         });
       });
     });
-    this.em.on('webrtc-offer', (data) => {
+    this.em.on('got-webrtc-offer', (data) => {
+      let sdp = new RTCSessionDescription(data);
+      this.peerConnection.setRemoteDescription(sdp).then(() => {
+        this.peerConnection.createAnswer().then((sdp) => {
+          this.peerConnection.setLocalDescription(sdp).then(() => {
+            this.em.emit('send-webrtc-answer', sdp);
+          }).catch((error) => {
+            console.error(error);
+          });
+        });
+      });
     });
-    this.em.on('webrtc-answer', (data) => {
+    this.em.on('got-webrtc-answer', (data) => {
+      let sdp = new RTCSessionDescription(data);
+      this.peerConnection.setRemoteDescription(sdp).then(() => {
+        console.log('WebRTC connection established');
+      }).catch((error) => {
+        console.error(error);
+      });
     });
-    this.em.on('webrtc-candidate', (data) => {
+    this.em.on('got-webrtc-candidate', (data) => {
+      let candidate = new RTCIceCandidate(data);
+      this.peerConnection.addIceCandidate(candidate).then(() => {
+        console.log('WebRTC candidate added');
+      }).catch((error) => {
+        console.error(error);
+      });
     });
   }
 
@@ -34,7 +55,7 @@ class WebRTCConnection {
 
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        this.em.emit('webrtc-candidate', event.candidate);
+        this.em.emit('send-webrtc-candidate', event.candidate);
       }
     };
 
