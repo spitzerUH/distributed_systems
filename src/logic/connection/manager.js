@@ -11,7 +11,7 @@ class ConnectionManager {
   connect() {
     return new Promise((resolve, reject) => {
       if (this.wsc.socket.connected) {
-        reject('Already connected to server');
+        return reject('Already connected to server');
       }
       this.wsc.em.once('connected', () => {
         resolve();
