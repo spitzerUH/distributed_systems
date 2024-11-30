@@ -58,14 +58,12 @@ async def room_enter(sid, message):
     roomClocks[room_code].update(cVC)
     await sio.enter_room(sid, room_code)
 
-    roomClocks[room_code].increment()
     data = {
         'sid': sid,
         'uuid': message['data']['uuid'],
         'room_code': room_code
     }
-    payload = createPayload(roomClocks[room_code], data)
-    await notifyRoom(sid, room_code, 'room-joined', payload)
+    await notifyRoom(sid, room_code, 'room-joined', data)
 
     print("Client {} joins room {}".format(sid, room_code))
     roomClocks[room_code].increment()
@@ -82,13 +80,11 @@ async def room_exit(sid, message):
     print("Client {} leaves room {}".format(sid, room_code))
     await sio.leave_room(sid, room_code)
 
-    roomClocks[room_code].increment()
     data = {
         'sid': sid,
         'room_code': room_code
     }
-    payload = createPayload(roomClocks[room_code], data)
-    await notifyRoom(sid, room_code, 'room-left', payload)
+    await notifyRoom(sid, room_code, 'room-left', data)
 
     roomClocks[room_code].increment()
     return createPayload(roomClocks[room_code], data)
