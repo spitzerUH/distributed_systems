@@ -95,16 +95,22 @@ async def room_exit(sid, message):
 
 @sio.on('webrtc-offer')
 async def offer(sid, message):
+    room_code = findRoom(sid)
+    roomClocks[room_code].increment()
     print("Client {} sent offer {}".format(sid, message))
     await sio.emit('webrtc-offer', {'from':sid, 'data': message['data']}, to=message['to'])
 
 @sio.on('webrtc-answer')
 async def offer(sid, message):
+    room_code = findRoom(sid)
+    roomClocks[room_code].increment()
     print("Client {} sent answer {}".format(sid, message))
     await sio.emit('webrtc-answer', {'from':sid, 'data': message['data']}, to=message['to'])
 
 @sio.on('webrtc-candidate')
 async def candidate(sid, message):
+    room_code = findRoom(sid)
+    roomClocks[room_code].increment()
     print("Client {} sent ICE candidate message: {}".format(sid, message))
     await sio.emit('webrtc-candidate', {'from':sid, 'data': message['data']}, to=message['to'])
 
