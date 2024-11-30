@@ -12,6 +12,13 @@ sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
 sio.attach(app)
 
+def createPayload(clock, data):
+    return {
+        'method': 'ws',
+        'clock': str(clock),
+        'data': data
+    }
+
 @sio.event
 async def connect(sid, environ):
     print('New Client Connected', sid)
@@ -31,25 +38,15 @@ async def room_enter(sid, message):
     await sio.enter_room(sid, room_code)
 
     roomClocks[room_code].increment()
-    payload = {
-        'method': 'ws',
-        'clock': str(roomClocks[room_code]),
-        'data': {
-            'sid': sid,
-            'room_code': room_code
-        }
+    data = {
+        'sid': sid,
+        'room_code': room_code
     }
+    payload = createPayload(roomClocks[room_code], data)
     await sio.emit('room-joined', payload, room=room_code, skip_sid=sid)
 
     roomClocks[room_code].increment()
-    return {
-        'method': 'ws',
-        'clock': str(roomClocks[room_code]),
-        'data': {
-            'sid': sid,
-            'room_code': room_code
-        }
-    }
+    return createPayload(roomClocks[room_code], data)
 
 @sio.on('room-exit')
 async def room_exit(sid, message):
@@ -63,25 +60,15 @@ async def room_exit(sid, message):
     await sio.leave_room(sid, room_code)
 
     roomClocks[room_code].increment()
-    payload = {
-        'method': 'ws',
-        'clock': str(roomClocks[room_code]),
-        'data': {
-            'sid': sid,
-            'room_code': room_code
-        }
+    data = {
+        'sid': sid,
+        'room_code': room_code
     }
+    payload = createPayload(roomClocks[room_code], data)
     await sio.emit('room-left', payload, room=room_code, skip_sid=sid)
 
     roomClocks[room_code].increment()
-    return {
-        'method': 'ws',
-        'clock': str(roomClocks[room_code]),
-        'data': {
-            'sid': sid,
-            'room_code': room_code
-        }
-    }
+    return createPayload(roomClocks[room_code], data)
 
 @sio.on('webrtc-offer')
 async def offer(sid, message):
