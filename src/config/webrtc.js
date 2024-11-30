@@ -25,3 +25,9 @@ export const PC_CONFIG = {
     },
   ]
 };
+
+export const DC_CONFIG = {
+  ordered: true,
+  negotiated: true,
+  id: 0,
+};

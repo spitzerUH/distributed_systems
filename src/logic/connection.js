@@ -1,4 +1,4 @@
-import { PC_CONFIG } from "+logic/PC_CONFIG";
+import { PC_CONFIG } from "+config/webrtc";
 
 const { io } = require("socket.io-client");
 
