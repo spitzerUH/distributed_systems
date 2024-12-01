@@ -42,6 +42,15 @@ export class Game extends Scene {
           .setActive(false)
           .setVisible(false);
       }
+      if (!this.gameState.players['player'].observing) {
+        this.physics.add.overlap(
+          myplayer,
+          player,
+          () => {
+            this.gameState.emit('change-status', 'dead');
+          }
+        );
+      }
       if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
         this.gameState.emit('change-status', 'alive');
       }
@@ -166,9 +175,20 @@ export class Game extends Scene {
           .setActive(false)
           .setVisible(false);
       } else {
+        if (playerid !== "player") {
+          this.physics.add.overlap(
+            this.gameState.players["player"].object,
+            player,
+            () => {
+              this.gameState.emit('change-status', 'dead');
+            }
+          )
+
+        }
         player
           .setActive(true)
           .setVisible(true);
+
       }
     }
   }
