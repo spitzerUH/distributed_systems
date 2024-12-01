@@ -177,7 +177,7 @@ export class Game extends Scene {
       } else {
         if (playerid !== "player") {
           this.physics.add.overlap(
-            this.gameState.players["player"],
+            this.gameState.players["player"].object,
             player,
             () => {
               this.gameState.emit('change-status', 'dead');
