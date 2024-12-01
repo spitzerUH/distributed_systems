@@ -17,6 +17,10 @@ const config = {
     createContainer: true
   },
   backgroundColor: '#028af8',
+  audio: {
+    disableWebAudio: true,
+    noAudio: true
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
