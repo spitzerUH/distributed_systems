@@ -98,7 +98,6 @@ class WebRTCConnection {
         clock: this.vc.clock,
         data: message
       };
-      console.log('Sending data channel message', payload);
       this.dataChannel.send(JSON.stringify(payload));
     });
   }

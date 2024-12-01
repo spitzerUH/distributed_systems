@@ -1,6 +1,7 @@
 import createWebRTCConnection from './webrtc';
 import createWebSocketConnection from './websocket';
 import { VectorClock } from './vc';
+import EventEmitter from 'events';
 
 class ConnectionManager {
   constructor(server) {
@@ -9,6 +10,11 @@ class ConnectionManager {
     this.id = self.crypto.randomUUID();
     this._room = undefined;
     this.vc = undefined;
+    this.events = new EventEmitter();
+    this.wasFirst = undefined;
+  }
+  get isLeader() {
+    return !!this.wasFirst;
   }
   connect() {
     return new Promise((resolve, reject) => {
@@ -64,16 +70,22 @@ class ConnectionManager {
       this.wsc.em.emit('room-exit', { room_code: this._room });
     });
   }
-  bindRoomEvents() {
+  bindEvents() {
     this.wsc.em.on('room-joined', (data) => {
+      if (this.wasFirst === undefined) {
+        this.wasFirst = true;
+      }
       let sid = data.sid;
       let uuid = data.uuid;
       let webrtc = createWebRTCConnection(this.id, this.vc);
-      this.bindWebRTCEvents(webrtc, sid);
+      this.bindWebRTCEvents(webrtc, sid, uuid);
       webrtc.em.emit('start-connection');
       this.webrtcs[uuid] = webrtc;
     });
     this.wsc.em.on('new-webrtc-offer', (data) => {
+      if (this.wasFirst === undefined) {
+        this.wasFirst = false;
+      }
       let sid = data.sid;
       let uuid = data.uuid;
       let sdp = data.sdp;
@@ -116,18 +128,38 @@ class ConnectionManager {
       this.wsc.em.emit('send-webrtc-candidate', data);
     });
     webrtc.em.on('receive-data-channel-message', (message) => {
-      this.receiveMessage(uuid, message);
+      this.events.emit('message', uuid, message);
     });
-  }
-
-  receiveMessage(uuid, message) {
-    console.log('Received message from', uuid, message);
+    webrtc.em.on('data-channel-open', () => {
+      this.events.emit('open', uuid);
+    });
+    webrtc.em.on('data-channel-close', () => {
+      this.events.emit('close', uuid);
+    });
   }
 
   sendMessage(uuid, message) {
     if (this.webrtcs[uuid]) {
       this.webrtcs[uuid].em.emit('send-data-channel-message', message);
     }
+  }
+
+  sendGameMessage(message) {
+    console.log('Sending game message', message);
+    return new Promise((resolve, reject) => {
+      for (let uuid in this.webrtcs) {
+        this.sendMessage(uuid, message);
+      }
+      resolve();
+    });
+  }
+
+  sendGameMessageTo(id, message) {
+    return this.sendMessage(id, message);
+  }
+
+  get room() {
+    return this._room;
   }
 
 }
