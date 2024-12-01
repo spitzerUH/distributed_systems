@@ -21,6 +21,9 @@ class WebRTCConnection {
         });
       });
     });
+    this.em.on('close', () => {
+      this.dataChannel.close();
+    });
     this.em.on('got-webrtc-offer', (data) => {
       let sdp = new RTCSessionDescription(data);
       this.peerConnection.setRemoteDescription(sdp).then(() => {
@@ -53,7 +56,7 @@ class WebRTCConnection {
 
   bindConnectionEvents() {
     this.peerConnection.oniceconnectionstatechange = () => {
-      console.log(this.peerConnection.iceConnectionState);
+      //console.log(this.peerConnection.iceConnectionState);
     };
 
     this.peerConnection.onicecandidate = (event) => {
@@ -70,11 +73,13 @@ class WebRTCConnection {
     this.dataChannel.addEventListener('open', () => {
       this.vc.increment(this.uuid);
       this.em.emit('data-channel-open');
+      console.log('Data channel open');
     });
 
     this.dataChannel.addEventListener('close', () => {
       this.vc.increment(this.uuid);
       this.em.emit('data-channel-close');
+      console.log('Data channel close');
     });
 
     this.dataChannel.addEventListener('message', (event) => {

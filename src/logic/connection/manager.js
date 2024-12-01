@@ -62,6 +62,10 @@ class ConnectionManager {
         if (response.room_code && response.room_code === this._room) {
           this._room = undefined;
           this.vc = undefined;
+          for (let uuid in this.webrtcs) {
+            this.webrtcs[uuid].em.emit('close');
+          }
+          this.webrtcs = {};
           resolve(response);
         } else {
           reject(response);
@@ -135,6 +139,7 @@ class ConnectionManager {
     });
     webrtc.em.on('data-channel-close', () => {
       this.events.emit('close', uuid);
+      delete this.webrtcs[uuid];
     });
   }
 
@@ -145,7 +150,6 @@ class ConnectionManager {
   }
 
   sendGameMessage(message) {
-    console.log('Sending game message', message);
     return new Promise((resolve, reject) => {
       for (let uuid in this.webrtcs) {
         this.sendMessage(uuid, message);
