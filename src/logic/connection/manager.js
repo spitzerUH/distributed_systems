@@ -159,7 +159,10 @@ class ConnectionManager {
   }
 
   sendGameMessageTo(id, message) {
-    return this.sendMessage(id, message);
+    return new Promise((resolve, reject) => {
+      this.sendMessage(id, message);
+      resolve();
+    });
   }
 
   get room() {

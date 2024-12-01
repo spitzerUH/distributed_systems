@@ -37,24 +37,26 @@ export class Game extends Scene {
 
     this.gameState.on('player-joins', (playerid) => {
       let data = this.gameState.players[playerid];
-      let player = this.createPlayer(data);
-      this.gameState.players[playerid].object = player;
-      if (data.observing || !data.status || data.status == 'dead') {
-        player
-          .setActive(false)
-          .setVisible(false);
-      }
-      if (!this.gameState.players['player'].observing) {
-        this.physics.add.overlap(
-          myplayer,
-          player,
-          () => {
-            this.gameState.emit('change-status', 'dead');
-          }
-        );
-      }
-      if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
-        this.gameState.emit('change-status', 'alive');
+      if (data) {
+        let player = this.createPlayer(data);
+        this.gameState.players[playerid].object = player;
+        if (data.observing || !data.status || data.status == 'dead') {
+          player
+            .setActive(false)
+            .setVisible(false);
+        }
+        if (!this.gameState.players['player'].observing) {
+          this.physics.add.overlap(
+            myplayer,
+            player,
+            () => {
+              this.gameState.emit('change-status', 'dead');
+            }
+          );
+        }
+        if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
+          this.gameState.emit('change-status', 'alive');
+        }
       }
     });
     this.gameState.on('player-moves', (playerid, direction) => {
@@ -79,12 +81,14 @@ export class Game extends Scene {
           }
           break;
         case 'alive':
-          let spawn = this.gameState.players[playerid].spawnpoint;
-          let alivePlayer = this.gameState.players[playerid].object;
-          alivePlayer
-            .setActive(true)
-            .setVisible(true)
-            .setPosition(spawn.x, spawn.y);
+          if (this.gameState.players[playerid]) {
+            let spawn = this.gameState.players[playerid].spawnpoint;
+            let alivePlayer = this.gameState.players[playerid].object;
+            alivePlayer
+              .setActive(true)
+              .setVisible(true)
+              .setPosition(spawn.x, spawn.y);
+          }
           if (this.gameState.connection.isLeader && playerid !== 'player') {
             this.gameState.emit('send-food', playerid);
           }
