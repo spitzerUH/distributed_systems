@@ -18,9 +18,15 @@ export class GameState extends EventEmitter {
       status: undefined,
       object: undefined
     };
-    this.connection.gameChannelOpen = this.gameChannelOpen.bind(this);
-    this.connection.gameChannelMessage = this.gameChannelMessage.bind(this);
-    this.connection.gameChannelClose = this.gameChannelClose.bind(this);
+    this.connection.events.on('open', (uuid) => {
+      this.gameChannelOpen(uuid);
+    });
+    this.connection.events.on('message', (uuid, message) => {
+      this.gameChannelMessage(uuid, message);
+    });
+    this.connection.events.on('close', (uuid) => {
+      this.gameChannelClose(uuid);
+    });
     this.handleMovement();
     this.handleStatusChange();
     this.bindWhoEvents();

@@ -19,11 +19,11 @@ export class MainMenu extends Scene {
       border_color: 0x000000,
       button_color: 0x2222ff
     }).on('enter', (roomCode) => {
-      this.connection.enterRoom(roomCode).then(() => {
+      this.connection.joinRoom(roomCode).then(() => {
         this.scene.start('Game', { gamestate: new GameState({ connection: this.connection, observer: false }) });
       });
     }).on('observe', (roomCode) => {
-      this.connection.enterRoom(roomCode).then(() => {
+      this.connection.joinRoom(roomCode).then(() => {
         this.scene.start('Game', { gamestate: new GameState({ connection: this.connection, observer: true }) });
       });
     }).popUp(500);
