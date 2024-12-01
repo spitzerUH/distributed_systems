@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
+import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -12,6 +13,7 @@ export class Game extends Scene {
   }
 
   create() {
+    startFoodProcessing(this);
     this.clearOldObjects();
     const mainCamera = initMainCamera(this);
 
@@ -83,8 +85,33 @@ export class Game extends Scene {
             .setActive(true)
             .setVisible(true)
             .setPosition(spawn.x, spawn.y);
+          if (this.gameState.connection.isLeader && playerid !== 'player') {
+            this.gameState.emit('send-food', playerid);
+          }
           break;
       }
+    });
+    this.gameState.on('generate-food', (count) => {
+      let food = [];
+      for (let i = 0; i < count; i++) {
+        let id = this.gameState.nextFoodIndex;
+        let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
+        let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
+        let size = Phaser.Math.Between(5, 10);
+        let color = Phaser.Display.Color.RandomRGB().color;
+        food.push(
+          {
+            id: id,
+            details: {
+              x: x,
+              y: y,
+              size: size,
+              color: color
+            }
+          });
+      }
+      this.gameState.emit('create-food', food);
+
     });
 
     if (this.gameState.players['player'].observing) {
@@ -93,9 +120,10 @@ export class Game extends Scene {
         .setPosition(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2);
     } else {
       this.generateSpawnpoint();
-      this.gameState.emit('change-status', 'alive');
     }
     this.generateNewObjects();
+
+    this.gameState.emit('ready');
   }
 
   update(time, delta) {
@@ -159,6 +187,7 @@ export class Game extends Scene {
         this.gameState.players[playerid].object = undefined;
       }
     }
+    clearFood(this);
   }
 
   generateNewObjects() {
@@ -191,6 +220,7 @@ export class Game extends Scene {
 
       }
     }
+    recreateFood(this);
   }
 
 }
