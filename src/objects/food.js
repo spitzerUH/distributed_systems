@@ -6,6 +6,12 @@ class Food {
     this._details = data.details;
     this._object = undefined;
   }
+  get id() {
+    return this._id;
+  }
+  get object() {
+    return this._object;
+  }
   createObject(scene) {
     return new Promise((resolve, reject) => {
       try {
@@ -29,7 +35,9 @@ class Food {
   destroyObject() {
     return new Promise((resolve, reject) => {
       try {
-        this._object.destroy();
+        if (this._object) {
+          this._object.destroy();
+        }
         this._object = undefined;
         resolve();
       } catch (error) {
@@ -48,57 +56,51 @@ class Food {
       }
     });
   }
-}
-
-class FoodH extends Hexagon {
-  constructor(scene, data) {
-    let id = data.id;
-    let details = data.details;
-    let x = details.x;
-    let y = details.y;
-    let size = details.size;
-    let color = details.color;
-    super(0, 0, size, color);
-    this.graphics = scene.add.graphics()
-      .fillStyle(color)
-      .fillPoints(this.points)
-      .setInteractive(this, Phaser.Geom.Polygon.Contains)
-      .setPosition(x, y);
-    scene.add.existing(this.graphics);
-    scene.physics.add.existing(this.graphics);
-    this.graphics.body.setCircle(size, -size, -size);
-    this.graphics.body.setImmovable(true);
-    let foodData = {
-      id: id,
-      details: details,
-      object: this.graphics
+  format() {
+    return {
+      id: this._id,
+      details: this._details
     };
-    if (!scene.gameState.players['player']._observing) {
-      scene.physics.add.overlap(
-        scene.gameState.players['player'].object,
-        this.graphics,
-        (player, food) => {
-          scene.gameState.emit('food-eaten', id);
-        });
-    }
-    scene.gameState.emit('food-created', foodData);
   }
 }
 
-export function startFoodProcessing(scene) {
-  scene.gameState.on('create-food', (data) => {
-    data.forEach(food => {
-      new FoodH(scene, food);
+function createFood(scene, data) {
+  let food = [];
+  data.forEach((foodData) => {
+    let f = new Food(foodData);
+    f.createObject(scene).then(() => {
+      food.push(f);
     });
+    food.push(f);
+  });
+  return food;
+}
+
+function createFoodCollision(scene, player) {
+  if (player && player.object) {
+    for (let foodid in scene.gameState.food) {
+      let food = scene.gameState.food[foodid];
+      if (food) {
+        player.collisionWith(food, (player, f) => {
+          scene.gameState.emit('food-eaten', food.id);
+        });
+      }
+    }
+  }
+}
+
+export function startFoodProcessing(scene, myplayer) {
+  scene.gameState.on('create-food', (data) => {
+    scene.gameState.emit('food-created', createFood(scene, data));
+    createFoodCollision(scene, myplayer);
   });
 }
 
 export function clearFood(scene) {
   for (let foodid in scene.gameState.food) {
-    let food = scene.gameState.food[foodid].object;
+    let food = scene.gameState.food[foodid];
     if (food) {
-      food.destroy();
-      scene.gameState.food[foodid].object = undefined;
+      food.destroyObject();
     }
   }
 }
@@ -106,9 +108,8 @@ export function clearFood(scene) {
 export function recreateFood(scene) {
   for (let foodid in scene.gameState.food) {
     let food = scene.gameState.food[foodid];
-    if (food.object) {
-      continue;
+    if (food) {
+      food.createObject(scene);
     }
-    new FoodH(scene, food);
   }
 }

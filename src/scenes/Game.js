@@ -13,7 +13,6 @@ export class Game extends Scene {
   }
 
   create() {
-    startFoodProcessing(this);
     this.clearOldObjects();
     const mainCamera = initMainCamera(this);
 
@@ -30,6 +29,8 @@ export class Game extends Scene {
     let myplayer = this.gameState.players['player'];
     myplayer.createObject(this);
     myplayer.follow(mainCamera);
+
+    startFoodProcessing(this, myplayer);
 
     this.dirr = undefined;
 
@@ -78,14 +79,14 @@ export class Game extends Scene {
       }
     });
     this.gameState.on('generate-food', (count) => {
-      let food = [];
+      let foodData = [];
       for (let i = 0; i < count; i++) {
         let id = this.gameState.nextFoodIndex;
         let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
         let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
         let size = Phaser.Math.Between(5, 10);
         let color = Phaser.Display.Color.RandomRGB().color;
-        food.push(
+        foodData.push(
           {
             id: id,
             details: {
@@ -96,7 +97,7 @@ export class Game extends Scene {
             }
           });
       }
-      this.gameState.emit('create-food', food);
+      this.gameState.emit('create-food', foodData);
 
     });
 
