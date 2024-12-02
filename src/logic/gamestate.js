@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { createPlayer } from '+objects/player';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -9,15 +10,12 @@ export class GameState extends EventEmitter {
     this._currentFoodIndex = 0;
     this.foodToSend = 0;
     this.foodToSendArray = [];
-    this.players['player'] = {
+    this.players['player'] = createPlayer({
       id: 'player',
-      name: (JSON.parse(localStorage.getItem('player-name'))),
-      color: (JSON.parse(localStorage.getItem('player-color')) || 0x000000),
-      observing: !!data.observer,
-      spawnpoint: { x: 0, y: 0 },
-      status: undefined,
-      object: undefined
-    };
+      name: JSON.parse(localStorage.getItem('player-name')),
+      color: JSON.parse(localStorage.getItem('player-color')),
+      observing: !!data.observer
+    });
     this.connection.events.on('open', (uuid) => {
       this.gameChannelOpen(uuid);
     });
@@ -32,13 +30,13 @@ export class GameState extends EventEmitter {
     this.bindWhoEvents();
     this.handleFood();
     this.on('spawnpoint', (point) => {
-      this.players['player'].spawnpoint = point;
+      this.players['player']._position = point;
     });
     this.on('leave', () => {
       this.connection.exitRoom();
     });
     this.on('ready', () => {
-      if (!this.players['player'].observing) {
+      if (!this.players['player']._observing) {
         this.emit('change-status', 'alive');
       }
     });
@@ -78,7 +76,10 @@ export class GameState extends EventEmitter {
 
   gameChannelClose(playerid) {
     this.emit('player-leaves', playerid);
-    delete this._players[playerid];
+    if (this.players[playerid]) {
+      this.players[playerid].resetObject();
+      delete this._players[playerid];
+    }
   }
 
   gameChannelMessage(playerid, message) {
@@ -93,9 +94,9 @@ export class GameState extends EventEmitter {
         this.emit('player-moves', playerid, message.data.direction);
         break;
       case 'status':
-        this.players[playerid].status = message.data.status;
-        this.players[playerid].spawnpoint = message.data.spawnpoint;
-        this.players[playerid].observing = false;
+        this.players[playerid]._status = message.data.status;
+        this.players[playerid]._position = message.data.position;
+        this.players[playerid]._observing = false;
         this.emit('status-change', playerid, message.data.status);
         break;
       case 'food':
@@ -123,11 +124,11 @@ export class GameState extends EventEmitter {
       let payload = {
         type: 'whoami',
         data: {
-          name: this.players['player'].name,
-          color: this.players['player'].color,
-          observing: this.players['player'].observing,
-          status: this.players['player'].status,
-          spawnpoint: this.players['player'].spawnpoint
+          name: this.players['player']._name,
+          color: this.players['player']._color,
+          observing: this.players['player']._observing,
+          status: this.players['player']._status,
+          position: this.players['player']._position
         }
       };
       this._connection.sendGameMessage(payload).then(() => {
@@ -141,11 +142,10 @@ export class GameState extends EventEmitter {
       name: data.name,
       color: data.color,
       observing: data.observing,
-      spawnpoint: data.spawnpoint,
-      status: data.status,
-      object: undefined
+      position: data.position,
+      status: data.status
     };
-    this._players[playerid] = playerData;
+    this._players[playerid] = createPlayer(playerData);
     this.emit('player-joins', playerid);
   }
 
@@ -162,9 +162,9 @@ export class GameState extends EventEmitter {
       if (status === 'dead') {
         data = { status: status };
       } else {
-        data = { status: status, spawnpoint: this.players['player'].spawnpoint };
+        data = { status: status, position: this.players['player']._position };
       }
-      this.players['player'].status = status;
+      this.players['player']._status = status;
       this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
         this.emit('status-change', 'player', status);
       });

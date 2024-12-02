@@ -35,10 +35,10 @@ export class UI extends Scene {
       playerList.emit('leave', playerid);
     });
 
-    if (this.gameState.players['player'].observing) {
+    if (this.gameState.players['player']._observing) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.gameState.players['player'].observing = false;
+        this.gameState.players['player']._observing = false;
         this.scene.stop().start('Game', { gamestate: this.gameState });
       });
     }

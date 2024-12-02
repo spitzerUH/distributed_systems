@@ -27,67 +27,49 @@ export class Game extends Scene {
 
     drawBorders(this, this.physics.world.bounds);
 
-    let myplayer = this.createPlayer(this.gameState.players['player']);
-    this.gameState.players['player'].object = myplayer;
-    this.physics.add.existing(myplayer);
-    myplayer.body.setCollideWorldBounds(true);
-    mainCamera.startFollow(myplayer);
+    let myplayer = this.gameState.players['player'];
+    myplayer.createObject(this);
+    myplayer.follow(mainCamera);
 
     this.dirr = undefined;
 
     this.gameState.on('player-joins', (playerid) => {
-      let data = this.gameState.players[playerid];
-      if (data) {
-        let player = this.createPlayer(data);
-        this.gameState.players[playerid].object = player;
-        if (data.observing || !data.status || data.status == 'dead') {
-          player
-            .setActive(false)
-            .setVisible(false);
+      let player = this.gameState.players[playerid];
+      if (player) {
+        player.createObject(this);
+        if (player._observing || !player._status || player._status == 'dead') {
+          player.hide();
         }
-        if (!this.gameState.players['player'].observing) {
-          this.physics.add.overlap(
-            myplayer,
-            player,
-            () => {
+        if (!this.gameState.players['player']._observing) {
+          player.collisionWith(myplayer, () => {
+            if (this.gameState.players['player']._status == 'alive' && player._status == 'alive') {
               this.gameState.emit('change-status', 'dead');
             }
-          );
+          });
         }
-        if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
+        if (!this.gameState.players['player']._observing && this.gameState.players['player']._status == 'alive') {
           this.gameState.emit('change-status', 'alive');
         }
       }
     });
     this.gameState.on('player-moves', (playerid, direction) => {
-      let player = this.gameState.players[playerid].object;
-      this.doMovement(player, direction);
-    });
-    this.gameState.on('player-leaves', (playerid) => {
-      this.gameState.players[playerid].object.destroy();
+      let player = this.gameState.players[playerid];
+      player.move(direction);
     });
     this.gameState.on('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':
-          let deadPlayer = this.gameState.players[playerid].object;
-          deadPlayer.body.setVelocity(0);
+          let deadPlayer = this.gameState.players[playerid];
+          deadPlayer.stop();
+          deadPlayer.hide();
           if (playerid == 'player') {
             this.generateSpawnpoint();
             this.scene.run('GameOver', { gameState: this.gameState });
-          } else {
-            deadPlayer
-              .setActive(false)
-              .setVisible(false);
           }
           break;
         case 'alive':
           if (this.gameState.players[playerid]) {
-            let spawn = this.gameState.players[playerid].spawnpoint;
-            let alivePlayer = this.gameState.players[playerid].object;
-            alivePlayer
-              .setActive(true)
-              .setVisible(true)
-              .setPosition(spawn.x, spawn.y);
+            this.gameState.players[playerid].respawn();
           }
           if (this.gameState.connection.isLeader && playerid !== 'player') {
             this.gameState.emit('send-food', playerid);
@@ -118,10 +100,10 @@ export class Game extends Scene {
 
     });
 
-    if (this.gameState.players['player'].observing) {
-      myplayer
-        .setVisible(false)
-        .setPosition(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2);
+    if (this.gameState.players['player']._observing) {
+      let x = this.physics.world.bounds.width / 2;
+      let y = this.physics.world.bounds.height / 2;
+      myplayer.observe(x, y);
     } else {
       this.generateSpawnpoint();
     }
@@ -142,39 +124,11 @@ export class Game extends Scene {
       curDirr = "down";
     }
     if (curDirr && curDirr != this.dirr) {
-      this.doMovement(this.gameState.players['player'].object, curDirr);
-      if (this.gameState.players['player'].observing)
+      this.gameState.players['player'].move(curDirr);
+      if (this.gameState.players['player']._observing)
         return;
       this.gameState.emit('move', curDirr);
     }
-  }
-
-  doMovement(player, movement) {
-    switch (movement) {
-      case "left":
-        player.body.setVelocity(-100, 0);
-        break;
-      case "right":
-        player.body.setVelocity(100, 0);
-        break;
-      case "up":
-        player.body.setVelocity(0, -100);
-        break;
-      case "down":
-        player.body.setVelocity(0, 100);
-        break
-    }
-  }
-
-  createPlayer(data) {
-    let player = this.add.circle(
-      (data.spawnpoint?.x || 0),
-      (data.spawnpoint?.y || 0),
-      10,
-      data.color
-    );
-    this.physics.add.existing(player);
-    return player;
   }
 
   generateSpawnpoint() {
@@ -185,11 +139,7 @@ export class Game extends Scene {
 
   clearOldObjects() {
     for (let playerid in this.gameState.players) {
-      let player = this.gameState.players[playerid].object;
-      if (player) {
-        player.destroy();
-        this.gameState.players[playerid].object = undefined;
-      }
+      this.gameState.players[playerid].resetObject();
     }
     clearFood(this);
   }
@@ -199,28 +149,19 @@ export class Game extends Scene {
       if (this.gameState.players[playerid].object) {
         continue;
       }
-      let playerData = this.gameState.players[playerid];
-      let player = this.createPlayer(playerData);
-      this.gameState.players[playerid].object = player;
-      this.physics.add.existing(player);
-      if (playerData.observing || !playerData.status || playerData.status == 'dead') {
-        player
-          .setActive(false)
-          .setVisible(false);
+      let player = this.gameState.players[playerid];
+      player.createObject(this);
+      if (player._observing || !player._status || player._status == 'dead') {
+        player.hide();
       } else {
         if (playerid !== "player") {
-          this.physics.add.overlap(
-            this.gameState.players["player"].object,
-            player,
-            () => {
+          this.gameState.players["player"].collisionWith(player, () => {
+            if (this.gameState.players["player"]._status == 'alive' && player._status == 'alive') {
               this.gameState.emit('change-status', 'dead');
             }
-          )
-
+          });
         }
-        player
-          .setActive(true)
-          .setVisible(true);
+        player.show();
 
       }
     }
