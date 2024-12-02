@@ -1,15 +1,15 @@
 class GameState {
   constructor() {
-    this.players = {};
+    this._players = {};
   }
   addPlayer(player) {
-    this.players[player.id] = player;
+    this._players[player.id] = player;
   }
   removePlayer(player) {
     return new Promise((resolve) => {
       if (player) {
-        this.players[player.id].resetObject();
-        delete this.players[player.id];
+        this._players[player.id].resetObject();
+        delete this._players[player.id];
         resolve();
       } else {
         reject('Player not found');
@@ -18,7 +18,7 @@ class GameState {
   }
   getPlayer(id) {
     return new Promise((resolve, reject) => {
-      let player = this.players[id];
+      let player = this._players[id];
       if (player) {
         resolve(player);
       } else {
