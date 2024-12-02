@@ -5,12 +5,16 @@ class Food {
     this._id = data.id;
     this._details = data.details;
     this._object = undefined;
+    this._eaten = false;
   }
   get id() {
     return this._id;
   }
   get object() {
     return this._object;
+  }
+  get eaten() {
+    return this._eaten;
   }
   createObject(scene) {
     return new Promise((resolve, reject) => {
@@ -49,6 +53,7 @@ class Food {
     return new Promise((resolve, reject) => {
       try {
         this.destroyObject().then(() => {
+          this._eaten = true;
           resolve(this._id);
         });
       } catch (error) {
@@ -77,11 +82,14 @@ function createFood(scene, data) {
 }
 
 function createFoodCollision(scene, player) {
-  if (player && player.object) {
+  if (player && player.object && player.object.body) {
     for (let foodid in scene.gameState.food) {
       let food = scene.gameState.food[foodid];
       if (food) {
         player.collisionWith(food, (player, f) => {
+          if (food.eaten) {
+            return;
+          }
           scene.gameState.emit('food-eaten', food.id);
         });
       }
