@@ -143,8 +143,7 @@ export class GameState extends EventEmitter {
       color: data.color,
       observing: data.observing,
       position: data.position,
-      status: data.status,
-      object: undefined
+      status: data.status
     };
     this._players[playerid] = createPlayer(playerData);
     this.emit('player-joins', playerid);

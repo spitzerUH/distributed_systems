@@ -27,10 +27,10 @@ class Player {
   follow(camera) {
     camera.startFollow(this._object);
   }
-  collisionWith(player, callback) {
+  collisionWith(other, callback) {
     this._object.scene.physics.add.overlap(
       this._object,
-      player.object,
+      other.object,
       callback
     );
   }
