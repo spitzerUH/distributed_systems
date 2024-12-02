@@ -34,6 +34,22 @@ class Player {
       callback
     );
   }
+  move(direction) {
+    switch (direction) {
+      case 'up':
+        this._object.body.setVelocity(0, -100);
+        break;
+      case 'down':
+        this._object.body.setVelocity(0, 100);
+        break;
+      case 'left':
+        this._object.body.setVelocity(-100, 0);
+        break;
+      case 'right':
+        this._object.body.setVelocity(100, 0);
+        break;
+    }
+  }
   get object() {
     return this._object;
   }
