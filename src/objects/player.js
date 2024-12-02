@@ -64,6 +64,14 @@ class Player {
     this._object.setPosition(this._position.x, this._position.y);
     this.show();
   }
+  stop() {
+    this._object.body.setVelocity(0, 0);
+  }
+  observe(x, y) {
+    this._object
+    .setVisible(false)
+    .setPosition(x, y);
+  }
   get object() {
     return this._object;
   }

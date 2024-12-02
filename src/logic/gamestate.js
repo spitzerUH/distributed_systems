@@ -76,7 +76,10 @@ export class GameState extends EventEmitter {
 
   gameChannelClose(playerid) {
     this.emit('player-leaves', playerid);
-    delete this._players[playerid];
+    if (this.players[playerid]) {
+      this.players[playerid].resetObject();
+      delete this._players[playerid];
+    }
   }
 
   gameChannelMessage(playerid, message) {

@@ -54,19 +54,15 @@ export class Game extends Scene {
       let player = this.gameState.players[playerid];
       player.move(direction);
     });
-    this.gameState.on('player-leaves', (playerid) => {
-      this.gameState.players[playerid].resetObject();
-    });
     this.gameState.on('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':
           let deadPlayer = this.gameState.players[playerid];
-          deadPlayer.object.body.setVelocity(0);
+          deadPlayer.stop();
+          deadPlayer.hide();
           if (playerid == 'player') {
             this.generateSpawnpoint();
             this.scene.run('GameOver', { gameState: this.gameState });
-          } else {
-            deadPlayer.hide();
           }
           break;
         case 'alive':
@@ -103,9 +99,9 @@ export class Game extends Scene {
     });
 
     if (this.gameState.players['player']._observing) {
-      myplayer.object
-        .setVisible(false)
-        .setPosition(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2);
+      let x = this.physics.world.bounds.width / 2;
+      let y = this.physics.world.bounds.height / 2;
+      myplayer.observe(x, y);
     } else {
       this.generateSpawnpoint();
     }
