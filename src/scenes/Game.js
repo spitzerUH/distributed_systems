@@ -42,7 +42,9 @@ export class Game extends Scene {
         }
         if (!this.gameState.players['player']._observing) {
           player.collisionWith(myplayer, () => {
-            this.gameState.emit('change-status', 'dead');
+            if (this.gameState.players['player']._status == 'alive' && player._status == 'alive') {
+              this.gameState.emit('change-status', 'dead');
+            }
           });
         }
         if (!this.gameState.players['player']._observing && this.gameState.players['player']._status == 'alive') {
@@ -154,7 +156,9 @@ export class Game extends Scene {
       } else {
         if (playerid !== "player") {
           this.gameState.players["player"].collisionWith(player, () => {
-            this.gameState.emit('change-status', 'dead');
+            if (this.gameState.players["player"]._status == 'alive' && player._status == 'alive') {
+              this.gameState.emit('change-status', 'dead');
+            }
           });
         }
         player.show();
