@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
 import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
+import { createPlayer } from '+objects/player';
 
 export class Game extends Scene {
   constructor() {
