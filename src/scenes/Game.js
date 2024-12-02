@@ -83,7 +83,7 @@ export class Game extends Scene {
           break;
         case 'alive':
           if (this.gameState.players[playerid]) {
-            let spawn = this.gameState.players[playerid].spawnpoint;
+            let spawn = this.gameState.players[playerid].position;
             let alivePlayer = this.gameState.players[playerid].object;
             alivePlayer
               .setActive(true)
@@ -168,14 +168,8 @@ export class Game extends Scene {
   }
 
   createPlayer(data) {
-    let player = this.add.circle(
-      (data.spawnpoint?.x || 0),
-      (data.spawnpoint?.y || 0),
-      10,
-      data.color
-    );
-    this.physics.add.existing(player);
-    return player;
+    let player = createPlayer(this, data);
+    return player.object;
   }
 
   generateSpawnpoint() {

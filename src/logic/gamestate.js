@@ -14,7 +14,7 @@ export class GameState extends EventEmitter {
       name: (JSON.parse(localStorage.getItem('player-name'))),
       color: (JSON.parse(localStorage.getItem('player-color')) || 0x000000),
       observing: !!data.observer,
-      spawnpoint: { x: 0, y: 0 },
+      position: { x: 0, y: 0 },
       status: undefined,
       object: undefined
     };
@@ -32,7 +32,7 @@ export class GameState extends EventEmitter {
     this.bindWhoEvents();
     this.handleFood();
     this.on('spawnpoint', (point) => {
-      this.players['player'].spawnpoint = point;
+      this.players['player'].position = point;
     });
     this.on('leave', () => {
       this.connection.exitRoom();
@@ -94,7 +94,7 @@ export class GameState extends EventEmitter {
         break;
       case 'status':
         this.players[playerid].status = message.data.status;
-        this.players[playerid].spawnpoint = message.data.spawnpoint;
+        this.players[playerid].position = message.data.position;
         this.players[playerid].observing = false;
         this.emit('status-change', playerid, message.data.status);
         break;
@@ -127,7 +127,7 @@ export class GameState extends EventEmitter {
           color: this.players['player'].color,
           observing: this.players['player'].observing,
           status: this.players['player'].status,
-          spawnpoint: this.players['player'].spawnpoint
+          position: this.players['player'].position
         }
       };
       this._connection.sendGameMessage(payload).then(() => {
@@ -141,7 +141,7 @@ export class GameState extends EventEmitter {
       name: data.name,
       color: data.color,
       observing: data.observing,
-      spawnpoint: data.spawnpoint,
+      position: data.position,
       status: data.status,
       object: undefined
     };
@@ -162,7 +162,7 @@ export class GameState extends EventEmitter {
       if (status === 'dead') {
         data = { status: status };
       } else {
-        data = { status: status, spawnpoint: this.players['player'].spawnpoint };
+        data = { status: status, position: this.players['player'].position };
       }
       this.players['player'].status = status;
       this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
