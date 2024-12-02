@@ -2,7 +2,6 @@ import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
 import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
-import { createPlayer } from '+objects/player';
 
 export class Game extends Scene {
   constructor() {
@@ -28,64 +27,57 @@ export class Game extends Scene {
 
     drawBorders(this, this.physics.world.bounds);
 
-    let myplayer = this.createPlayer(this.gameState.players['player']);
-    this.gameState.players['player'].object = myplayer;
-    this.physics.add.existing(myplayer);
-    myplayer.body.setCollideWorldBounds(true);
-    mainCamera.startFollow(myplayer);
+    let myplayer = this.gameState.players['player'];
+    myplayer.createObject(this);
+    myplayer.follow(mainCamera);
 
     this.dirr = undefined;
 
     this.gameState.on('player-joins', (playerid) => {
-      let data = this.gameState.players[playerid];
-      if (data) {
-        let player = this.createPlayer(data);
-        this.gameState.players[playerid].object = player;
-        if (data.observing || !data.status || data.status == 'dead') {
-          player
+      let player = this.gameState.players[playerid];
+      if (player) {
+        player.createObject(this);
+        if (player._observing || !player._status || player._status == 'dead') {
+          player._object
             .setActive(false)
             .setVisible(false);
         }
-        if (!this.gameState.players['player'].observing) {
-          this.physics.add.overlap(
-            myplayer,
-            player,
-            () => {
-              this.gameState.emit('change-status', 'dead');
-            }
-          );
+        if (!this.gameState.players['player']._observing) {
+          player.collisionWith(myplayer, () => {
+            this.gameState.emit('change-status', 'dead');
+          });
         }
-        if (!this.gameState.players['player'].observing && this.gameState.players['player'].status == 'alive') {
+        if (!this.gameState.players['player']._observing && this.gameState.players['player']._status == 'alive') {
           this.gameState.emit('change-status', 'alive');
         }
       }
     });
     this.gameState.on('player-moves', (playerid, direction) => {
-      let player = this.gameState.players[playerid].object;
-      this.doMovement(player, direction);
+      let player = this.gameState.players[playerid];
+      this.doMovement(player._object, direction);
     });
     this.gameState.on('player-leaves', (playerid) => {
-      this.gameState.players[playerid].object.destroy();
+      this.gameState.players[playerid].resetObject();
     });
     this.gameState.on('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':
-          let deadPlayer = this.gameState.players[playerid].object;
-          deadPlayer.body.setVelocity(0);
+          let deadPlayer = this.gameState.players[playerid];
+          deadPlayer.object.body.setVelocity(0);
           if (playerid == 'player') {
             this.generateSpawnpoint();
             this.scene.run('GameOver', { gameState: this.gameState });
           } else {
-            deadPlayer
+            deadPlayer.object
               .setActive(false)
               .setVisible(false);
           }
           break;
         case 'alive':
           if (this.gameState.players[playerid]) {
-            let spawn = this.gameState.players[playerid].position;
-            let alivePlayer = this.gameState.players[playerid].object;
-            alivePlayer
+            let spawn = this.gameState.players[playerid]._position;
+            let alivePlayer = this.gameState.players[playerid];
+            alivePlayer.object
               .setActive(true)
               .setVisible(true)
               .setPosition(spawn.x, spawn.y);
@@ -119,8 +111,8 @@ export class Game extends Scene {
 
     });
 
-    if (this.gameState.players['player'].observing) {
-      myplayer
+    if (this.gameState.players['player']._observing) {
+      myplayer.object
         .setVisible(false)
         .setPosition(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2);
     } else {
@@ -143,8 +135,8 @@ export class Game extends Scene {
       curDirr = "down";
     }
     if (curDirr && curDirr != this.dirr) {
-      this.doMovement(this.gameState.players['player'].object, curDirr);
-      if (this.gameState.players['player'].observing)
+      this.doMovement(this.gameState.players['player']._object, curDirr);
+      if (this.gameState.players['player']._observing)
         return;
       this.gameState.emit('move', curDirr);
     }
@@ -167,11 +159,6 @@ export class Game extends Scene {
     }
   }
 
-  createPlayer(data) {
-    let player = createPlayer(this, data);
-    return player.object;
-  }
-
   generateSpawnpoint() {
     let randomPoint = this.physics.world.bounds.getRandomPoint();
     let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
@@ -180,11 +167,7 @@ export class Game extends Scene {
 
   clearOldObjects() {
     for (let playerid in this.gameState.players) {
-      let player = this.gameState.players[playerid].object;
-      if (player) {
-        player.destroy();
-        this.gameState.players[playerid].object = undefined;
-      }
+      this.gameState.players[playerid].resetObject();
     }
     clearFood(this);
   }
@@ -194,26 +177,19 @@ export class Game extends Scene {
       if (this.gameState.players[playerid].object) {
         continue;
       }
-      let playerData = this.gameState.players[playerid];
-      let player = this.createPlayer(playerData);
-      this.gameState.players[playerid].object = player;
-      this.physics.add.existing(player);
-      if (playerData.observing || !playerData.status || playerData.status == 'dead') {
-        player
+      let player = this.gameState.players[playerid];
+      player.createObject(this);
+      if (player._observing || !player._status || player._status == 'dead') {
+        player.object
           .setActive(false)
           .setVisible(false);
       } else {
         if (playerid !== "player") {
-          this.physics.add.overlap(
-            this.gameState.players["player"].object,
-            player,
-            () => {
-              this.gameState.emit('change-status', 'dead');
-            }
-          )
-
+          this.gameState.players["player"].collisionWith(player, () => {
+            this.gameState.emit('change-status', 'dead');
+          });
         }
-        player
+        player.object
           .setActive(true)
           .setVisible(true);
 

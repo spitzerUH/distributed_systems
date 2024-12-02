@@ -23,7 +23,7 @@ class Food extends Hexagon {
       details: details,
       object: this.graphics
     };
-    if (!scene.gameState.players['player'].observing) {
+    if (!scene.gameState.players['player']._observing) {
       scene.physics.add.overlap(
         scene.gameState.players['player'].object,
         this.graphics,
