@@ -71,11 +71,7 @@ export class Game extends Scene {
           break;
         case 'alive':
           if (this.gameState.players[playerid]) {
-            let spawn = this.gameState.players[playerid]._position;
-            let alivePlayer = this.gameState.players[playerid];
-            alivePlayer.show();
-            alivePlayer.object
-              .setPosition(spawn.x, spawn.y);
+            this.gameState.players[playerid].respawn();
           }
           if (this.gameState.connection.isLeader && playerid !== 'player') {
             this.gameState.emit('send-food', playerid);

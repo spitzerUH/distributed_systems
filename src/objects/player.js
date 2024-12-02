@@ -60,6 +60,10 @@ class Player {
       .setActive(true)
       .setVisible(true);
   }
+  respawn() {
+    this._object.setPosition(this._position.x, this._position.y);
+    this.show();
+  }
   get object() {
     return this._object;
   }
