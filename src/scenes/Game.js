@@ -38,9 +38,7 @@ export class Game extends Scene {
       if (player) {
         player.createObject(this);
         if (player._observing || !player._status || player._status == 'dead') {
-          player._object
-            .setActive(false)
-            .setVisible(false);
+          player.hide();
         }
         if (!this.gameState.players['player']._observing) {
           player.collisionWith(myplayer, () => {
@@ -68,18 +66,15 @@ export class Game extends Scene {
             this.generateSpawnpoint();
             this.scene.run('GameOver', { gameState: this.gameState });
           } else {
-            deadPlayer.object
-              .setActive(false)
-              .setVisible(false);
+            deadPlayer.hide();
           }
           break;
         case 'alive':
           if (this.gameState.players[playerid]) {
             let spawn = this.gameState.players[playerid]._position;
             let alivePlayer = this.gameState.players[playerid];
+            alivePlayer.show();
             alivePlayer.object
-              .setActive(true)
-              .setVisible(true)
               .setPosition(spawn.x, spawn.y);
           }
           if (this.gameState.connection.isLeader && playerid !== 'player') {
@@ -163,18 +158,14 @@ export class Game extends Scene {
       let player = this.gameState.players[playerid];
       player.createObject(this);
       if (player._observing || !player._status || player._status == 'dead') {
-        player.object
-          .setActive(false)
-          .setVisible(false);
+        player.hide();
       } else {
         if (playerid !== "player") {
           this.gameState.players["player"].collisionWith(player, () => {
             this.gameState.emit('change-status', 'dead');
           });
         }
-        player.object
-          .setActive(true)
-          .setVisible(true);
+        player.show();
 
       }
     }

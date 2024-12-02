@@ -50,6 +50,16 @@ class Player {
         break;
     }
   }
+  hide() {
+    this._object
+      .setActive(false)
+      .setVisible(false);
+  }
+  show() {
+    this._object
+      .setActive(true)
+      .setVisible(true);
+  }
   get object() {
     return this._object;
   }
