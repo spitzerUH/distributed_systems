@@ -1,5 +1,55 @@
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
+class Food {
+  constructor(data) {
+    this._id = data.id;
+    this._details = data.details;
+    this._object = undefined;
+  }
+  createObject(scene) {
+    return new Promise((resolve, reject) => {
+      try {
+        let hexagon = new Hexagon(0, 0, this._details.size, this._details.color);
+        let graphics = scene.add.graphics()
+          .fillStyle(this._details.color)
+          .fillPoints(hexagon.points)
+          .setInteractive(hexagon, Phaser.Geom.Polygon.Contains)
+          .setPosition(this._details.x, this._details.y);
+        scene.add.existing(graphics);
+        scene.physics.add.existing(graphics);
+        graphics.body.setCircle(this._details.size, -this._details.size, -this._details.size);
+        graphics.body.setImmovable(true);
+        this._object = graphics;
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  destroyObject() {
+    return new Promise((resolve, reject) => {
+      try {
+        this._object.destroy();
+        this._object = undefined;
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  eat() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.destroyObject().then(() => {
+          resolve(this._id);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+}
+
 class FoodH extends Hexagon {
   constructor(scene, data) {
     let id = data.id;
