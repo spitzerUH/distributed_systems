@@ -18,7 +18,7 @@ class Player {
     scene.physics.add.existing(this._object);
     this._object.body.setCollideWorldBounds(true);
   }
-  resetObject() {
+  removeObject() {
     if (this._object) {
       this._object.destroy();
     }

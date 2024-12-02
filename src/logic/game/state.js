@@ -8,7 +8,7 @@ class GameState {
   removePlayer(player) {
     return new Promise((resolve) => {
       if (player) {
-        this._players[player.id].resetObject();
+        this._players[player.id].removeObject();
         delete this._players[player.id];
         resolve();
       } else {

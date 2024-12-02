@@ -240,7 +240,7 @@ class Coordinator {
   gameChannelClose(playerid) {
     this.fireEvent('player-leaves', playerid);
     if (this.players[playerid]) {
-      this.players[playerid].resetObject();
+      this.players[playerid].removeObject();
       delete this.players[playerid];
     }
   }

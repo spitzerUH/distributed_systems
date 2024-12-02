@@ -70,7 +70,7 @@ export class Game extends Scene {
 
   clearOldObjects() {
     for (let playerid in this.coordinator.players) {
-      this.coordinator.players[playerid].resetObject();
+      this.coordinator.players[playerid].removeObject();
     }
     clearFood(this.coordinator);
   }
