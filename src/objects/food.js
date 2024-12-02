@@ -1,6 +1,6 @@
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
-class Food extends Hexagon {
+class FoodH extends Hexagon {
   constructor(scene, data) {
     let id = data.id;
     let details = data.details;
@@ -38,7 +38,7 @@ class Food extends Hexagon {
 export function startFoodProcessing(scene) {
   scene.gameState.on('create-food', (data) => {
     data.forEach(food => {
-      new Food(scene, food);
+      new FoodH(scene, food);
     });
   });
 }
@@ -59,6 +59,6 @@ export function recreateFood(scene) {
     if (food.object) {
       continue;
     }
-    new Food(scene, food);
+    new FoodH(scene, food);
   }
 }
