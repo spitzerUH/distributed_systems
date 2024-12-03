@@ -136,6 +136,19 @@ class Coordinator {
       this._connectionManager.sendGameMessageTo(playerid, message).then(() => {
       });
     });
+    this._gameState.on('eat-food', (foodId) => {
+      let food = this._gameState.food[foodId];
+      if (!food) {
+        console.log('Dup message? Food not found', foodId);
+        return;
+      }
+      food.eat().then((fId) => {
+        delete this._gameState.food[fId];
+      });
+      if (this._connectionManager.isLeader && Object.keys(this._gameState.food).length < 10) {
+        this._gameState.emit('generate-food', 10);
+      }
+    });
   }
   movePlayer(direction) {
     let message = formatMove(direction);

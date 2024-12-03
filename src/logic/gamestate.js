@@ -101,18 +101,5 @@ export class GameState extends EventEmitter {
         this.emit('eat-food', foodId);
       });
     });
-    this.on('eat-food', (foodId) => {
-      let food = this.food[foodId];
-      if (!food) {
-        console.log('Dup message? Food not found', foodId);
-        return;
-      }
-      food.eat().then((fId) => {
-        delete this.food[fId];
-      });
-      if (this.connection.isLeader && Object.keys(this.food).length < 10) {
-        this.emit('generate-food', 10);
-      }
-    });
   }
 }
