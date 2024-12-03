@@ -16,6 +16,7 @@ export class Game extends Scene {
   create() {
     this.physics.world.setBounds(0, 0, 1000, 1000);
     this.coordinator.setBounds(this.physics.world.bounds);
+    this.coordinator.setGameScene(this);
     this.clearOldObjects();
     const mainCamera = initMainCamera(this);
 

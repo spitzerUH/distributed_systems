@@ -8,6 +8,7 @@ class Coordinator {
     this._gameState = undefined;
     this._em = new EventEmitter();
     this._bounds = undefined;
+    this._gameScene = undefined;
   }
 
   get gameState() {
@@ -46,6 +47,9 @@ class Coordinator {
   }
   setBounds(bounds) {
     this._bounds = bounds;
+  }
+  setGameScene(scene) {
+    this._gameScene = scene;
   }
   bindEvent(event, handler) {
     this._em.on(event, handler);
