@@ -68,11 +68,6 @@ export class GameState extends EventEmitter {
     }
   }
 
-  gameChannelMessage(playerid, message) {
-    let msg = createMessage(playerid, message);
-    msg.doAction(this, this);
-  }
-
   handleStatusChange() {
     this.on('change-status', (status) => {
       this.players['player']._status = status;

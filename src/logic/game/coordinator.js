@@ -1,6 +1,6 @@
 import { GameState } from '+logic/gamestate';
 import { EventEmitter } from 'events';
-import { formatWhoAmI, formatMove } from '+logic/game/message';
+import { createMessage, formatWhoAmI, formatMove } from '+logic/game/message';
 
 import { generateFood } from '+objects/food';
 
@@ -74,7 +74,8 @@ class Coordinator {
       this._gameState.gameChannelOpen(uuid);
     });
     this._connectionManager.events.on('message', (uuid, message) => {
-      this._gameState.gameChannelMessage(uuid, message);
+      let msg = createMessage(uuid, message);
+      msg.doAction(this._gameState, this._gameState);
     });
     this._connectionManager.events.on('close', (uuid) => {
       this._gameState.gameChannelClose(uuid);
