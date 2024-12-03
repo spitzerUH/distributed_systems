@@ -1,6 +1,6 @@
 import { GameState } from '+logic/gamestate';
 import { EventEmitter } from 'events';
-import { createMessage, formatWhoAmI, formatMove, formatFoodCreate } from '+logic/game/message';
+import { createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat } from '+logic/game/message';
 
 import { generateFood } from '+objects/food';
 
@@ -148,6 +148,12 @@ class Coordinator {
       if (this._connectionManager.isLeader && Object.keys(this._gameState.food).length < 10) {
         this._gameState.emit('generate-food', 10);
       }
+    });
+    this._gameState.on('food-eaten', (foodId) => {
+      let message = formatFoodEat(foodId);
+      this._connectionManager.sendGameMessage(message).then(() => {
+        this._gameState.emit('eat-food', foodId);
+      });
     });
   }
   movePlayer(direction) {
