@@ -18,7 +18,6 @@ export class GameState extends EventEmitter {
       observing: !!data.observer
     });
     this.handleStatusChange();
-    this.handleFood();
     this.on('spawnpoint', (point) => {
       this.players['player']._position = point;
     });
@@ -78,9 +77,4 @@ export class GameState extends EventEmitter {
     });
   }
 
-  handleFood() {
-    this.on('create-food', (data) => {
-      this.foodToSend += data.length;
-    });
-  }
 }
