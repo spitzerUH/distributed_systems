@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { createMessage, formatWhoAmI, formatStatusChange, formatFoodCreate, formatFoodEat } from '+logic/game/message';
+import { createMessage, formatStatusChange, formatFoodCreate, formatFoodEat } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -18,7 +18,6 @@ export class GameState extends EventEmitter {
       observing: !!data.observer
     });
     this.handleStatusChange();
-    this.bindWhoEvents();
     this.handleFood();
     this.on('spawnpoint', (point) => {
       this.players['player']._position = point;
@@ -56,7 +55,6 @@ export class GameState extends EventEmitter {
   }
 
   gameChannelOpen(playerid) {
-    this.emit('whoami');
     if (this.connection.isLeader) {
       this.emit('leader-actions');
     }
@@ -73,14 +71,6 @@ export class GameState extends EventEmitter {
   gameChannelMessage(playerid, message) {
     let msg = createMessage(playerid, message);
     msg.doAction(this, this);
-  }
-
-  bindWhoEvents() {
-    this.on('whoami', () => {
-      let message = formatWhoAmI(this.players['player']);
-      this._connection.sendGameMessage(message).then(() => {
-      });
-    });
   }
 
   handleStatusChange() {

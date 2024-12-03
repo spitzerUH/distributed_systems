@@ -1,6 +1,6 @@
 import { GameState } from '+logic/gamestate';
 import { EventEmitter } from 'events';
-import { formatMove } from '+logic/game/message';
+import { formatWhoAmI, formatMove } from '+logic/game/message';
 
 class Coordinator {
   constructor(cm) {
@@ -57,6 +57,7 @@ class Coordinator {
   }
   bindGlobalEvents() {
     this._connectionManager.events.on('open', (uuid) => {
+      this.sendWhoAmI();
       this._gameState.gameChannelOpen(uuid);
     });
     this._connectionManager.events.on('message', (uuid, message) => {
@@ -68,6 +69,11 @@ class Coordinator {
   }
   movePlayer(direction) {
     let message = formatMove(direction);
+    this._connectionManager.sendGameMessage(message).then(() => {
+    });
+  }
+  sendWhoAmI() {
+    let message = formatWhoAmI(this._gameState.players['player']);
     this._connectionManager.sendGameMessage(message).then(() => {
     });
   }
