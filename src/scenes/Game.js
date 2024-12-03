@@ -56,10 +56,6 @@ export class Game extends Scene {
         }
       }
     });
-    this.gameState.on('player-moves', (playerid, direction) => {
-      let player = this.gameState.players[playerid];
-      player.move(direction);
-    });
     this.gameState.on('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':

@@ -18,7 +18,6 @@ class Coordinator {
   joinRoom(roomCode) {
     return new Promise((resolve, reject) => {
       this._gameState = new GameState({ connection: this._connectionManager, observer: false });
-      this.bindGlobalEvents();
       this.connectRoom(roomCode, resolve, reject);
     });
   }
@@ -34,11 +33,11 @@ class Coordinator {
   observe(roomCode) {
     return new Promise((resolve, reject) => {
       this._gameState = new GameState({ connection: this._connectionManager, observer: true });
-      this.bindGlobalEvents();
       this.connectRoom(roomCode, resolve, reject);
     });
   }
   connectRoom(roomCode, resolve, reject) {
+    this.bindEvents();
     this._connectionManager.joinRoom(roomCode).then(() => {
       resolve();
     }).catch((err) => {
@@ -63,6 +62,10 @@ class Coordinator {
       }
     });
   }
+  bindEvents() {
+    this.bindGlobalEvents();
+    this.bindGameEvents();
+  }
   bindGlobalEvents() {
     this._connectionManager.events.on('open', (uuid) => {
       this.sendWhoAmI();
@@ -73,6 +76,12 @@ class Coordinator {
     });
     this._connectionManager.events.on('close', (uuid) => {
       this._gameState.gameChannelClose(uuid);
+    });
+  }
+  bindGameEvents() {
+    this._gameState.on('player-moves', (playerid, direction) => {
+      let player = this._gameState.players[playerid];
+      player.move(direction);
     });
   }
   movePlayer(direction) {
