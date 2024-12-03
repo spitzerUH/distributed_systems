@@ -105,19 +105,6 @@ export class GameState extends EventEmitter {
     });
   }
 
-  handlePlayerInfo(playerid, data) {
-    let playerData = {
-      id: playerid,
-      name: data.name,
-      color: data.color,
-      observing: data.observing,
-      position: data.position,
-      status: data.status
-    };
-    this._players[playerid] = createPlayer(playerData);
-    this.emit('player-joins', playerid);
-  }
-
   handleMovement() {
     this.on('move', (direction) => {
       this._connection.sendGameMessage({ type: 'move', data: { direction: direction } }).then(() => {
