@@ -176,18 +176,16 @@ export class GameState extends EventEmitter {
       this.foodToSend += data.length;
     });
     this.on('food-created', (food) => {
-      if (food.id > this._currentFoodIndex) {
-        this._currentFoodIndex = food.id;
-      }
-      this.food[food.id] = food;
-      if (this._connection.isLeader) {
-        this.foodToSendArray.push(food);
-        this.foodToSend--;
-        if (this.foodToSend === 0) {
-          this._connection.sendGameMessage({ type: 'food', subtype: 'create', data: this.foodToSendArray }).then(() => {
-            this.foodToSendArray = [];
-          });
+      food.forEach((f) => {
+        if (f.id > this._currentFoodIndex) {
+          this._currentFoodIndex = f.id;
         }
+        this.food[f.id] = f;
+      });
+      if (this._connection.isLeader) {
+        let data = food.map(f => f.format());
+        this._connection.sendGameMessage({ type: 'food', subtype: 'create', data: data }).then(() => {
+        });
       }
     });
     this.on('food-eaten', (foodId) => {
@@ -201,20 +199,18 @@ export class GameState extends EventEmitter {
         console.log('Dup message? Food not found', foodId);
         return;
       }
-      food.object.destroy();
-      delete this.food[foodId];
+      food.eat().then((fId) => {
+          delete this.food[fId];
+      });
       if (this.connection.isLeader && Object.keys(this.food).length < 10) {
         this.emit('generate-food', 10);
       }
     });
     this.on('send-food', (playerid) => {
-      let food = Object.values(this.food).map(f => {
-        return {
-          id: f.id,
-          details: f.details
-        };
+      let data = Object.values(this.food).map(f => {
+        return f.format();
       });
-      this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: food }).then(() => {
+      this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: data }).then(() => {
       });
     });
   }
