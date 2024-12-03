@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate } from '+logic/game/message';
+import { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate, formatFoodEat } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -132,7 +132,8 @@ export class GameState extends EventEmitter {
       }
     });
     this.on('food-eaten', (foodId) => {
-      this._connection.sendGameMessage({ type: 'food', subtype: 'eat', id: foodId }).then(() => {
+      let message = formatFoodEat(foodId);
+      this._connection.sendGameMessage(message).then(() => {
         this.emit('eat-food', foodId);
       });
     });

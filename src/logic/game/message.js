@@ -156,4 +156,12 @@ function formatFoodCreate(food) {
   };
 }
 
-export { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate };
+function formatFoodEat(foodId) {
+  return {
+    type: 'food',
+    subtype: 'eat',
+    id: foodId
+  };
+}
+
+export { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate, formatFoodEat };
