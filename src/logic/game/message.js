@@ -137,4 +137,15 @@ function formatMove(direction) {
   };
 }
 
-export { createMessage, formatWhoAmI, formatMove };
+function formatStatusChange(player) {
+  return {
+    type: 'status',
+    data: {
+      status: player._status,
+      position: player._position,
+      observing: player._observing
+    }
+  };
+}
+
+export { createMessage, formatWhoAmI, formatMove, formatStatusChange };

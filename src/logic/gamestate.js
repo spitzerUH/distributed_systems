@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { createMessage, formatWhoAmI, formatMove } from '+logic/game/message';
+import { createMessage, formatWhoAmI, formatMove, formatStatusChange } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -106,14 +106,9 @@ export class GameState extends EventEmitter {
 
   handleStatusChange() {
     this.on('change-status', (status) => {
-      let data = undefined;
-      if (status === 'dead') {
-        data = { status: status };
-      } else {
-        data = { status: status, position: this.players['player']._position };
-      }
       this.players['player']._status = status;
-      this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
+      let message = formatStatusChange(this.players['player']);
+      this._connection.sendGameMessage(message).then(() => {
         this.emit('status-change', 'player', status);
       });
     });
