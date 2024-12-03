@@ -66,7 +66,7 @@ export class Game extends Scene {
           deadPlayer.stop();
           deadPlayer.hide();
           if (playerid == 'player') {
-            this.generateSpawnpoint();
+            this.coordinator.generateSpawnpoint();
             this.scene.run('GameOver', { coordinator: this.coordinator });
           }
           break;
@@ -91,7 +91,7 @@ export class Game extends Scene {
       let y = this.physics.world.bounds.height / 2;
       myplayer.observe(x, y);
     } else {
-      this.generateSpawnpoint();
+      this.coordinator.generateSpawnpoint();
     }
     this.generateNewObjects();
 
@@ -115,12 +115,6 @@ export class Game extends Scene {
         return;
       this.coordinator.movePlayer(curDirr);
     }
-  }
-
-  generateSpawnpoint() {
-    let randomPoint = this.physics.world.bounds.getRandomPoint();
-    let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
-    this.gameState.emit('spawnpoint', spawnpoint);
   }
 
   clearOldObjects() {

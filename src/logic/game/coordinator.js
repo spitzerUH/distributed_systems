@@ -81,6 +81,11 @@ class Coordinator {
     this._connectionManager.sendGameMessage(message).then(() => {
     });
   }
+  generateSpawnpoint() {
+    let randomPoint = this._bounds.getRandomPoint();
+    let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
+    this._gameState.emit('spawnpoint', spawnpoint);
+  }
 }
 
 export default Coordinator;
