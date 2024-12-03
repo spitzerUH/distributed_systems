@@ -17,8 +17,9 @@ export class UI extends Scene {
   create() {
     var minimap = createMiniMap(this, this.scene.get('Game'));
     this.input.keyboard.addKey('ESC').on('down', (event) => {
-      this.gameState.emit('leave');
-      this.scene.stop('Game').stop('UI').run('MainMenu', { coordinator: this.coordinator });
+      this.coordinator.leaveRoom().then(() => {
+        this.scene.stop('Game').stop('UI').run('MainMenu', { coordinator: this.coordinator });
+      });
     });
 
     this.debugFields = createDebugTextField(this, this.gameState.connection, this.gameState.observer);

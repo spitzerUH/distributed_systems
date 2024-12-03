@@ -24,9 +24,6 @@ export class GameState extends EventEmitter {
     this.on('spawnpoint', (point) => {
       this.players['player']._position = point;
     });
-    this.on('leave', () => {
-      this.connection.exitRoom();
-    });
     this.on('ready', () => {
       if (!this.players['player']._observing) {
         this.emit('change-status', 'alive');

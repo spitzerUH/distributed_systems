@@ -19,7 +19,15 @@ class Coordinator {
       this.connectRoom(roomCode, resolve, reject);
     });
   }
-
+  leaveRoom() {
+    return new Promise((resolve, reject) => {
+      this._connectionManager.exitRoom().then(() => {
+        resolve();
+      }).catch((err) => {
+        reject(err);
+      });
+    });
+  }
   observe(roomCode) {
     return new Promise((resolve, reject) => {
       this._gameState = new GameState({ connection: this._connectionManager, observer: true });
