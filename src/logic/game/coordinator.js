@@ -15,22 +15,23 @@ class Coordinator {
   joinRoom(roomCode) {
     return new Promise((resolve, reject) => {
       this._gameState = new GameState({ connection: this._connectionManager, observer: false });
-      this._connectionManager.joinRoom(roomCode).then(() => {
-        resolve();
-      }).catch((err) => {
-        reject(err);
-      });
+      this.bindGlobalEvents();
+      this.connectRoom(roomCode, resolve, reject);
     });
   }
 
   observe(roomCode) {
     return new Promise((resolve, reject) => {
       this._gameState = new GameState({ connection: this._connectionManager, observer: true });
-      this._connectionManager.joinRoom(roomCode).then(() => {
-        resolve();
-      }).catch((err) => {
-        reject(err);
-      });
+      this.bindGlobalEvents();
+      this.connectRoom(roomCode, resolve, reject);
+    });
+  }
+  connectRoom(roomCode, resolve, reject) {
+    this._connectionManager.joinRoom(roomCode).then(() => {
+      resolve();
+    }).catch((err) => {
+      reject(err);
     });
   }
   bindEvent(event, handler) {
