@@ -149,6 +149,9 @@ function formatStatusChange(player) {
 }
 
 function formatFoodCreate(food) {
+  if (!Array.isArray(food)) {
+    food = Object.values(food)
+  }
   return {
     type: 'food',
     subtype: 'create',
