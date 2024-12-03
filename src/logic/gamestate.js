@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
+import { createMessage } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -83,40 +84,8 @@ export class GameState extends EventEmitter {
   }
 
   gameChannelMessage(playerid, message) {
-    switch (message.type) {
-      case 'whoami':
-        this.handlePlayerInfo(playerid, message.data);
-        if (this.connection.isLeader) {
-          this.emit('send-food', playerid);
-        }
-        break;
-      case 'move':
-        this.emit('player-moves', playerid, message.data.direction);
-        break;
-      case 'status':
-        this.players[playerid]._status = message.data.status;
-        this.players[playerid]._position = message.data.position;
-        this.players[playerid]._observing = false;
-        this.emit('status-change', playerid, message.data.status);
-        break;
-      case 'food':
-        switch (message.subtype) {
-          case 'create':
-            let data = message.data.filter(f => this.food[f.id] === undefined);
-            this.emit('create-food', data);
-            break;
-          case 'eat':
-            this.emit('eat-food', message.id);
-            break;
-          default:
-            console.log('Unknown food message subtype', message.subtype);
-            break;
-        }
-        break;
-      default:
-        console.log('Unknown message type', message.type);
-        break;
-    }
+    let msg = createMessage(playerid, message);
+    msg.doAction(this, this);
   }
 
   bindWhoEvents() {
@@ -200,7 +169,7 @@ export class GameState extends EventEmitter {
         return;
       }
       food.eat().then((fId) => {
-          delete this.food[fId];
+        delete this.food[fId];
       });
       if (this.connection.isLeader && Object.keys(this.food).length < 10) {
         this.emit('generate-food', 10);
