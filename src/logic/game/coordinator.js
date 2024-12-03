@@ -155,6 +155,19 @@ class Coordinator {
         this._gameState.emit('eat-food', foodId);
       });
     });
+    this._gameState.on('food-created', (food) => {
+      food.forEach((f) => {
+        if (f.id > this._gameState._currentFoodIndex) {
+          this._gameState._currentFoodIndex = f.id;
+        }
+        this._gameState.food[f.id] = f;
+      });
+      if (this._connectionManager.isLeader) {
+        let message = formatFoodCreate(food);
+        this._connectionManager.sendGameMessage(message).then(() => {
+        });
+      }
+    });
   }
   movePlayer(direction) {
     let message = formatMove(direction);

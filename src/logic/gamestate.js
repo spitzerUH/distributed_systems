@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { formatStatusChange, formatFoodCreate  } from '+logic/game/message';
+import { formatStatusChange } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -81,19 +81,6 @@ export class GameState extends EventEmitter {
   handleFood() {
     this.on('create-food', (data) => {
       this.foodToSend += data.length;
-    });
-    this.on('food-created', (food) => {
-      food.forEach((f) => {
-        if (f.id > this._currentFoodIndex) {
-          this._currentFoodIndex = f.id;
-        }
-        this.food[f.id] = f;
-      });
-      if (this._connection.isLeader) {
-        let message = formatFoodCreate(food);
-        this._connection.sendGameMessage(message).then(() => {
-        });
-      }
     });
   }
 }
