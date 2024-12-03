@@ -127,7 +127,7 @@ class Coordinator {
       }
     });
     this._gameState.on('generate-food', (count) => {
-      let foodData = generateFood(this._gameScene, count);
+      let foodData = generateFood(this._gameScene, this._gameState, count);
       this._gameState.emit('create-food', foodData);
     });
   }

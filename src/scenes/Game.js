@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { clearFood, recreateFood, startFoodProcessing, generateFood } from '+objects/food';
+import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -10,7 +10,6 @@ export class Game extends Scene {
 
   init(data) {
     this.coordinator = data.coordinator;
-    this.gameState = this.coordinator.gameState;
   }
 
   create() {
@@ -29,16 +28,16 @@ export class Game extends Scene {
 
     drawBorders(this, this.physics.world.bounds);
 
-    let myplayer = this.gameState.players['player'];
+    let myplayer = this.coordinator._gameState.players['player'];
     myplayer.createObject(this);
     myplayer.follow(mainCamera);
 
-    startFoodProcessing(this, myplayer);
+    startFoodProcessing(this, this.coordinator._gameState, myplayer);
 
     this.dirr = undefined;
 
 
-    if (this.gameState.players['player']._observing) {
+    if (this.coordinator._gameState.players['player']._observing) {
       let x = this.physics.world.bounds.width / 2;
       let y = this.physics.world.bounds.height / 2;
       myplayer.observe(x, y);
@@ -47,7 +46,7 @@ export class Game extends Scene {
     }
     this.generateNewObjects();
 
-    this.gameState.emit('ready');
+    this.coordinator._gameState.emit('ready');
   }
 
   update(time, delta) {
@@ -62,34 +61,34 @@ export class Game extends Scene {
       curDirr = "down";
     }
     if (curDirr && curDirr != this.dirr) {
-      this.gameState.players['player'].move(curDirr);
-      if (this.gameState.players['player']._observing)
+      this.coordinator._gameState.players['player'].move(curDirr);
+      if (this.coordinator._gameState.players['player']._observing)
         return;
       this.coordinator.movePlayer(curDirr);
     }
   }
 
   clearOldObjects() {
-    for (let playerid in this.gameState.players) {
-      this.gameState.players[playerid].resetObject();
+    for (let playerid in this.coordinator._gameState.players) {
+      this.coordinator._gameState.players[playerid].resetObject();
     }
-    clearFood(this);
+    clearFood(this.coordinator._gameState);
   }
 
   generateNewObjects() {
-    for (let playerid in this.gameState.players) {
-      if (this.gameState.players[playerid].object) {
+    for (let playerid in this.coordinator._gameState.players) {
+      if (this.coordinator._gameState.players[playerid].object) {
         continue;
       }
-      let player = this.gameState.players[playerid];
+      let player = this.coordinator._gameState.players[playerid];
       player.createObject(this);
       if (player._observing || !player._status || player._status == 'dead') {
         player.hide();
       } else {
         if (playerid !== "player") {
-          this.gameState.players["player"].collisionWith(player, () => {
-            if (this.gameState.players["player"]._status == 'alive' && player._status == 'alive') {
-              this.gameState.emit('change-status', 'dead');
+          this.coordinator._gameState.players["player"].collisionWith(player, () => {
+            if (this.coordinator._gameState.players["player"]._status == 'alive' && player._status == 'alive') {
+              this.coordinator._gameState.emit('change-status', 'dead');
             }
           });
         }
@@ -97,7 +96,7 @@ export class Game extends Scene {
 
       }
     }
-    recreateFood(this);
+    recreateFood(this, this.coordinator._gameState);
   }
 
 }
