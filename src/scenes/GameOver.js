@@ -7,7 +7,6 @@ export class GameOver extends Scene {
 
   init(data) {
     this.coordinator = data.coordinator;
-    this.gameState = this.coordinator.gameState;
   }
 
   create() {
@@ -17,7 +16,7 @@ export class GameOver extends Scene {
     this.rexUI.add.BBCodeText(viewport.left, viewport.centerY, 'Game over, try again?', { color: '#fff', fontSize: 64 });
 
     this.input.once('pointerdown', () => {
-      this.gameState.emit('change-status', 'alive');
+      this.coordinator._gameState.emit('change-status', 'alive');
       this.scene.stop('GameOver');
     });
   }
