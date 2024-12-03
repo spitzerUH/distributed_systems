@@ -97,6 +97,29 @@ function createFoodCollision(scene, player) {
   }
 }
 
+export function generateFood(scene, count) {
+  let foodData = [];
+  for (let i = 0; i < count; i++) {
+    let id = scene.gameState.nextFoodIndex;
+    let x = Phaser.Math.Between(0, scene.physics.world.bounds.width);
+    let y = Phaser.Math.Between(0, scene.physics.world.bounds.height);
+    let size = Phaser.Math.Between(5, 10);
+    let color = Phaser.Display.Color.RandomRGB().color;
+    foodData.push(
+      {
+        id: id,
+        details: {
+          x: x,
+          y: y,
+          size: size,
+          color: color
+        }
+      }
+    );
+  }
+  return foodData;
+}
+
 export function startFoodProcessing(scene, myplayer) {
   scene.gameState.on('create-food', (data) => {
     scene.gameState.emit('food-created', createFood(scene, data));

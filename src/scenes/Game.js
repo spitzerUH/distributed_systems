@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
+import { clearFood, generateFood, recreateFood, startFoodProcessing, generateFood } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -79,24 +79,7 @@ export class Game extends Scene {
       }
     });
     this.gameState.on('generate-food', (count) => {
-      let foodData = [];
-      for (let i = 0; i < count; i++) {
-        let id = this.gameState.nextFoodIndex;
-        let x = Phaser.Math.Between(0, this.physics.world.bounds.width);
-        let y = Phaser.Math.Between(0, this.physics.world.bounds.height);
-        let size = Phaser.Math.Between(5, 10);
-        let color = Phaser.Display.Color.RandomRGB().color;
-        foodData.push(
-          {
-            id: id,
-            details: {
-              x: x,
-              y: y,
-              size: size,
-              color: color
-            }
-          });
-      }
+      let foodData = generateFood(this, count);
       this.gameState.emit('create-food', foodData);
 
     });
