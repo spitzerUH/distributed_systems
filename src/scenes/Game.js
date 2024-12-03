@@ -37,25 +37,6 @@ export class Game extends Scene {
 
     this.dirr = undefined;
 
-    this.gameState.on('player-joins', (playerid) => {
-      let player = this.gameState.players[playerid];
-      if (player) {
-        player.createObject(this);
-        if (player._observing || !player._status || player._status == 'dead') {
-          player.hide();
-        }
-        if (!this.gameState.players['player']._observing) {
-          player.collisionWith(myplayer, () => {
-            if (this.gameState.players['player']._status == 'alive' && player._status == 'alive') {
-              this.gameState.emit('change-status', 'dead');
-            }
-          });
-        }
-        if (!this.gameState.players['player']._observing && this.gameState.players['player']._status == 'alive') {
-          this.gameState.emit('change-status', 'alive');
-        }
-      }
-    });
     this.gameState.on('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':

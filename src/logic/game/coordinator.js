@@ -79,6 +79,26 @@ class Coordinator {
     });
   }
   bindGameEvents() {
+    this._gameState.on('player-joins', (playerid) => {
+      let player = this._gameState.players[playerid];
+      if (player) {
+        player.createObject(this._gameScene);
+        if (player._observing || !player._status || player._status == 'dead') {
+          player.hide();
+        }
+        if (!this._gameState.players['player']._observing) {
+          let myplayer = this._gameState.players['player'];
+          player.collisionWith(myplayer, () => {
+            if (this._gameState.players['player']._status == 'alive' && player._status == 'alive') {
+              this._gameState.emit('change-status', 'dead');
+            }
+          });
+        }
+        if (!this._gameState.players['player']._observing && this._gameState.players['player']._status == 'alive') {
+          this._gameState.emit('change-status', 'alive');
+        }
+      }
+    });
     this._gameState.on('player-moves', (playerid, direction) => {
       let player = this._gameState.players[playerid];
       player.move(direction);
