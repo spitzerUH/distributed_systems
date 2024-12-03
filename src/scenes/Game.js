@@ -37,27 +37,6 @@ export class Game extends Scene {
 
     this.dirr = undefined;
 
-    this.gameState.on('status-change', (playerid, status) => {
-      switch (status) {
-        case 'dead':
-          let deadPlayer = this.gameState.players[playerid];
-          deadPlayer.stop();
-          deadPlayer.hide();
-          if (playerid == 'player') {
-            this.coordinator.generateSpawnpoint();
-            this.scene.run('GameOver', { coordinator: this.coordinator });
-          }
-          break;
-        case 'alive':
-          if (this.gameState.players[playerid]) {
-            this.gameState.players[playerid].respawn();
-          }
-          if (this.gameState.connection.isLeader && playerid !== 'player') {
-            this.gameState.emit('send-food', playerid);
-          }
-          break;
-      }
-    });
     this.gameState.on('generate-food', (count) => {
       let foodData = generateFood(this, count);
       this.gameState.emit('create-food', foodData);

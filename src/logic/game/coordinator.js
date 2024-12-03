@@ -103,6 +103,27 @@ class Coordinator {
       let player = this._gameState.players[playerid];
       player.move(direction);
     });
+    this._gameState.on('status-change', (playerid, status) => {
+      switch (status) {
+        case 'dead':
+          let deadPlayer = this._gameState.players[playerid];
+          deadPlayer.stop();
+          deadPlayer.hide();
+          if (playerid == 'player') {
+            this.generateSpawnpoint();
+            this._gameScene.scene.run('GameOver', { coordinator: this });
+          }
+          break;
+        case 'alive':
+          if (this._gameState.players[playerid]) {
+            this._gameState.players[playerid].respawn();
+          }
+          if (this._connectionManager.isLeader && playerid !== 'player') {
+            this._gameState.emit('send-food', playerid);
+          }
+          break;
+      }
+    });
   }
   movePlayer(direction) {
     let message = formatMove(direction);
