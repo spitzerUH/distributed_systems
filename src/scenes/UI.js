@@ -10,14 +10,15 @@ export class UI extends Scene {
   }
 
   init(data) {
-    this.gameState = data.gameState;
+    this.coordinator = data.coordinator;
+    this.gameState = this.coordinator.gameState;
   }
 
   create() {
     var minimap = createMiniMap(this, this.scene.get('Game'));
     this.input.keyboard.addKey('ESC').on('down', (event) => {
       this.gameState.emit('leave');
-      this.scene.stop('Game').stop('UI').run('MainMenu', { connection: this.gameState.connection });
+      this.scene.stop('Game').stop('UI').run('MainMenu', { coordinator: this.cm });
     });
 
     this.debugFields = createDebugTextField(this, this.gameState.connection, this.gameState.observer);
@@ -39,7 +40,7 @@ export class UI extends Scene {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
         this.gameState.players['player']._observing = false;
-        this.scene.stop().start('Game', { gamestate: this.gameState });
+        this.scene.stop().start('Game', { coordinator: this.cm });
       });
     }
   }

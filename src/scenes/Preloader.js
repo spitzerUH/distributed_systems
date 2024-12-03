@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import ConnectionManager from '+logic/connection/manager';
+import Coordinator from '+logic/game/coordinator';
 import { createGradient } from '+textures/gradient';
 const SIGNALING_SERVER_URL = process.env.SIGNALING_SERVER_URL;
 
@@ -38,8 +39,9 @@ export class Preloader extends Scene {
     const conn = new ConnectionManager(SIGNALING_SERVER_URL);
     conn.bindEvents();
     conn.connect();
+    const coordinator = new Coordinator(conn);
 
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-    this.scene.start('MainMenu', { connection: conn });
+    this.scene.start('MainMenu', { coordinator: coordinator });
   }
 }

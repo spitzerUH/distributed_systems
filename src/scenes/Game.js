@@ -9,14 +9,15 @@ export class Game extends Scene {
   }
 
   init(data) {
-    this.gameState = data.gamestate;
+    this.coordinator = data.coordinator;
+    this.gameState = this.coordinator.gameState;
   }
 
   create() {
     this.clearOldObjects();
     const mainCamera = initMainCamera(this);
 
-    this.scene.launch('UI', { gameState: this.gameState });
+    this.scene.launch('UI', { coordinator: this.coordinator });
     this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.world.setBounds(0, 0, 1000, 1000);
@@ -65,7 +66,7 @@ export class Game extends Scene {
           deadPlayer.hide();
           if (playerid == 'player') {
             this.generateSpawnpoint();
-            this.scene.run('GameOver', { gameState: this.gameState });
+            this.scene.run('GameOver', { coordinator: this.coordinator });
           }
           break;
         case 'alive':

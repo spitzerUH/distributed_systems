@@ -6,7 +6,8 @@ export class GameOver extends Scene {
   }
 
   init(data) {
-    this.gameState = data.gameState;
+    this.coordinator = data.coordinator;
+    this.gameState = this.coordinator.gameState;
   }
 
   create() {
