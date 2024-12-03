@@ -207,13 +207,10 @@ export class GameState extends EventEmitter {
       }
     });
     this.on('send-food', (playerid) => {
-      let food = Object.values(this.food).map(f => {
-        return {
-          id: f.id,
-          details: f.details
-        };
+      let data = Object.values(this.food).map(f => {
+        return f.format();
       });
-      this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: food }).then(() => {
+      this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: data }).then(() => {
       });
     });
   }
