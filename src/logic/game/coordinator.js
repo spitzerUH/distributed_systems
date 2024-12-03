@@ -2,6 +2,8 @@ import { GameState } from '+logic/gamestate';
 import { EventEmitter } from 'events';
 import { formatWhoAmI, formatMove } from '+logic/game/message';
 
+import { generateFood } from '+objects/food';
+
 class Coordinator {
   constructor(cm) {
     this._connectionManager = cm;
@@ -123,6 +125,10 @@ class Coordinator {
           }
           break;
       }
+    });
+    this._gameState.on('generate-food', (count) => {
+      let foodData = generateFood(this._gameScene, count);
+      this._gameState.emit('create-food', foodData);
     });
   }
   movePlayer(direction) {

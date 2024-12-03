@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { clearFood, generateFood, recreateFood, startFoodProcessing, generateFood } from '+objects/food';
+import { clearFood, recreateFood, startFoodProcessing, generateFood } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -37,11 +37,6 @@ export class Game extends Scene {
 
     this.dirr = undefined;
 
-    this.gameState.on('generate-food', (count) => {
-      let foodData = generateFood(this, count);
-      this.gameState.emit('create-food', foodData);
-
-    });
 
     if (this.gameState.players['player']._observing) {
       let x = this.physics.world.bounds.width / 2;
