@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { createMessage, formatWhoAmI } from '+logic/game/message';
+import { createMessage, formatWhoAmI, formatMove } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -98,7 +98,8 @@ export class GameState extends EventEmitter {
 
   handleMovement() {
     this.on('move', (direction) => {
-      this._connection.sendGameMessage({ type: 'move', data: { direction: direction } }).then(() => {
+      let message = formatMove(direction);
+      this._connection.sendGameMessage(message).then(() => {
       });
     });
   }

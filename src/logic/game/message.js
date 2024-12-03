@@ -128,4 +128,13 @@ function formatWhoAmI(player) {
   };
 }
 
-export { createMessage, formatWhoAmI };
+function formatMove(direction) {
+  return {
+    type: 'move',
+    data: {
+      direction: direction
+    }
+  };
+}
+
+export { createMessage, formatWhoAmI, formatMove };
