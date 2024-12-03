@@ -148,4 +148,12 @@ function formatStatusChange(player) {
   };
 }
 
-export { createMessage, formatWhoAmI, formatMove, formatStatusChange };
+function formatFoodCreate(food) {
+  return {
+    type: 'food',
+    subtype: 'create',
+    data: food.map(f => f.format())
+  };
+}
+
+export { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate };

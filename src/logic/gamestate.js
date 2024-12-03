@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { createMessage, formatWhoAmI, formatMove, formatStatusChange } from '+logic/game/message';
+import { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -126,8 +126,8 @@ export class GameState extends EventEmitter {
         this.food[f.id] = f;
       });
       if (this._connection.isLeader) {
-        let data = food.map(f => f.format());
-        this._connection.sendGameMessage({ type: 'food', subtype: 'create', data: data }).then(() => {
+        let message = formatFoodCreate(food);
+        this._connection.sendGameMessage(message).then(() => {
         });
       }
     });
