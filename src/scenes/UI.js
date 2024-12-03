@@ -11,7 +11,6 @@ export class UI extends Scene {
 
   init(data) {
     this.coordinator = data.coordinator;
-    this.gameState = this.coordinator.gameState;
   }
 
   create() {
@@ -22,25 +21,25 @@ export class UI extends Scene {
       });
     });
 
-    this.debugFields = createDebugTextField(this, this.gameState.connection, this.gameState.observer);
-    this.gameState.on('move', (direction) => {
+    this.debugFields = createDebugTextField(this, this.coordinator._gameState.connection, this.coordinator._gameState.observer);
+    this.coordinator._gameState.on('move', (direction) => {
       this.debugFields.emit('move', direction);
     });
 
     var playerList = createPlayerList(this, {});
 
-    playerList.emit('join', 'player', this.gameState.players['player']);
-    this.gameState.on('player-joins', (playerid) => {
-      playerList.emit('join', playerid, this.gameState.players[playerid]);
+    playerList.emit('join', 'player', this.coordinator._gameState.players['player']);
+    this.coordinator._gameState.on('player-joins', (playerid) => {
+      playerList.emit('join', playerid, this.coordinator._gameState.players[playerid]);
     });
-    this.gameState.on('player-leaves', (playerid) => {
+    this.coordinator._gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });
 
-    if (this.gameState.players['player']._observing) {
+    if (this.coordinator._gameState.players['player']._observing) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.gameState.players['player']._observing = false;
+        this.coordinator._gameState.players['player']._observing = false;
         this.scene.stop().start('Game', { coordinator: this.coordinator });
       });
     }
