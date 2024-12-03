@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
+import { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate, formatFoodEat } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -83,89 +84,31 @@ export class GameState extends EventEmitter {
   }
 
   gameChannelMessage(playerid, message) {
-    switch (message.type) {
-      case 'whoami':
-        this.handlePlayerInfo(playerid, message.data);
-        if (this.connection.isLeader) {
-          this.emit('send-food', playerid);
-        }
-        break;
-      case 'move':
-        this.emit('player-moves', playerid, message.data.direction);
-        break;
-      case 'status':
-        this.players[playerid]._status = message.data.status;
-        this.players[playerid]._position = message.data.position;
-        this.players[playerid]._observing = false;
-        this.emit('status-change', playerid, message.data.status);
-        break;
-      case 'food':
-        switch (message.subtype) {
-          case 'create':
-            let data = message.data.filter(f => this.food[f.id] === undefined);
-            this.emit('create-food', data);
-            break;
-          case 'eat':
-            this.emit('eat-food', message.id);
-            break;
-          default:
-            console.log('Unknown food message subtype', message.subtype);
-            break;
-        }
-        break;
-      default:
-        console.log('Unknown message type', message.type);
-        break;
-    }
+    let msg = createMessage(playerid, message);
+    msg.doAction(this, this);
   }
 
   bindWhoEvents() {
     this.on('whoami', () => {
-      let payload = {
-        type: 'whoami',
-        data: {
-          name: this.players['player']._name,
-          color: this.players['player']._color,
-          observing: this.players['player']._observing,
-          status: this.players['player']._status,
-          position: this.players['player']._position
-        }
-      };
-      this._connection.sendGameMessage(payload).then(() => {
+      let message = formatWhoAmI(this.players['player']);
+      this._connection.sendGameMessage(message).then(() => {
       });
     });
   }
 
-  handlePlayerInfo(playerid, data) {
-    let playerData = {
-      id: playerid,
-      name: data.name,
-      color: data.color,
-      observing: data.observing,
-      position: data.position,
-      status: data.status
-    };
-    this._players[playerid] = createPlayer(playerData);
-    this.emit('player-joins', playerid);
-  }
-
   handleMovement() {
     this.on('move', (direction) => {
-      this._connection.sendGameMessage({ type: 'move', data: { direction: direction } }).then(() => {
+      let message = formatMove(direction);
+      this._connection.sendGameMessage(message).then(() => {
       });
     });
   }
 
   handleStatusChange() {
     this.on('change-status', (status) => {
-      let data = undefined;
-      if (status === 'dead') {
-        data = { status: status };
-      } else {
-        data = { status: status, position: this.players['player']._position };
-      }
       this.players['player']._status = status;
-      this._connection.sendGameMessage({ type: 'status', data: data }).then(() => {
+      let message = formatStatusChange(this.players['player']);
+      this._connection.sendGameMessage(message).then(() => {
         this.emit('status-change', 'player', status);
       });
     });
@@ -183,13 +126,14 @@ export class GameState extends EventEmitter {
         this.food[f.id] = f;
       });
       if (this._connection.isLeader) {
-        let data = food.map(f => f.format());
-        this._connection.sendGameMessage({ type: 'food', subtype: 'create', data: data }).then(() => {
+        let message = formatFoodCreate(food);
+        this._connection.sendGameMessage(message).then(() => {
         });
       }
     });
     this.on('food-eaten', (foodId) => {
-      this._connection.sendGameMessage({ type: 'food', subtype: 'eat', id: foodId }).then(() => {
+      let message = formatFoodEat(foodId);
+      this._connection.sendGameMessage(message).then(() => {
         this.emit('eat-food', foodId);
       });
     });
@@ -200,17 +144,15 @@ export class GameState extends EventEmitter {
         return;
       }
       food.eat().then((fId) => {
-          delete this.food[fId];
+        delete this.food[fId];
       });
       if (this.connection.isLeader && Object.keys(this.food).length < 10) {
         this.emit('generate-food', 10);
       }
     });
     this.on('send-food', (playerid) => {
-      let data = Object.values(this.food).map(f => {
-        return f.format();
-      });
-      this._connection.sendGameMessageTo(playerid, { type: 'food', subtype: 'create', data: data }).then(() => {
+      let message = formatFoodCreate(this.food);
+      this._connection.sendGameMessageTo(playerid, message).then(() => {
       });
     });
   }
