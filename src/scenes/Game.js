@@ -14,13 +14,14 @@ export class Game extends Scene {
   }
 
   create() {
+    this.physics.world.setBounds(0, 0, 1000, 1000);
+    this.coordinator.setBounds(this.physics.world.bounds);
     this.clearOldObjects();
     const mainCamera = initMainCamera(this);
 
     this.scene.launch('UI', { coordinator: this.coordinator });
     this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
-    this.physics.world.setBounds(0, 0, 1000, 1000);
 
     const bg = this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);

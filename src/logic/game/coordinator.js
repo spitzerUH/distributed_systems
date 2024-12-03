@@ -7,6 +7,7 @@ class Coordinator {
     this._connectionManager = cm;
     this._gameState = undefined;
     this._em = new EventEmitter();
+    this._bounds = undefined;
   }
 
   get gameState() {
@@ -42,6 +43,9 @@ class Coordinator {
     }).catch((err) => {
       reject(err);
     });
+  }
+  setBounds(bounds) {
+    this._bounds = bounds;
   }
   bindEvent(event, handler) {
     this._em.on(event, handler);
