@@ -1,5 +1,6 @@
 import { GameState } from '+logic/gamestate';
 import { EventEmitter } from 'events';
+import { formatMove } from '+logic/game/message';
 
 class Coordinator {
   constructor(cm) {
@@ -63,6 +64,11 @@ class Coordinator {
     });
     this._connectionManager.events.on('close', (uuid) => {
       this._gameState.gameChannelClose(uuid);
+    });
+  }
+  movePlayer(direction) {
+    let message = formatMove(direction);
+    this._connectionManager.sendGameMessage(message).then(() => {
     });
   }
 }

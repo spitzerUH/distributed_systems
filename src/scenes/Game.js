@@ -112,7 +112,7 @@ export class Game extends Scene {
       this.gameState.players['player'].move(curDirr);
       if (this.gameState.players['player']._observing)
         return;
-      this.gameState.emit('move', curDirr);
+      this.coordinator.movePlayer(curDirr);
     }
   }
 
