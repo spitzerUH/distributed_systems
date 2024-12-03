@@ -115,4 +115,17 @@ function createMessage(playerid, message) {
   }
 }
 
-export { createMessage }
+function formatWhoAmI(player) {
+  return {
+    type: 'whoami',
+    data: {
+      name: player._name,
+      color: player._color,
+      observing: player._observing,
+      position: player._position,
+      status: player._status
+    }
+  };
+}
+
+export { createMessage, formatWhoAmI };

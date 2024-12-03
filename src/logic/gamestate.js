@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { createMessage } from '+logic/game/message';
+import { createMessage, formatWhoAmI } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -90,17 +90,8 @@ export class GameState extends EventEmitter {
 
   bindWhoEvents() {
     this.on('whoami', () => {
-      let payload = {
-        type: 'whoami',
-        data: {
-          name: this.players['player']._name,
-          color: this.players['player']._color,
-          observing: this.players['player']._observing,
-          status: this.players['player']._status,
-          position: this.players['player']._position
-        }
-      };
-      this._connection.sendGameMessage(payload).then(() => {
+      let message = formatWhoAmI(this.players['player']);
+      this._connection.sendGameMessage(message).then(() => {
       });
     });
   }
