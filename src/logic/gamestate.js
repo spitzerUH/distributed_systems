@@ -17,15 +17,6 @@ export class GameState extends EventEmitter {
       color: JSON.parse(localStorage.getItem('player-color')),
       observing: !!data.observer
     });
-    this.connection.events.on('open', (uuid) => {
-      this.gameChannelOpen(uuid);
-    });
-    this.connection.events.on('message', (uuid, message) => {
-      this.gameChannelMessage(uuid, message);
-    });
-    this.connection.events.on('close', (uuid) => {
-      this.gameChannelClose(uuid);
-    });
     this.handleMovement();
     this.handleStatusChange();
     this.bindWhoEvents();

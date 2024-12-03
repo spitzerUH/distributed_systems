@@ -46,6 +46,17 @@ class Coordinator {
       }
     });
   }
+  bindGlobalEvents() {
+    this._connectionManager.events.on('open', (uuid) => {
+      this._gameState.gameChannelOpen(uuid);
+    });
+    this._connectionManager.events.on('message', (uuid, message) => {
+      this._gameState.gameChannelMessage(uuid, message);
+    });
+    this._connectionManager.events.on('close', (uuid) => {
+      this._gameState.gameChannelClose(uuid);
+    });
+  }
 }
 
 export default Coordinator;
