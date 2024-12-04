@@ -4,7 +4,7 @@ class Message {
   constructor(type) {
     this._type = type;
   }
-  doAction(state, emitter) {
+  doAction(...args) {
     return new Promise((resolve, reject) => {
       reject('doAction not implemented');
     });
@@ -23,7 +23,7 @@ class WhoAmI extends Message {
       status: data.status
     };
   }
-  doAction(state, emitter) {
+  doAction(state, emitter, coordinator) {
     return new Promise((resolve, reject) => {
       state._players[this._playerData.id] = createPlayer(this._playerData);
       if (emitter.emit('player-joins', this._playerData.id)) {
@@ -42,7 +42,7 @@ class Move extends Message {
     this._playerid = playerid;
     this._direction = direction;
   }
-  doAction(state, emitter) {
+  doAction(state, emitter, coordinator) {
     return new Promise((resolve, reject) => {
       if (emitter.emit('player-moves', this._playerid, this._direction)) {
         resolve();
@@ -61,7 +61,7 @@ class StatusChange extends Message {
     this._position = data.position;
     this._observing = data.observing || false;
   }
-  doAction(state, emitter) {
+  doAction(state, emitter, coordinator) {
     return new Promise((resolve, reject) => {
       let player = state.players[this._playerid];
       player._status = this._status;
@@ -81,7 +81,7 @@ class Food extends Message {
     super('food');
     this._message = message;
   }
-  doAction(state, emitter) {
+  doAction(state, emitter, coordinator) {
     return new Promise((resolve, reject) => {
       switch (this._message.subtype) {
         case 'create':
