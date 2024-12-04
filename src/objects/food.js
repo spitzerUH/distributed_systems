@@ -1,3 +1,4 @@
+import Coordinator from '+logic/game/coordinator';
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
 class Food {
@@ -81,7 +82,9 @@ function createFood(scene, data) {
   return food;
 }
 
-function createFoodCollision(gameState, player) {
+function createFoodCollision(coordinator) {
+  let player = coordinator.myplayer;
+  let gameState = coordinator._gameState;
   if (player && player.object && player.object.body) {
     for (let foodid in gameState.food) {
       let food = gameState.food[foodid];
@@ -90,7 +93,7 @@ function createFoodCollision(gameState, player) {
           if (food.eaten) {
             return;
           }
-          gameState.emit('food-eaten', food.id);
+          coordinator.fireEvent('food-eaten', food.id);
         });
       }
     }
@@ -120,10 +123,10 @@ export function generateFood(scene, gameState, count) {
   return foodData;
 }
 
-export function startFoodProcessing(scene, gameState, myplayer) {
-  gameState.on('create-food', (data) => {
-    gameState.emit('food-created', createFood(scene, data));
-    createFoodCollision(gameState, myplayer);
+export function startFoodProcessing(scene, coordinator) {
+  coordinator.bindEvent('create-food', (data) => {
+    coordinator.fireEvent('food-created', createFood(scene, data));
+    createFoodCollision(coordinator);
   });
 }
 

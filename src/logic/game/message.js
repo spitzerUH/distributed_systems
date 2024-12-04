@@ -86,11 +86,11 @@ class Food extends Message {
       switch (this._message.subtype) {
         case 'create':
           let data = this._message.data.filter(f => coordinator._gameState.food[f.id] === undefined);
-          coordinator._gameState.emit('create-food', data);
+          coordinator.fireEvent('create-food', data);
           resolve();
           break;
         case 'eat':
-          coordinator._gameState.emit('eat-food', this._message.id);
+          coordinator.fireEvent('eat-food', this._message.id);
           resolve();
           break;
         default:

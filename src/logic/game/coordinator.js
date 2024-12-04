@@ -124,24 +124,24 @@ class Coordinator {
             this._gameState.players[playerid].respawn();
           }
           if (this._connectionManager.isLeader && playerid !== 'player') {
-            this._gameState.emit('send-food', playerid);
+            this.fireEvent('send-food', playerid);
           }
           break;
       }
     });
-    this._gameState.on('create-food', (data) => {
+    this.bindEvent('create-food', (data) => {
       this._gameState.foodToSend += data.length;
     });
-    this._gameState.on('generate-food', (count) => {
+    this.bindEvent('generate-food', (count) => {
       let foodData = generateFood(this._gameScene, this._gameState, count);
-      this._gameState.emit('create-food', foodData);
+      this.fireEvent('create-food', foodData);
     });
-    this._gameState.on('send-food', (playerid) => {
+    this.bindEvent('send-food', (playerid) => {
       let message = formatFoodCreate(this._gameState.food);
       this._connectionManager.sendGameMessageTo(playerid, message).then(() => {
       });
     });
-    this._gameState.on('eat-food', (foodId) => {
+    this.bindEvent('eat-food', (foodId) => {
       let food = this._gameState.food[foodId];
       if (!food) {
         console.log('Dup message? Food not found', foodId);
@@ -151,16 +151,16 @@ class Coordinator {
         delete this._gameState.food[fId];
       });
       if (this._connectionManager.isLeader && Object.keys(this._gameState.food).length < 10) {
-        this._gameState.emit('generate-food', 10);
+        this.fireEvent('generate-food', 10);
       }
     });
-    this._gameState.on('food-eaten', (foodId) => {
+    this.bindEvent('food-eaten', (foodId) => {
       let message = formatFoodEat(foodId);
       this._connectionManager.sendGameMessage(message).then(() => {
-        this._gameState.emit('eat-food', foodId);
+        this.fireEvent('eat-food', foodId);
       });
     });
-    this._gameState.on('food-created', (food) => {
+    this.bindEvent('food-created', (food) => {
       food.forEach((f) => {
         if (f.id > this._gameState._currentFoodIndex) {
           this._gameState._currentFoodIndex = f.id;
@@ -189,9 +189,9 @@ class Coordinator {
     this.bindEvent('spawnpoint', (point) => {
       this.myplayer._position = point;
     });
-    this._gameState.on('leader-actions', () => {
+    this.bindEvent('leader-actions', () => {
       if (Object.keys(this._gameState.food).length === 0) {
-        this._gameState.emit('generate-food', 20);
+        this.fireEvent('generate-food', 20);
       }
     });
   }
@@ -214,7 +214,7 @@ class Coordinator {
 
   gameChannelOpen(playerid) {
     if (this._connectionManager.isLeader) {
-      this._gameState.emit('leader-actions');
+      this.fireEvent('leader-actions');
     }
   }
 

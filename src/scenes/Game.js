@@ -32,7 +32,7 @@ export class Game extends Scene {
     myplayer.createObject(this);
     myplayer.follow(mainCamera);
 
-    startFoodProcessing(this, this.coordinator._gameState, myplayer);
+    startFoodProcessing(this, this.coordinator);
 
     this.dirr = undefined;
 
