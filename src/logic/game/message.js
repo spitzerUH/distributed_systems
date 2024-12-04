@@ -26,11 +26,11 @@ class WhoAmI extends Message {
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
       coordinator._gameState._players[this._playerData.id] = createPlayer(this._playerData);
-      if (coordinator.fireEvent('player-joins', this._playerData.id)) {
+      coordinator.fireEvent('player-joins', this._playerData.id).then(() => {
         resolve();
-      } else {
+      }).catch((error) => {
         reject('player-joins event failed');
-      }
+      });
     });
   }
 
@@ -44,11 +44,11 @@ class Move extends Message {
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      if (coordinator.fireEvent('player-moves', this._playerid, this._direction)) {
+      coordinator.fireEvent('player-moves', this._playerid, this._direction).then(() => {
         resolve();
-      } else {
+      }).catch((error) => {
         reject('player-moves event failed');
-      }
+      });
     });
   }
 }
@@ -67,11 +67,11 @@ class StatusChange extends Message {
       player._status = this._status;
       player._position = this._position;
       player._observing = this._observing;
-      if (coordinator.fireEvent('status-change', this._playerid, this._status)) {
+      coordinator.fireEvent('status-change', this._playerid, this._status).then(() => {
         resolve();
-      } else {
+      }).catch((error) => {
         reject('status-change event failed');
-      }
+      });
     });
   }
 }
@@ -86,12 +86,18 @@ class Food extends Message {
       switch (this._message.subtype) {
         case 'create':
           let data = this._message.data.filter(f => coordinator._gameState.food[f.id] === undefined);
-          coordinator.fireEvent('create-food', data);
-          resolve();
+          coordinator.fireEvent('create-food', data).then(() => {
+            resolve();
+          }).catch((error) => {
+            reject('create-food event failed');
+          });
           break;
         case 'eat':
-          coordinator.fireEvent('eat-food', this._message.id);
-          resolve();
+          coordinator.fireEvent('eat-food', this._message.id).then(() => {
+            resolve();
+          }).catch((error) => {
+            reject('eat-food event failed');
+          });
           break;
         default:
           reject('Unknown food message type ' + this._message.type);
