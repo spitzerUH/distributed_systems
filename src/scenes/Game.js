@@ -72,7 +72,7 @@ export class Game extends Scene {
     for (let playerid in this.coordinator.players) {
       this.coordinator.players[playerid].resetObject();
     }
-    clearFood(this.coordinator._gameState);
+    clearFood(this.coordinator);
   }
 
   generateNewObjects() {
@@ -96,7 +96,7 @@ export class Game extends Scene {
 
       }
     }
-    recreateFood(this, this.coordinator._gameState);
+    recreateFood(this, this.coordinator);
   }
 
 }

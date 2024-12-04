@@ -83,11 +83,13 @@ function createFood(scene, data) {
 }
 
 function createFoodCollision(coordinator) {
+  if (coordinator.observer) {
+    return;
+  }
   let player = coordinator.myplayer;
-  let gameState = coordinator._gameState;
   if (player && player.object && player.object.body) {
-    for (let foodid in gameState.food) {
-      let food = gameState.food[foodid];
+    for (let foodid in coordinator.food) {
+      let food = coordinator.food[foodid];
       if (food) {
         player.collisionWith(food, (player, f) => {
           if (food.eaten) {
@@ -100,7 +102,8 @@ function createFoodCollision(coordinator) {
   }
 }
 
-export function generateFood(scene, gameState, count) {
+export function generateFood(scene, coordinator, count) {
+  let gameState = coordinator._gameState;
   let foodData = [];
   for (let i = 0; i < count; i++) {
     let id = gameState.nextFoodIndex;
@@ -130,20 +133,21 @@ export function startFoodProcessing(scene, coordinator) {
   });
 }
 
-export function clearFood(gameState) {
-  for (let foodid in gameState.food) {
-    let food = gameState.food[foodid];
+export function clearFood(coordinator) {
+  for (let foodid in coordinator.food) {
+    let food = coordinator.food[foodid];
     if (food) {
       food.destroyObject();
     }
   }
 }
 
-export function recreateFood(scene, gameState) {
-  for (let foodid in gameState.food) {
-    let food = gameState.food[foodid];
+export function recreateFood(scene, coordinator) {
+  for (let foodid in coordinator.food) {
+    let food = coordinator.food[foodid];
     if (food) {
       food.createObject(scene);
     }
   }
+  createFoodCollision(coordinator);
 }

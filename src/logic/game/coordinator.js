@@ -35,6 +35,10 @@ class Coordinator {
     return this._gameState.players;
   }
 
+  get food() {
+    return this._gameState.food;
+  }
+
   joinRoom(roomCode) {
     return new Promise((resolve, reject) => {
       this._gameState = new GameState({ connection: this._connectionManager, observer: false });
@@ -149,24 +153,24 @@ class Coordinator {
       this._gameState.foodToSend += data.length;
     });
     this.bindEvent('generate-food', (count) => {
-      let foodData = generateFood(this._gameScene, this._gameState, count);
+      let foodData = generateFood(this._gameScene, this, count);
       this.fireEvent('create-food', foodData);
     });
     this.bindEvent('send-food', (playerid) => {
-      let message = formatFoodCreate(this._gameState.food);
+      let message = formatFoodCreate(this.food);
       this._connectionManager.sendGameMessageTo(playerid, message).then(() => {
       });
     });
     this.bindEvent('eat-food', (foodId) => {
-      let food = this._gameState.food[foodId];
+      let food = this.food[foodId];
       if (!food) {
         console.log('Dup message? Food not found', foodId);
         return;
       }
       food.eat().then((fId) => {
-        delete this._gameState.food[fId];
+        delete this.food[fId];
       });
-      if (this._connectionManager.isLeader && Object.keys(this._gameState.food).length < 10) {
+      if (this._connectionManager.isLeader && Object.keys(this.food).length < 10) {
         this.fireEvent('generate-food', 10);
       }
     });
@@ -181,7 +185,7 @@ class Coordinator {
         if (f.id > this._gameState._currentFoodIndex) {
           this._gameState._currentFoodIndex = f.id;
         }
-        this._gameState.food[f.id] = f;
+        this.food[f.id] = f;
       });
       if (this._connectionManager.isLeader) {
         let message = formatFoodCreate(food);
@@ -206,7 +210,7 @@ class Coordinator {
       this.myplayer._position = point;
     });
     this.bindEvent('leader-actions', () => {
-      if (Object.keys(this._gameState.food).length === 0) {
+      if (Object.keys(this.food).length === 0) {
         this.fireEvent('generate-food', 20);
       }
     });

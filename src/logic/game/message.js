@@ -85,7 +85,7 @@ class Food extends Message {
     return new Promise((resolve, reject) => {
       switch (this._message.subtype) {
         case 'create':
-          let data = this._message.data.filter(f => coordinator._gameState.food[f.id] === undefined);
+          let data = this._message.data.filter(f => coordinator.food[f.id] === undefined);
           coordinator.fireEvent('create-food', data).then(() => {
             resolve();
           }).catch((error) => {
