@@ -25,8 +25,8 @@ class WhoAmI extends Message {
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      coordinator.players[this._playerData.id] = createPlayer(this._playerData);
-      coordinator.fireEvent('player-joins', this._playerData.id).then(() => {
+      let player = coordinator.addPlayer(createPlayer(this._playerData));
+      coordinator.fireEvent('player-joins', player.id).then(() => {
         resolve();
       }).catch((error) => {
         reject('player-joins event failed');
@@ -63,14 +63,17 @@ class StatusChange extends Message {
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      let player = coordinator.players[this._playerid];
-      player._status = this._status;
-      player._position = this._position;
-      player._observing = this._observing;
-      coordinator.fireEvent('status-change', this._playerid, this._status).then(() => {
-        resolve();
+      coordinator.getPlayer(this._playerid).then((player) => {
+        player._status = this._status;
+        player._position = this._position;
+        player._observing = this._observing;
+        coordinator.fireEvent('status-change', this._playerid, this._status).then(() => {
+          resolve();
+        }).catch((error) => {
+          reject(error);
+        });
       }).catch((error) => {
-        reject('status-change event failed');
+        reject(error);
       });
     });
   }

@@ -27,7 +27,9 @@ class Coordinator {
 
   set observer(value) {
     this._observer = !!value;
-    this.myplayer._observing = this._observer;
+    this.myplayer.then((player) => {
+      player._observing = this._observer;
+    });
   }
 
   get gameState() {
@@ -111,44 +113,46 @@ class Coordinator {
   }
   bindGameEvents() {
     this.bindEvent('player-joins', (playerid) => {
-      let player = this.players[playerid];
-      if (player) {
+      this.getPlayer(playerid).then((player) => {
         player.createObject(this._gameScene);
         if (player._observing || !player._status || player._status == 'dead') {
           player.hide();
         }
         if (!this.observer) {
-          let myplayer = this.myplayer;
-          player.collisionWith(myplayer, () => {
-            if (myplayer._status == 'alive' && player._status == 'alive') {
-              this.fireEvent('change-status', 'dead');
+          this.myplayer.then((myplayer) => {
+            player.collisionWith(myplayer, () => {
+              if (myplayer._status == 'alive' && player._status == 'alive') {
+                this.fireEvent('change-status', 'dead');
+              }
+            });
+            if (myplayer._status == 'alive') {
+              this.fireEvent('change-status', 'alive');
             }
           });
         }
-        if (!this.observer && this.myplayer._status == 'alive') {
-          this.fireEvent('change-status', 'alive');
-        }
-      }
+      });
     });
     this.bindEvent('player-moves', (playerid, direction) => {
-      let player = this.players[playerid];
-      player.move(direction);
+      this.getPlayer(playerid).then((player) => {
+        player.move(direction);
+      });
     });
     this.bindEvent('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':
-          let deadPlayer = this.players[playerid];
-          deadPlayer.stop();
-          deadPlayer.hide();
-          if (playerid == 'player') {
-            this.generateSpawnpoint();
-            this._gameScene.scene.run('GameOver', { coordinator: this });
-          }
+          this.getPlayer(playerid).then((deadPlayer) => {
+            deadPlayer.stop();
+            deadPlayer.hide();
+            if (playerid == 'player') {
+              this.generateSpawnpoint();
+              this._gameScene.scene.run('GameOver', { coordinator: this });
+            }
+          });
           break;
         case 'alive':
-          if (this.players[playerid]) {
-            this.players[playerid].respawn();
-          }
+          this.getPlayer(playerid).then((player) => {
+            player.respawn();
+          });
           if (this._connectionManager.isLeader && playerid !== 'player') {
             this.fireEvent('send-food', playerid);
           }
@@ -199,10 +203,12 @@ class Coordinator {
       }
     });
     this.bindEvent('change-status', (status) => {
-      this.myplayer._status = status;
-      let message = formatStatusChange(this.myplayer);
-      this._connectionManager.sendGameMessage(message).then(() => {
-        this.fireEvent('status-change', 'player', status);
+      this.myplayer.then((player) => {
+        player._status = status;
+        let message = formatStatusChange(player);
+        this._connectionManager.sendGameMessage(message).then(() => {
+          this.fireEvent('status-change', 'player', status);
+        });
       });
     });
     this.bindEvent('ready', () => {
@@ -212,7 +218,9 @@ class Coordinator {
     });
 
     this.bindEvent('spawnpoint', (point) => {
-      this.myplayer._position = point;
+      this.myplayer.then((player) => {
+        player._position = point;
+      });
     });
     this.bindEvent('leader-actions', () => {
       if (Object.keys(this.food).length === 0) {
@@ -237,8 +245,10 @@ class Coordinator {
     });
   }
   sendWhoAmI() {
-    let message = formatWhoAmI(this.myplayer);
-    this._connectionManager.sendGameMessage(message).then(() => {
+    this.myplayer.then((player) => {
+      let message = formatWhoAmI(player);
+      this._connectionManager.sendGameMessage(message).then(() => {
+      });
     });
   }
   generateSpawnpoint() {
@@ -255,14 +265,17 @@ class Coordinator {
 
   gameChannelClose(playerid) {
     this.fireEvent('player-leaves', playerid);
-    if (this.players[playerid]) {
-      this.players[playerid].removeObject();
-      delete this.players[playerid];
-    }
+    this._gameState.removePlayer(playerid);
   }
 
   get myplayer() {
-    return this.players['player'];
+    return this.getPlayer('player');
+  }
+  getPlayer(playerid) {
+    return this._gameState.getPlayer(playerid);
+  }
+  addPlayer(player) {
+    return this._gameState.addPlayer(player);
   }
 
 }

@@ -86,20 +86,21 @@ function createFoodCollision(coordinator) {
   if (coordinator.observer) {
     return;
   }
-  let player = coordinator.myplayer;
-  if (player && player.object && player.object.body) {
-    for (let foodid in coordinator.food) {
-      let food = coordinator.food[foodid];
-      if (food) {
-        player.collisionWith(food, (player, f) => {
-          if (food.eaten) {
-            return;
-          }
-          coordinator.fireEvent('food-eaten', food.id);
-        });
+  coordinator.myplayer.then((player) => {
+    if (player.object && player.object.body) {
+      for (let foodid in coordinator.food) {
+        let food = coordinator.food[foodid];
+        if (food) {
+          player.collisionWith(food, (...args) => {
+            if (food.eaten) {
+              return;
+            }
+            coordinator.fireEvent('food-eaten', food.id);
+          });
+        }
       }
     }
-  }
+  });
 }
 
 export function generateFood(scene, coordinator, count) {

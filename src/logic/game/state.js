@@ -9,16 +9,17 @@ class GameState {
   }
   addPlayer(player) {
     this._players[player.id] = player;
+    return player;
   }
-  removePlayer(player) {
-    return new Promise((resolve) => {
-      if (player) {
-        this._players[player.id].removeObject();
+  removePlayer(playerId) {
+    return new Promise((resolve, reject) => {
+      this.getPlayer(playerId).then((player) => {
+        player.removeObject();
         delete this._players[player.id];
         resolve();
-      } else {
+      }).catch((e) => {
         reject('Player not found');
-      }
+      });
     });
   }
   getPlayer(id) {
