@@ -28,7 +28,7 @@ export class Game extends Scene {
 
     drawBorders(this, this.physics.world.bounds);
 
-    let myplayer = this.coordinator._gameState.players['player'];
+    let myplayer = this.coordinator.myplayer;
     myplayer.createObject(this);
     myplayer.follow(mainCamera);
 
@@ -37,7 +37,7 @@ export class Game extends Scene {
     this.dirr = undefined;
 
 
-    if (this.coordinator._gameState.players['player']._observing) {
+    if (this.coordinator.myplayer._observing) {
       let x = this.physics.world.bounds.width / 2;
       let y = this.physics.world.bounds.height / 2;
       myplayer.observe(x, y);
@@ -61,8 +61,8 @@ export class Game extends Scene {
       curDirr = "down";
     }
     if (curDirr && curDirr != this.dirr) {
-      this.coordinator._gameState.players['player'].move(curDirr);
-      if (this.coordinator._gameState.players['player']._observing)
+      this.coordinator.myplayer.move(curDirr);
+      if (this.coordinator.myplayer._observing)
         return;
       this.coordinator.movePlayer(curDirr);
     }
@@ -86,8 +86,8 @@ export class Game extends Scene {
         player.hide();
       } else {
         if (playerid !== "player") {
-          this.coordinator._gameState.players["player"].collisionWith(player, () => {
-            if (this.coordinator._gameState.players["player"]._status == 'alive' && player._status == 'alive') {
+          this.coordinator.myplayer.collisionWith(player, () => {
+            if (this.coordinator.myplayer._status == 'alive' && player._status == 'alive') {
               this.coordinator._gameState.emit('change-status', 'dead');
             }
           });

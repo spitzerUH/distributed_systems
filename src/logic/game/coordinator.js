@@ -91,15 +91,15 @@ class Coordinator {
         if (player._observing || !player._status || player._status == 'dead') {
           player.hide();
         }
-        if (!this._gameState.players['player']._observing) {
-          let myplayer = this._gameState.players['player'];
+        if (!this.myplayer._observing) {
+          let myplayer = this.myplayer;
           player.collisionWith(myplayer, () => {
-            if (this._gameState.players['player']._status == 'alive' && player._status == 'alive') {
+            if (myplayer._status == 'alive' && player._status == 'alive') {
               this._gameState.emit('change-status', 'dead');
             }
           });
         }
-        if (!this._gameState.players['player']._observing && this._gameState.players['player']._status == 'alive') {
+        if (!this.myplayer._observing && this.myplayer._status == 'alive') {
           this._gameState.emit('change-status', 'alive');
         }
       }
@@ -174,8 +174,8 @@ class Coordinator {
       }
     });
     this._gameState.on('change-status', (status) => {
-      this._gameState.players['player']._status = status;
-      let message = formatStatusChange(this._gameState.players['player']);
+      this.myplayer._status = status;
+      let message = formatStatusChange(this.myplayer);
       this._connectionManager.sendGameMessage(message).then(() => {
         this._gameState.emit('status-change', 'player', status);
       });
@@ -187,7 +187,7 @@ class Coordinator {
     });
   }
   sendWhoAmI() {
-    let message = formatWhoAmI(this._gameState.players['player']);
+    let message = formatWhoAmI(this.myplayer);
     this._connectionManager.sendGameMessage(message).then(() => {
     });
   }
@@ -209,6 +209,10 @@ class Coordinator {
       this._gameState.players[playerid].resetObject();
       delete this._gameState._players[playerid];
     }
+  }
+
+  get myplayer() {
+    return this._gameState.players['player'];
   }
 
 }

@@ -28,7 +28,8 @@ export class UI extends Scene {
 
     var playerList = createPlayerList(this, {});
 
-    playerList.emit('join', 'player', this.coordinator._gameState.players['player']);
+    let myplayer = this.coordinator.myplayer;
+    playerList.emit('join', myplayer.id, myplayer);
     this.coordinator._gameState.on('player-joins', (playerid) => {
       playerList.emit('join', playerid, this.coordinator._gameState.players[playerid]);
     });
@@ -36,10 +37,10 @@ export class UI extends Scene {
       playerList.emit('leave', playerid);
     });
 
-    if (this.coordinator._gameState.players['player']._observing) {
+    if (this.coordinator.myplayer._observing) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.coordinator._gameState.players['player']._observing = false;
+        this.coordinator.myplayer._observing = false;
         this.scene.stop().start('Game', { coordinator: this.coordinator });
       });
     }
