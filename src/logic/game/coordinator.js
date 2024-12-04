@@ -1,5 +1,6 @@
-import { GameState } from '+logic/gamestate';
+import GameState from './state';
 import { EventEmitter } from 'events';
+import { createPlayer } from '+objects/player';
 import {
   createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat, formatStatusChange
 } from '+logic/game/message';
@@ -13,6 +14,7 @@ class Coordinator {
     this._em = new EventEmitter();
     this._bounds = undefined;
     this._gameScene = undefined;
+    this._observer = false;
   }
 
   get room() {
@@ -20,11 +22,12 @@ class Coordinator {
   }
 
   get observer() {
-    return this.myplayer._observing;
+    return this._observer;
   }
 
   set observer(value) {
-    this.myplayer._observing = !!value;
+    this._observer = !!value;
+    this.myplayer._observing = this._observer;
   }
 
   get gameState() {
@@ -41,7 +44,8 @@ class Coordinator {
 
   joinRoom(roomCode) {
     return new Promise((resolve, reject) => {
-      this._gameState = new GameState({ connection: this._connectionManager, observer: false });
+      this._observer = false;
+      this._gameState = new GameState();
       this.connectRoom(roomCode, resolve, reject);
     });
   }
@@ -56,12 +60,14 @@ class Coordinator {
   }
   observe(roomCode) {
     return new Promise((resolve, reject) => {
-      this._gameState = new GameState({ connection: this._connectionManager, observer: true });
+      this._observer = true;
+      this._gameState = new GameState();
       this.connectRoom(roomCode, resolve, reject);
     });
   }
   connectRoom(roomCode, resolve, reject) {
     this.bindEvents();
+    this.createMyPlayer();
     this._connectionManager.joinRoom(roomCode).then(() => {
       resolve();
     }).catch((err) => {
@@ -213,6 +219,16 @@ class Coordinator {
         this.fireEvent('generate-food', 20);
       }
     });
+  }
+  createMyPlayer() {
+    let playerData = {
+      id: 'player',
+      name: JSON.parse(localStorage.getItem('player-name')),
+      color: JSON.parse(localStorage.getItem('player-color')),
+      observing: this.observer
+    };
+    let player = createPlayer(playerData);
+    this._gameState.addPlayer(player);
   }
   movePlayer(direction) {
     this.fireEvent('move', direction);

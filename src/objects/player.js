@@ -8,6 +8,9 @@ class Player {
     this._status = data.status;
     this._object = undefined;
   }
+  get id() {
+    return this._id;
+  }
   createObject(scene) {
     this._object = scene.add.circle(
       this._position.x,

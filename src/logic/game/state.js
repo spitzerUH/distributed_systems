@@ -2,6 +2,10 @@ class GameState {
   constructor() {
     this._players = {};
     this._food = {};
+    this._currentFoodIndex = 0;
+  }
+  get players() {
+    return this._players;
   }
   addPlayer(player) {
     this._players[player.id] = player;
@@ -27,6 +31,12 @@ class GameState {
       }
     });
   }
+  get food() {
+    return this._food;
+  }
+  get nextFoodIndex() {
+    return this._currentFoodIndex++;
+  }
   addFood(food) {
     this._food[food.id] = food;
   }
@@ -41,3 +51,5 @@ class GameState {
     });
   }
 }
+
+export default GameState;
