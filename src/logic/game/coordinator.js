@@ -186,7 +186,7 @@ class Coordinator {
       }
     });
 
-    this._gameState.on('spawnpoint', (point) => {
+    this.bindEvent('spawnpoint', (point) => {
       this.myplayer._position = point;
     });
     this._gameState.on('leader-actions', () => {
@@ -208,7 +208,7 @@ class Coordinator {
   generateSpawnpoint() {
     let randomPoint = this._bounds.getRandomPoint();
     let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
-    this._gameState.emit('spawnpoint', spawnpoint);
+    this.fireEvent('spawnpoint', spawnpoint);
   }
 
   gameChannelOpen(playerid) {
