@@ -67,7 +67,7 @@ class StatusChange extends Message {
       player._status = this._status;
       player._position = this._position;
       player._observing = this._observing;
-      if (coordinator._gameState.emit('status-change', this._playerid, this._status)) {
+      if (coordinator.fireEvent('status-change', this._playerid, this._status)) {
         resolve();
       } else {
         reject('status-change event failed');

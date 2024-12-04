@@ -108,7 +108,7 @@ class Coordinator {
       let player = this._gameState.players[playerid];
       player.move(direction);
     });
-    this._gameState.on('status-change', (playerid, status) => {
+    this.bindEvent('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':
           let deadPlayer = this._gameState.players[playerid];
@@ -177,7 +177,7 @@ class Coordinator {
       this.myplayer._status = status;
       let message = formatStatusChange(this.myplayer);
       this._connectionManager.sendGameMessage(message).then(() => {
-        this._gameState.emit('status-change', 'player', status);
+        this.fireEvent('status-change', 'player', status);
       });
     });
     this.bindEvent('ready', () => {
