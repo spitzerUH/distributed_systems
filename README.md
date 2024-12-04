@@ -99,20 +99,34 @@ Client has option to join as observer just to view the game instead of actively 
     * `connect` is sent when client connects to the server
     * `disconnect` is sent when client disconnects from the server
     * `connect_error` is sent when connection fails
+
+Socket.io generates unique id for each web socket connection and it included with some messages using `sid`.
+
 ---
 
 Client emits `room-enter` message to enter a specific game room:
 ```json
 {
-    "room_code": "code"
+    "method": "ws",
+    "clock": ...,
+    "data": {
+        "uuid": "unique identifier",
+        "room_code": "code"
+    }
 }
 ```
 Room code can be empty or any alphanumeric string.
-New room will be created if leaved empty or non-matching existing room found.
+In case of empty string, server uses room code `default`.
 Server will send response message with active room code:
 ```json
 {
-    "room_code": "code"
+    "method": "ws",
+    "clock": ...,
+    "data": {
+        "sid": "sid",
+        "uuid": "unique identifier",
+        "room_code": "code"
+    }
 }
 ```
 
@@ -121,7 +135,22 @@ Server will send response message with active room code:
 Client emits `room-exit` message to leave a room:
 ```json
 {
-    "room_code": "code"
+    "method": "ws",
+    "clock": ...,
+    "data": {
+        "room_code": "code"
+    }
+}
+```
+Server responses with similar message, but includes socket id:
+```json
+{
+    "method": "ws",
+    "clock": ...,
+    "data": {
+        "sid": "sid",
+        "room_code": "code"
+    }
 }
 ```
 
@@ -130,10 +159,29 @@ Client emits `room-exit` message to leave a room:
 Server emits `room-joined` message when a new client joins a room:
 ```json
 {
-    "session_id": "session id"
+    "method": "ws",
+    "clock": ...,
+    "data": {
+        "sid": "sid",
+        "uuid": "unique identifier",
+        "room_code": "code"
+    }
 }
 ```
-Session id is for temporary use for websocket to identify the clients for direct messaging.
+
+---
+
+Server emits `room-left` message when a a client leaves a room:
+```json
+{
+    "method": "ws",
+    "clock": ...,
+    "data": {
+        "sid": "sid",
+        "room_code": "code"
+    }
+}
+```
 
 ---
 
@@ -267,6 +315,45 @@ Player status:
 }
 ```
 Possible values for `status` are `alive` or `dead`.
+
+---
+
+There is couple food related messages divided in subtypes.
+
+Creating food, single or multiple at once:
+```json
+{
+    "platform": "game",
+    "data": {
+        "type": "food",
+        "subtype": "create",
+        "data": [
+            {
+                "id": "id number",
+                "details": {
+                    "x": "x",
+                    "y": "y",
+                    "size": "size",
+                    "color": "color code"
+                }
+            },
+            ...
+        ]
+    }
+}
+```
+
+Eating food:
+```json
+{
+    "platform": "game",
+    "data": {
+        "type": "food",
+        "subtype": "eat",
+        "id": "id"
+    }
+}
+```
 
 ---
 

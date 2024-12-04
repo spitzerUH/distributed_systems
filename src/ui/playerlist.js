@@ -12,8 +12,15 @@ export function createPlayerList(scene, config) {
     .setScrollFactor(0, 0)
     .layout();
   players.on('join', (pid, data) => {
-    players.add(scene.add.text(0, 0, data.name).setName(pid), { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } })
-      .layout();
+    let name = data._name || (pid === 'player') ? 'You' : pid;
+    let node = players.getElement('#' + pid);
+    if (!node) {
+      node = scene.add.text(0, 0, name).setName(pid);
+      players.add(node, { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
+    } else {
+      node.text = name;
+    }
+    players.layout();
     resetPosition(scene, players);
   });
   players.on('leave', (pid) => {
