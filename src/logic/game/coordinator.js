@@ -57,9 +57,9 @@ class Coordinator {
   bindEvent(event, handler) {
     this._em.on(event, handler);
   }
-  fireEvent(event, data) {
+  fireEvent(event, ...data) {
     return new Promise((resolve, reject) => {
-      if (this._em.emit(event, data)) {
+      if (this._em.emit(event, ...data)) {
         resolve();
       } else {
         reject();
@@ -179,6 +179,11 @@ class Coordinator {
       this._connectionManager.sendGameMessage(message).then(() => {
         this._gameState.emit('status-change', 'player', status);
       });
+    });
+    this.bindEvent('ready', () => {
+      if (!this.myplayer._observing) {
+        this._gameState.emit('change-status', 'alive');
+      }
     });
   }
   movePlayer(direction) {

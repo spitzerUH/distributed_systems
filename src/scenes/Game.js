@@ -46,7 +46,7 @@ export class Game extends Scene {
     }
     this.generateNewObjects();
 
-    this.coordinator._gameState.emit('ready');
+    this.coordinator.fireEvent('ready');
   }
 
   update(time, delta) {

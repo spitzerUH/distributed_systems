@@ -19,11 +19,6 @@ export class GameState extends EventEmitter {
     this.on('spawnpoint', (point) => {
       this.players['player']._position = point;
     });
-    this.on('ready', () => {
-      if (!this.players['player']._observing) {
-        this.emit('change-status', 'alive');
-      }
-    });
     this.on('leader-actions', () => {
       if (Object.keys(this.food).length === 0) {
         this.emit('generate-food', 20);
