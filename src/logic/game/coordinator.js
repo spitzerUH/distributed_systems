@@ -219,7 +219,7 @@ class Coordinator {
   }
 
   gameChannelClose(playerid) {
-    this._gameState.emit('player-leaves', playerid);
+    this.fireEvent('player-leaves', playerid);
     if (this._gameState.players[playerid]) {
       this._gameState.players[playerid].resetObject();
       delete this._gameState._players[playerid];

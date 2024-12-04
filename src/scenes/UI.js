@@ -33,7 +33,7 @@ export class UI extends Scene {
     this.coordinator.bindEvent('player-joins', (playerid) => {
       playerList.emit('join', playerid, this.coordinator._gameState.players[playerid]);
     });
-    this.coordinator._gameState.on('player-leaves', (playerid) => {
+    this.coordinator.bindEvent('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });
 
