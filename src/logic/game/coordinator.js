@@ -104,7 +104,7 @@ class Coordinator {
         }
       }
     });
-    this._gameState.on('player-moves', (playerid, direction) => {
+    this.bindEvent('player-moves', (playerid, direction) => {
       let player = this._gameState.players[playerid];
       player.move(direction);
     });

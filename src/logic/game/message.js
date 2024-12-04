@@ -44,7 +44,7 @@ class Move extends Message {
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      if (coordinator._gameState.emit('player-moves', this._playerid, this._direction)) {
+      if (coordinator.fireEvent('player-moves', this._playerid, this._direction)) {
         resolve();
       } else {
         reject('player-moves event failed');
