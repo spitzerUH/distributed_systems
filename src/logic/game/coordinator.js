@@ -185,6 +185,15 @@ class Coordinator {
         this._gameState.emit('change-status', 'alive');
       }
     });
+
+    this._gameState.on('spawnpoint', (point) => {
+      this.myplayer._position = point;
+    });
+    this._gameState.on('leader-actions', () => {
+      if (Object.keys(this._gameState.food).length === 0) {
+        this._gameState.emit('generate-food', 20);
+      }
+    });
   }
   movePlayer(direction) {
     let message = formatMove(direction);
