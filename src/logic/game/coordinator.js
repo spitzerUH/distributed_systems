@@ -1,6 +1,8 @@
 import { GameState } from '+logic/gamestate';
 import { EventEmitter } from 'events';
-import { createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat } from '+logic/game/message';
+import {
+  createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat, formatStatusChange
+} from '+logic/game/message';
 
 import { generateFood } from '+objects/food';
 
@@ -170,6 +172,13 @@ class Coordinator {
         this._connectionManager.sendGameMessage(message).then(() => {
         });
       }
+    });
+    this._gameState.on('change-status', (status) => {
+      this._gameState.players['player']._status = status;
+      let message = formatStatusChange(this._gameState.players['player']);
+      this._connectionManager.sendGameMessage(message).then(() => {
+        this._gameState.emit('status-change', 'player', status);
+      });
     });
   }
   movePlayer(direction) {

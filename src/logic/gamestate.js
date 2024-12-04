@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { createPlayer } from '+objects/player';
-import { formatStatusChange } from '+logic/game/message';
 
 export class GameState extends EventEmitter {
   constructor(data = {}) {
@@ -17,7 +16,6 @@ export class GameState extends EventEmitter {
       color: JSON.parse(localStorage.getItem('player-color')),
       observing: !!data.observer
     });
-    this.handleStatusChange();
     this.on('spawnpoint', (point) => {
       this.players['player']._position = point;
     });
@@ -65,16 +63,6 @@ export class GameState extends EventEmitter {
       this.players[playerid].resetObject();
       delete this._players[playerid];
     }
-  }
-
-  handleStatusChange() {
-    this.on('change-status', (status) => {
-      this.players['player']._status = status;
-      let message = formatStatusChange(this.players['player']);
-      this._connection.sendGameMessage(message).then(() => {
-        this.emit('status-change', 'player', status);
-      });
-    });
   }
 
 }
