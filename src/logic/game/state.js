@@ -50,6 +50,12 @@ class GameState {
       }
     });
   }
+  format() {
+    return {
+      players: Object.values(this._players).map((player) => player.format()),
+      food: Object.values(this._food).map((food) => food.format()),
+    };
+  }
 }
 
 export default GameState;

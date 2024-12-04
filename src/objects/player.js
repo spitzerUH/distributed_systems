@@ -78,6 +78,15 @@ class Player {
   get object() {
     return this._object;
   }
+  format() {
+    return {
+      name: this._name,
+      color: this._color,
+      observing: this._observing,
+      position: this._position,
+      status: this._status,
+    };
+  }
 }
 
 export function createPlayer(data) {
