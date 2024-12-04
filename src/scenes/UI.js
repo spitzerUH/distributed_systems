@@ -29,7 +29,7 @@ export class UI extends Scene {
     var playerList = createPlayerList(this, {});
 
     let myplayer = this.coordinator.myplayer;
-    playerList.emit('join', myplayer.id, myplayer);
+    playerList.emit('join', myplayer._id, myplayer);
     this.coordinator._gameState.on('player-joins', (playerid) => {
       playerList.emit('join', playerid, this.coordinator._gameState.players[playerid]);
     });
