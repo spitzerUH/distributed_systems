@@ -1,10 +1,10 @@
-export function createDebugTextField(scene, connection, observer) {
+export function createDebugTextField(scene, coordinator) {
   var background = scene.add.rectangle(0, 0, 10, 10, 0x000000);
 
   var roominfo = scene.rexUI.add.BBCodeText(
     0,
     0,
-    `Room: ${connection.room}`,
+    `Room: ${coordinator.room}`,
     { color: "#fff", fontSize: "12px" }
   );
 
@@ -23,7 +23,7 @@ export function createDebugTextField(scene, connection, observer) {
       true
     )
     .setScrollFactor(0, 0);
-  if (observer) {
+  if (coordinator.observer) {
     gameinfo.add(
       scene.add.text(0, 0, 'Observer'),
       0,

@@ -1,3 +1,4 @@
+import Coordinator from '+logic/game/coordinator';
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
 class Food {
@@ -81,26 +82,31 @@ function createFood(scene, data) {
   return food;
 }
 
-function createFoodCollision(scene, player) {
+function createFoodCollision(coordinator) {
+  if (coordinator.observer) {
+    return;
+  }
+  let player = coordinator.myplayer;
   if (player && player.object && player.object.body) {
-    for (let foodid in scene.gameState.food) {
-      let food = scene.gameState.food[foodid];
+    for (let foodid in coordinator.food) {
+      let food = coordinator.food[foodid];
       if (food) {
         player.collisionWith(food, (player, f) => {
           if (food.eaten) {
             return;
           }
-          scene.gameState.emit('food-eaten', food.id);
+          coordinator.fireEvent('food-eaten', food.id);
         });
       }
     }
   }
 }
 
-export function generateFood(scene, count) {
+export function generateFood(scene, coordinator, count) {
+  let gameState = coordinator._gameState;
   let foodData = [];
   for (let i = 0; i < count; i++) {
-    let id = scene.gameState.nextFoodIndex;
+    let id = gameState.nextFoodIndex;
     let x = Phaser.Math.Between(0, scene.physics.world.bounds.width);
     let y = Phaser.Math.Between(0, scene.physics.world.bounds.height);
     let size = Phaser.Math.Between(5, 10);
@@ -120,27 +126,28 @@ export function generateFood(scene, count) {
   return foodData;
 }
 
-export function startFoodProcessing(scene, myplayer) {
-  scene.gameState.on('create-food', (data) => {
-    scene.gameState.emit('food-created', createFood(scene, data));
-    createFoodCollision(scene, myplayer);
+export function startFoodProcessing(scene, coordinator) {
+  coordinator.bindEvent('create-food', (data) => {
+    coordinator.fireEvent('food-created', createFood(scene, data));
+    createFoodCollision(coordinator);
   });
 }
 
-export function clearFood(scene) {
-  for (let foodid in scene.gameState.food) {
-    let food = scene.gameState.food[foodid];
+export function clearFood(coordinator) {
+  for (let foodid in coordinator.food) {
+    let food = coordinator.food[foodid];
     if (food) {
       food.destroyObject();
     }
   }
 }
 
-export function recreateFood(scene) {
-  for (let foodid in scene.gameState.food) {
-    let food = scene.gameState.food[foodid];
+export function recreateFood(scene, coordinator) {
+  for (let foodid in coordinator.food) {
+    let food = coordinator.food[foodid];
     if (food) {
       food.createObject(scene);
     }
   }
+  createFoodCollision(coordinator);
 }

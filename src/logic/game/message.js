@@ -4,7 +4,7 @@ class Message {
   constructor(type) {
     this._type = type;
   }
-  doAction(state, emitter) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
       reject('doAction not implemented');
     });
@@ -23,14 +23,14 @@ class WhoAmI extends Message {
       status: data.status
     };
   }
-  doAction(state, emitter) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      state._players[this._playerData.id] = createPlayer(this._playerData);
-      if (emitter.emit('player-joins', this._playerData.id)) {
+      coordinator.players[this._playerData.id] = createPlayer(this._playerData);
+      coordinator.fireEvent('player-joins', this._playerData.id).then(() => {
         resolve();
-      } else {
+      }).catch((error) => {
         reject('player-joins event failed');
-      }
+      });
     });
   }
 
@@ -42,13 +42,13 @@ class Move extends Message {
     this._playerid = playerid;
     this._direction = direction;
   }
-  doAction(state, emitter) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      if (emitter.emit('player-moves', this._playerid, this._direction)) {
+      coordinator.fireEvent('player-moves', this._playerid, this._direction).then(() => {
         resolve();
-      } else {
+      }).catch((error) => {
         reject('player-moves event failed');
-      }
+      });
     });
   }
 }
@@ -61,17 +61,17 @@ class StatusChange extends Message {
     this._position = data.position;
     this._observing = data.observing || false;
   }
-  doAction(state, emitter) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      let player = state.players[this._playerid];
+      let player = coordinator.players[this._playerid];
       player._status = this._status;
       player._position = this._position;
       player._observing = this._observing;
-      if (emitter.emit('status-change', this._playerid, this._status)) {
+      coordinator.fireEvent('status-change', this._playerid, this._status).then(() => {
         resolve();
-      } else {
+      }).catch((error) => {
         reject('status-change event failed');
-      }
+      });
     });
   }
 }
@@ -81,17 +81,23 @@ class Food extends Message {
     super('food');
     this._message = message;
   }
-  doAction(state, emitter) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
       switch (this._message.subtype) {
         case 'create':
-          let data = this._message.data.filter(f => state.food[f.id] === undefined);
-          emitter.emit('create-food', data);
-          resolve();
+          let data = this._message.data.filter(f => coordinator.food[f.id] === undefined);
+          coordinator.fireEvent('create-food', data).then(() => {
+            resolve();
+          }).catch((error) => {
+            reject('create-food event failed');
+          });
           break;
         case 'eat':
-          emitter.emit('eat-food', this._message.id);
-          resolve();
+          coordinator.fireEvent('eat-food', this._message.id).then(() => {
+            resolve();
+          }).catch((error) => {
+            reject('eat-food event failed');
+          });
           break;
         default:
           reject('Unknown food message type ' + this._message.type);
