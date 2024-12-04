@@ -37,7 +37,7 @@ export class Game extends Scene {
     this.dirr = undefined;
 
 
-    if (this.coordinator.myplayer._observing) {
+    if (this.coordinator.observer) {
       let x = this.physics.world.bounds.width / 2;
       let y = this.physics.world.bounds.height / 2;
       myplayer.observe(x, y);
@@ -62,25 +62,25 @@ export class Game extends Scene {
     }
     if (curDirr && curDirr != this.dirr) {
       this.coordinator.myplayer.move(curDirr);
-      if (this.coordinator.myplayer._observing)
+      if (this.coordinator.observer)
         return;
       this.coordinator.movePlayer(curDirr);
     }
   }
 
   clearOldObjects() {
-    for (let playerid in this.coordinator._gameState.players) {
-      this.coordinator._gameState.players[playerid].resetObject();
+    for (let playerid in this.coordinator.players) {
+      this.coordinator.players[playerid].resetObject();
     }
     clearFood(this.coordinator._gameState);
   }
 
   generateNewObjects() {
-    for (let playerid in this.coordinator._gameState.players) {
-      if (this.coordinator._gameState.players[playerid].object) {
+    for (let playerid in this.coordinator.players) {
+      if (this.coordinator.players[playerid].object) {
         continue;
       }
-      let player = this.coordinator._gameState.players[playerid];
+      let player = this.coordinator.players[playerid];
       player.createObject(this);
       if (player._observing || !player._status || player._status == 'dead') {
         player.hide();

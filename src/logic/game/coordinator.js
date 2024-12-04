@@ -15,8 +15,24 @@ class Coordinator {
     this._gameScene = undefined;
   }
 
+  get room() {
+    return this._connectionManager.room;
+  }
+
+  get observer() {
+    return this.myplayer._observing;
+  }
+
+  set observer(value) {
+    this.myplayer._observing = !!value;
+  }
+
   get gameState() {
     return this._gameState;
+  }
+
+  get players() {
+    return this._gameState.players;
   }
 
   joinRoom(roomCode) {
@@ -85,13 +101,13 @@ class Coordinator {
   }
   bindGameEvents() {
     this.bindEvent('player-joins', (playerid) => {
-      let player = this._gameState.players[playerid];
+      let player = this.players[playerid];
       if (player) {
         player.createObject(this._gameScene);
         if (player._observing || !player._status || player._status == 'dead') {
           player.hide();
         }
-        if (!this.myplayer._observing) {
+        if (!this.observer) {
           let myplayer = this.myplayer;
           player.collisionWith(myplayer, () => {
             if (myplayer._status == 'alive' && player._status == 'alive') {
@@ -99,19 +115,19 @@ class Coordinator {
             }
           });
         }
-        if (!this.myplayer._observing && this.myplayer._status == 'alive') {
+        if (!this.observer && this.myplayer._status == 'alive') {
           this.fireEvent('change-status', 'alive');
         }
       }
     });
     this.bindEvent('player-moves', (playerid, direction) => {
-      let player = this._gameState.players[playerid];
+      let player = this.players[playerid];
       player.move(direction);
     });
     this.bindEvent('status-change', (playerid, status) => {
       switch (status) {
         case 'dead':
-          let deadPlayer = this._gameState.players[playerid];
+          let deadPlayer = this.players[playerid];
           deadPlayer.stop();
           deadPlayer.hide();
           if (playerid == 'player') {
@@ -120,8 +136,8 @@ class Coordinator {
           }
           break;
         case 'alive':
-          if (this._gameState.players[playerid]) {
-            this._gameState.players[playerid].respawn();
+          if (this.players[playerid]) {
+            this.players[playerid].respawn();
           }
           if (this._connectionManager.isLeader && playerid !== 'player') {
             this.fireEvent('send-food', playerid);
@@ -181,7 +197,7 @@ class Coordinator {
       });
     });
     this.bindEvent('ready', () => {
-      if (!this.myplayer._observing) {
+      if (!this.observer) {
         this.fireEvent('change-status', 'alive');
       }
     });
@@ -220,14 +236,14 @@ class Coordinator {
 
   gameChannelClose(playerid) {
     this.fireEvent('player-leaves', playerid);
-    if (this._gameState.players[playerid]) {
-      this._gameState.players[playerid].resetObject();
-      delete this._gameState._players[playerid];
+    if (this.players[playerid]) {
+      this.players[playerid].resetObject();
+      delete this.players[playerid];
     }
   }
 
   get myplayer() {
-    return this._gameState.players['player'];
+    return this.players['player'];
   }
 
 }

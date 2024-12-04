@@ -21,7 +21,7 @@ export class UI extends Scene {
       });
     });
 
-    this.debugFields = createDebugTextField(this, this.coordinator._gameState.connection, this.coordinator._gameState.observer);
+    this.debugFields = createDebugTextField(this, this.coordinator);
     this.coordinator.bindEvent('move', (direction) => {
       this.debugFields.emit('move', direction);
     });
@@ -31,16 +31,16 @@ export class UI extends Scene {
     let myplayer = this.coordinator.myplayer;
     playerList.emit('join', myplayer._id, myplayer);
     this.coordinator.bindEvent('player-joins', (playerid) => {
-      playerList.emit('join', playerid, this.coordinator._gameState.players[playerid]);
+      playerList.emit('join', playerid, this.coordinator.players[playerid]);
     });
     this.coordinator.bindEvent('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });
 
-    if (this.coordinator.myplayer._observing) {
+    if (this.coordinator.observer) {
       var joinButton = createJoinButton(this);
       joinButton.on('pointerdown', () => {
-        this.coordinator.myplayer._observing = false;
+        this.coordinator.observer = false;
         this.scene.stop().start('Game', { coordinator: this.coordinator });
       });
     }

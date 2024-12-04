@@ -25,7 +25,7 @@ class WhoAmI extends Message {
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      coordinator._gameState._players[this._playerData.id] = createPlayer(this._playerData);
+      coordinator.players[this._playerData.id] = createPlayer(this._playerData);
       coordinator.fireEvent('player-joins', this._playerData.id).then(() => {
         resolve();
       }).catch((error) => {
@@ -63,7 +63,7 @@ class StatusChange extends Message {
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      let player = coordinator._gameState.players[this._playerid];
+      let player = coordinator.players[this._playerid];
       player._status = this._status;
       player._position = this._position;
       player._observing = this._observing;
