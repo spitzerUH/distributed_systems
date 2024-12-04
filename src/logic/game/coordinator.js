@@ -196,6 +196,7 @@ class Coordinator {
     });
   }
   movePlayer(direction) {
+    this.fireEvent('move', direction);
     let message = formatMove(direction);
     this._connectionManager.sendGameMessage(message).then(() => {
     });

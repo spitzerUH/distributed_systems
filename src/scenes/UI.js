@@ -22,7 +22,7 @@ export class UI extends Scene {
     });
 
     this.debugFields = createDebugTextField(this, this.coordinator._gameState.connection, this.coordinator._gameState.observer);
-    this.coordinator._gameState.on('move', (direction) => {
+    this.coordinator.bindEvent('move', (direction) => {
       this.debugFields.emit('move', direction);
     });
 
