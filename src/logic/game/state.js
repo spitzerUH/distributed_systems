@@ -1,6 +1,7 @@
 class GameState {
   constructor() {
     this._players = {};
+    this._food = {};
   }
   addPlayer(player) {
     this._players[player.id] = player;
@@ -23,6 +24,19 @@ class GameState {
         resolve(player);
       } else {
         reject('Player not found');
+      }
+    });
+  }
+  addFood(food) {
+    this._food[food.id] = food;
+  }
+  removeFood(food) {
+    return new Promise((resolve) => {
+      if (food) {
+        delete this._food[food.id];
+        resolve();
+      } else {
+        reject('Food not found');
       }
     });
   }
