@@ -172,16 +172,16 @@ class Coordinator {
     });
     this.bindEvent('eat-food', (foodId) => {
       let food = this.food[foodId];
-      if (!food) {
+      this.getFood(foodId).then((food) => {
+        food.eat().then((fId) => {
+          this._gameState.removeFood(fId);
+        });
+        if (this._connectionManager.isLeader && Object.keys(this.food).length < 10) {
+          this.fireEvent('generate-food', 10);
+        }
+      }).catch((err) => {
         console.log('Dup message? Food not found', foodId);
-        return;
-      }
-      food.eat().then((fId) => {
-        delete this.food[fId];
       });
-      if (this._connectionManager.isLeader && Object.keys(this.food).length < 10) {
-        this.fireEvent('generate-food', 10);
-      }
     });
     this.bindEvent('food-eaten', (foodId) => {
       let message = formatFoodEat(foodId);
@@ -276,6 +276,9 @@ class Coordinator {
   }
   addPlayer(player) {
     return this._gameState.addPlayer(player);
+  }
+  getFood(foodid) {
+    return this._gameState.getFood(foodid);
   }
 
 }

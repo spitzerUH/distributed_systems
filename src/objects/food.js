@@ -89,15 +89,14 @@ function createFoodCollision(coordinator) {
   coordinator.myplayer.then((player) => {
     if (player.object && player.object.body) {
       for (let foodid in coordinator.food) {
-        let food = coordinator.food[foodid];
-        if (food) {
+        coordinator.getFood(foodid).then((food) => {
           player.collisionWith(food, (...args) => {
             if (food.eaten) {
               return;
             }
             coordinator.fireEvent('food-eaten', food.id);
           });
-        }
+        });
       }
     }
   });
@@ -136,19 +135,17 @@ export function startFoodProcessing(scene, coordinator) {
 
 export function clearFood(coordinator) {
   for (let foodid in coordinator.food) {
-    let food = coordinator.food[foodid];
-    if (food) {
+    coordinator.getFood(foodid).then((food) => {
       food.destroyObject();
-    }
+    });
   }
 }
 
 export function recreateFood(scene, coordinator) {
   for (let foodid in coordinator.food) {
-    let food = coordinator.food[foodid];
-    if (food) {
+    coordinator.getFood(foodid).then((food) => {
       food.createObject(scene);
-    }
+    });
   }
   createFoodCollision(coordinator);
 }

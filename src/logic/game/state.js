@@ -40,12 +40,23 @@ class GameState {
   }
   addFood(food) {
     this._food[food.id] = food;
+    return food;
   }
   removeFood(food) {
-    return new Promise((resolve) => {
-      if (food) {
+    return new Promise((resolve, reject) => {
+      this.getFood(food.id).then((food) => {
         delete this._food[food.id];
         resolve();
+      }).catch((e) => {
+        reject(e);
+      });
+    });
+  }
+  getFood(id) {
+    return new Promise((resolve, reject) => {
+      let food = this._food[id];
+      if (food) {
+        resolve(food);
       } else {
         reject('Food not found');
       }
