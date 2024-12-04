@@ -150,7 +150,6 @@ class Coordinator {
       }
     });
     this.bindEvent('create-food', (data) => {
-      this._gameState.foodToSend += data.length;
     });
     this.bindEvent('generate-food', (count) => {
       let foodData = generateFood(this._gameScene, this, count);

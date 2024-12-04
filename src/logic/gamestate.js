@@ -6,8 +6,6 @@ export class GameState {
     this._players = {};
     this._food = {};
     this._currentFoodIndex = 0;
-    this.foodToSend = 0;
-    this.foodToSendArray = [];
     this.players['player'] = createPlayer({
       id: 'player',
       name: JSON.parse(localStorage.getItem('player-name')),
