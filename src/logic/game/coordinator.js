@@ -73,14 +73,14 @@ class Coordinator {
   bindGlobalEvents() {
     this._connectionManager.events.on('open', (uuid) => {
       this.sendWhoAmI();
-      this._gameState.gameChannelOpen(uuid);
+      this.gameChannelOpen(uuid);
     });
     this._connectionManager.events.on('message', (uuid, message) => {
       let msg = createMessage(uuid, message);
       msg.doAction(this._gameState, this._gameState);
     });
     this._connectionManager.events.on('close', (uuid) => {
-      this._gameState.gameChannelClose(uuid);
+      this.gameChannelClose(uuid);
     });
   }
   bindGameEvents() {
@@ -196,6 +196,21 @@ class Coordinator {
     let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
     this._gameState.emit('spawnpoint', spawnpoint);
   }
+
+  gameChannelOpen(playerid) {
+    if (this._connectionManager.isLeader) {
+      this._gameState.emit('leader-actions');
+    }
+  }
+
+  gameChannelClose(playerid) {
+    this._gameState.emit('player-leaves', playerid);
+    if (this._gameState.players[playerid]) {
+      this._gameState.players[playerid].resetObject();
+      delete this._gameState._players[playerid];
+    }
+  }
+
 }
 
 export default Coordinator;

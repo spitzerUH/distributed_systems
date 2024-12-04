@@ -51,18 +51,4 @@ export class GameState extends EventEmitter {
     return this._currentFoodIndex++;
   }
 
-  gameChannelOpen(playerid) {
-    if (this.connection.isLeader) {
-      this.emit('leader-actions');
-    }
-  }
-
-  gameChannelClose(playerid) {
-    this.emit('player-leaves', playerid);
-    if (this.players[playerid]) {
-      this.players[playerid].resetObject();
-      delete this._players[playerid];
-    }
-  }
-
 }
