@@ -4,7 +4,7 @@ class Message {
   constructor(type) {
     this._type = type;
   }
-  doAction(...args) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
       reject('doAction not implemented');
     });
@@ -23,10 +23,10 @@ class WhoAmI extends Message {
       status: data.status
     };
   }
-  doAction(state, emitter, coordinator) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      state._players[this._playerData.id] = createPlayer(this._playerData);
-      if (emitter.emit('player-joins', this._playerData.id)) {
+      coordinator._gameState._players[this._playerData.id] = createPlayer(this._playerData);
+      if (coordinator.fireEvent('player-joins', this._playerData.id)) {
         resolve();
       } else {
         reject('player-joins event failed');
@@ -42,9 +42,9 @@ class Move extends Message {
     this._playerid = playerid;
     this._direction = direction;
   }
-  doAction(state, emitter, coordinator) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      if (emitter.emit('player-moves', this._playerid, this._direction)) {
+      if (coordinator._gameState.emit('player-moves', this._playerid, this._direction)) {
         resolve();
       } else {
         reject('player-moves event failed');
@@ -61,13 +61,13 @@ class StatusChange extends Message {
     this._position = data.position;
     this._observing = data.observing || false;
   }
-  doAction(state, emitter, coordinator) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      let player = state.players[this._playerid];
+      let player = coordinator._gameState.players[this._playerid];
       player._status = this._status;
       player._position = this._position;
       player._observing = this._observing;
-      if (emitter.emit('status-change', this._playerid, this._status)) {
+      if (coordinator._gameState.emit('status-change', this._playerid, this._status)) {
         resolve();
       } else {
         reject('status-change event failed');
@@ -81,16 +81,16 @@ class Food extends Message {
     super('food');
     this._message = message;
   }
-  doAction(state, emitter, coordinator) {
+  doAction(coordinator) {
     return new Promise((resolve, reject) => {
       switch (this._message.subtype) {
         case 'create':
-          let data = this._message.data.filter(f => state.food[f.id] === undefined);
-          emitter.emit('create-food', data);
+          let data = this._message.data.filter(f => coordinator._gameState.food[f.id] === undefined);
+          coordinator._gameState.emit('create-food', data);
           resolve();
           break;
         case 'eat':
-          emitter.emit('eat-food', this._message.id);
+          coordinator._gameState.emit('eat-food', this._message.id);
           resolve();
           break;
         default:

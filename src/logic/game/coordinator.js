@@ -77,14 +77,14 @@ class Coordinator {
     });
     this._connectionManager.events.on('message', (uuid, message) => {
       let msg = createMessage(uuid, message);
-      msg.doAction(this._gameState, this._gameState);
+      msg.doAction(this);
     });
     this._connectionManager.events.on('close', (uuid) => {
       this.gameChannelClose(uuid);
     });
   }
   bindGameEvents() {
-    this._gameState.on('player-joins', (playerid) => {
+    this.bindEvent('player-joins', (playerid) => {
       let player = this._gameState.players[playerid];
       if (player) {
         player.createObject(this._gameScene);
