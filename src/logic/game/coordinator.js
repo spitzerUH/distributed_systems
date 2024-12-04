@@ -95,12 +95,12 @@ class Coordinator {
           let myplayer = this.myplayer;
           player.collisionWith(myplayer, () => {
             if (myplayer._status == 'alive' && player._status == 'alive') {
-              this._gameState.emit('change-status', 'dead');
+              this.fireEvent('change-status', 'dead');
             }
           });
         }
         if (!this.myplayer._observing && this.myplayer._status == 'alive') {
-          this._gameState.emit('change-status', 'alive');
+          this.fireEvent('change-status', 'alive');
         }
       }
     });
@@ -173,7 +173,7 @@ class Coordinator {
         });
       }
     });
-    this._gameState.on('change-status', (status) => {
+    this.bindEvent('change-status', (status) => {
       this.myplayer._status = status;
       let message = formatStatusChange(this.myplayer);
       this._connectionManager.sendGameMessage(message).then(() => {
@@ -182,7 +182,7 @@ class Coordinator {
     });
     this.bindEvent('ready', () => {
       if (!this.myplayer._observing) {
-        this._gameState.emit('change-status', 'alive');
+        this.fireEvent('change-status', 'alive');
       }
     });
 

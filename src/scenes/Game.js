@@ -88,7 +88,7 @@ export class Game extends Scene {
         if (playerid !== "player") {
           this.coordinator.myplayer.collisionWith(player, () => {
             if (this.coordinator.myplayer._status == 'alive' && player._status == 'alive') {
-              this.coordinator._gameState.emit('change-status', 'dead');
+              this.coordinator.fireEvent('change-status', 'dead');
             }
           });
         }
