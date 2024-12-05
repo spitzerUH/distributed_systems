@@ -5,7 +5,7 @@ import {
   createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat, formatStatusChange
 } from '+logic/game/message';
 
-import { generateFood } from '+objects/food';
+import { clearFood, recreateFood, startFoodProcessing, generateFood } from '+objects/food';
 
 class Coordinator {
   constructor(cm) {
@@ -15,6 +15,8 @@ class Coordinator {
     this._bounds = undefined;
     this._gameScene = undefined;
     this._observer = false;
+
+    this.dirr = undefined;
   }
 
   get room() {
@@ -135,7 +137,7 @@ class Coordinator {
     });
     this.bindEvent('player-moves', (playerid, direction) => {
       this.getPlayer(playerid).then((player) => {
-        player.move({curDirr:direction.curDirr, x:direction.x, y:direction.y});
+        player.move({ curDirr: direction.curDirr, x: direction.x, y: direction.y });
       });
     });
     this.bindEvent('status-change', (playerid, status) => {
@@ -211,17 +213,6 @@ class Coordinator {
         });
       });
     });
-    this.bindEvent('ready', () => {
-      if (!this.observer) {
-        this.fireEvent('change-status', 'alive');
-      }
-    });
-
-    this.bindEvent('spawnpoint', (point) => {
-      this.myplayer.then((player) => {
-        player.position = point;
-      });
-    });
     this.bindEvent('leader-actions', () => {
       if (Object.keys(this.food).length === 0) {
         this.fireEvent('generate-food', 20);
@@ -262,7 +253,9 @@ class Coordinator {
   generateSpawnpoint() {
     let randomPoint = this._bounds.getRandomPoint();
     let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
-    this.fireEvent('spawnpoint', spawnpoint);
+    this.myplayer.then((player) => {
+      player.position = spawnpoint;
+    });
   }
 
   gameChannelOpen(playerid) {
@@ -287,6 +280,88 @@ class Coordinator {
   }
   getFood(foodid) {
     return this._gameState.getFood(foodid);
+  }
+
+  gameReady() {
+    if (!this.myplayer.status) {
+      this.generateSpawnpoint();
+    }
+
+    startFoodProcessing(this._gameScene, this);
+
+    this.myplayer.then((myplayer) => {
+      myplayer.createObject(this._gameScene);
+      if (this.observer) {
+        let x = this._bounds.width / 2;
+        let y = this._bounds.height / 2;
+        myplayer.observe(x, y);
+      } else {
+        this.generateSpawnpoint();
+      }
+    });
+
+
+    this.clearOldObjects();
+    this.generateNewObjects();
+    if (!this.observer) {
+      this.fireEvent('change-status', 'alive');
+    }
+  }
+
+  handleInput(time, delta, cursors) {
+    var curDirr = undefined;
+    if (cursors.left.isDown) {
+      curDirr = "left";
+    } else if (cursors.right.isDown) {
+      curDirr = "right";
+    } else if (cursors.up.isDown) {
+      curDirr = "up";
+    } else if (cursors.down.isDown) {
+      curDirr = "down";
+    }
+    if (curDirr && curDirr != this.dirr) {
+      this.myplayer.then((myplayer) => {
+        myplayer.move({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
+      });
+      if (this.observer)
+        return;
+      this.movePlayer({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
+    }
+  }
+
+  clearOldObjects() {
+    for (let playerid in this.players) {
+      this.getPlayer(playerid).then((player) => {
+        player.removeObject();
+      });
+    }
+    clearFood(this);
+  }
+
+  generateNewObjects() {
+    for (let playerid in this.players) {
+      this.getPlayer(playerid).then((player) => {
+        if (player.object) {
+          return;
+        }
+        player.createObject(this._gameScene);
+        if (player.observing || player.dead) {
+          player.hide();
+        } else {
+          if (playerid !== "player") {
+            this.myplayer.then((myplayer) => {
+              myplayer.collisionWith(player, () => {
+                if (myplayer.alive && player.alive) {
+                  this.fireEvent('change-status', 'dead');
+                }
+              });
+            });
+          }
+          player.show();
+        }
+      });
+    }
+    recreateFood(this._gameScene, this);
   }
 
 }
