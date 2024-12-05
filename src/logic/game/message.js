@@ -100,30 +100,6 @@ class Food extends Message {
   }
 }
 
-class RaftConsensus extends Message {
-  constructor(message, playerid) {
-    super('election');
-    this._message = message;
-    this._playerid = playerid;
-  }
-  doAction(state, emitter) {
-    return new Promise((resolve, reject) => {
-      switch (this._message.data.subtype) {
-        case 'request':
-          emitter.emit('raft-election-request', this._message);
-          resolve();
-          break;
-        case 'vote':
-          emitter.emit('raft-election-vote', this._message.uuid);
-          resolve();
-          break;
-        default:
-          reject('Unknown raft message type ' + this._message.data.subtype);
-      }
-    });
-  }
-}
-
 function createMessage(playerid, message) {
   switch (message.type) {
     case 'whoami':
@@ -134,8 +110,6 @@ function createMessage(playerid, message) {
       return new StatusChange(playerid, message.data);
     case 'food':
       return new Food(message);
-    case 'election':
-      return new RaftConsensus(playerid, message)
     default:      
       throw new Error('Unknown message type ' + message.type);
   }
@@ -198,39 +172,6 @@ function formatFoodEat(foodId) {
   };
 }
 
-function formatRaftElectionRequest(term, uuid) {
-  return {
-    platform: 'raft',
-    type: 'raft-election-request',
-    data: {
-      requestFrom: uuid,
-      term: term
-    }
-  };
-}
-
-function formatRaftElectionVote(term, uuid) {
-  return {
-    platform: 'raft',
-    type: 'raft-election-vote',
-    data: {
-      voteFor: uuid,
-      term: term
-    }
-  };
-}
-
-function formatRaftElectionLeader(term, uuid) {
-  return {
-    platform: 'raft',
-    type: 'raft-election-leader',
-    data: {
-      currentLeader: uuid,
-      term: term
-    }
-  };
-}
-
 
 export { createMessage, formatWhoAmI, formatMove, formatStatusChange, 
-  formatFoodCreate, formatFoodEat, formatRaftElectionRequest, formatRaftElectionVote, formatRaftElectionLeader };
+  formatFoodCreate, formatFoodEat };

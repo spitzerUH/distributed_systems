@@ -2,7 +2,7 @@ import {
   formatRaftElectionRequest,
   formatRaftElectionVote,
   formatRaftElectionLeader,
-} from '../game/message';
+} from '../raft/message';
 import EventEmitter from 'events';
 
 class RaftManager {

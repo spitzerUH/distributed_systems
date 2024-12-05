@@ -180,6 +180,7 @@ class ConnectionManager {
 
   sendGameMessageTo(id, message) {
     return new Promise((resolve, reject) => {
+      message.platform = 'game';
       this.sendMessage(id, message);
       resolve();
     });
