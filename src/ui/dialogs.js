@@ -39,7 +39,7 @@ export function createRoomDialog(scene, config) {
   })
     .setInteractive()
     .on('pointerdown', function () {
-      enterButton.setInteractive(false);
+      enterButton.disableInteractive();
       roomDialog.emit('enter', room);
     });
 
@@ -51,7 +51,7 @@ export function createRoomDialog(scene, config) {
   })
     .setInteractive()
     .on('pointerdown', function () {
-      observerButton.setInteractive(false);
+      enterButton.disableInteractive();
       roomDialog.emit('observe', room);
     });
 
