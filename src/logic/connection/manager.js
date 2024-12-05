@@ -19,7 +19,7 @@ class ConnectionManager {
     return !!this.raft?.isLeader();
   }
   get connections() {
-    return Object.keys(this.webrtcs);
+    return Object.keys(this.webrtcs).length;
   }
   connect() {
     return new Promise((resolve, reject) => {

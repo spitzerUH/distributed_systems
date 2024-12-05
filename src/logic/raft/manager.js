@@ -11,7 +11,6 @@ class RaftManager {
     this.gotVotes = 0;
     // 0 - Follower, 1 - candidate, 2 - leader
     this.state = 0;
-    this.votesNeeded = 0;
     this.webrtcs = {};
     this.heartbearInterval = undefined;
     this.currentElectionTimeout = undefined;
@@ -25,6 +24,10 @@ class RaftManager {
     return this.cm.connections + 1;
   }
 
+  get votesNeeded() {
+    return this.participants / 2;
+  }
+
   get leaderChangeEvent() {
     return this.cm.events;
   }
@@ -35,7 +38,6 @@ class RaftManager {
     // maybe get data from localstorage/sessionstorage
     this.currentTerm = 0;
     this.webrtcs = webrtcs;
-    this.votesNeeded = Math.ceil(this.participants / 2);
     if (this.heartbearInterval) {
       clearInterval(this.heartbearInterval);
       this.heartbearInterval = undefined;
@@ -71,7 +73,6 @@ class RaftManager {
     this.voteFor = this.uuid;
     this.currentTerm;
     this.gotVotes = 1;
-    this.votesNeeded = Math.ceil((Object.keys(this.webrtcs).length + 1) / 2);
 
     for (let uuid in this.webrtcs) {
       const message = formatRaftElectionRequest(this.currentTerm, this.uuid);
