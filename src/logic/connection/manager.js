@@ -48,7 +48,7 @@ class ConnectionManager {
           this._room = response.room_code;
           this.vc = new VectorClock();
           this.raft = new RaftManager(this);
-          this.raft.initRaftConsensus(this.webrtcs)
+          this.raft.initRaftConsensus()
           resolve(response);
         } else {
           reject(response);
