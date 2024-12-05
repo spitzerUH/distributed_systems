@@ -73,8 +73,8 @@ class Player {
   }
   observe(x, y) {
     this._object
-    .setVisible(false)
-    .setPosition(x, y);
+      .setVisible(false)
+      .setPosition(x, y);
   }
   get object() {
     return this._object;
