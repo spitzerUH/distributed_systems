@@ -16,7 +16,8 @@ class Coordinator {
     this._gameScene = undefined;
     this._observer = false;
 
-    this.dirr = undefined;
+    this._previousDirection = undefined;
+    this._timeWhenLastInput = undefined;
   }
 
   get room() {
@@ -310,6 +311,9 @@ class Coordinator {
 
   handleInput(time, delta, cursors) {
     var curDirr = undefined;
+    if (time - this._timeWhenLastInput < 100) { // 100ms
+      return;
+    }
     if (cursors.left.isDown) {
       curDirr = "left";
     } else if (cursors.right.isDown) {
@@ -319,13 +323,15 @@ class Coordinator {
     } else if (cursors.down.isDown) {
       curDirr = "down";
     }
-    if (curDirr && curDirr != this.dirr) {
+    if (curDirr && curDirr != this._previousDirection) {
       this.myplayer.then((myplayer) => {
         myplayer.move({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
       });
       if (this.observer)
         return;
       this.movePlayer({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
+      this._previousDirection = curDirr;
+      this._timeWhenLastInput = time;
     }
   }
 
