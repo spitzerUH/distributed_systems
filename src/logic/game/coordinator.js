@@ -104,7 +104,7 @@ class Coordinator {
       this.sendWhoAmI();
       this.gameChannelOpen(uuid);
     });
-    this._connectionManager.events.on('message', (uuid, message) => {
+    this._connectionManager.events.on('game-message', (uuid, message) => {
       let msg = createMessage(uuid, message);
       msg.doAction(this);
     });
