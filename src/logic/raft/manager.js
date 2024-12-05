@@ -28,10 +28,6 @@ class RaftManager {
     return this.participants / 2;
   }
 
-  get leaderChangeEvent() {
-    return this.cm.events;
-  }
-
   isLeader = () => this.state == 2;
 
   initRaftConsensus(webrtcs) {
@@ -115,7 +111,7 @@ class RaftManager {
             console.log(
               `you are leader now (got ${this.gotVotes} of ${this.votesNeeded} needed)`
             );
-            this.leaderChangeEvent.emit('leader-change', this.uuid);
+            this.cm.events.emit('leader-change', this.uuid);
             this.state = 2;
             // start leader heardbeat you are the leader now
             this.heartbearInterval = setInterval(
@@ -137,7 +133,7 @@ class RaftManager {
       case 'raft-election-leader':
         this.state = 1;
         this.voteFor = message.data.currentLeader;
-        this.leaderChangeEvent.emit('leader-change', message.data.currentLeader);
+        this.cm.events.emit('leader-change', message.data.currentLeader);
         break;
       default:
         console.error(
