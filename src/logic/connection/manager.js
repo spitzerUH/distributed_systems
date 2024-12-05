@@ -189,6 +189,26 @@ class ConnectionManager {
     });
   }
 
+  sendRaftMessage(message) {
+    return new Promise((resolve, reject) => {
+      let promises = [];
+      for (let uuid in this.webrtcs) {
+        promises.push(this.sendRaftMessageTo(uuid, message));
+      }
+      Promise.all(promises).then(() => {
+        resolve();
+      });
+    });
+  }
+
+  sendRaftMessageTo(id, message) {
+    return new Promise((resolve, reject) => {
+      message.platform = 'raft';
+      this.sendMessage(id, message);
+      resolve();
+    });
+  }
+
   get room() {
     return this._room;
   }
