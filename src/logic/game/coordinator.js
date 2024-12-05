@@ -144,7 +144,7 @@ class Coordinator {
           this.getPlayer(playerid).then((deadPlayer) => {
             deadPlayer.stop();
             deadPlayer.hide();
-            if (playerid == 'player') {
+            if (deadPlayer.isMyplayer) {
               this.generateSpawnpoint();
               this._gameScene.scene.run('GameOver', { coordinator: this });
             }
@@ -154,7 +154,7 @@ class Coordinator {
           this.getPlayer(playerid).then((player) => {
             player.respawn();
           });
-          if (this._connectionManager.isLeader && playerid !== 'player') {
+          if (this._connectionManager.isLeader && playerid !== this._connectionManager.uuid) {
             this.fireEvent('send-food', playerid);
           }
           break;
@@ -208,7 +208,7 @@ class Coordinator {
         player.status = status;
         let message = formatStatusChange(player);
         this._connectionManager.sendGameMessage(message).then(() => {
-          this.fireEvent('status-change', 'player', status);
+          this.fireEvent('status-change', player.id, player.status);
         });
       });
     });
@@ -237,10 +237,11 @@ class Coordinator {
   }
   createMyPlayer() {
     let playerData = {
-      id: 'player',
+      id: this._connectionManager.uuid,
       name: JSON.parse(localStorage.getItem('player-name')),
       color: JSON.parse(localStorage.getItem('player-color')),
-      observing: this.observer
+      observing: this.observer,
+      myplayer: true
     };
     let player = createPlayer(playerData);
     this._gameState.addPlayer(player);
@@ -277,7 +278,7 @@ class Coordinator {
   }
 
   get myplayer() {
-    return this.getPlayer('player');
+    return this.getPlayer(this._connectionManager.uuid);
   }
   getPlayer(playerid) {
     return this._gameState.getPlayer(playerid);

@@ -7,12 +7,16 @@ class Player {
     this._position = data.position || { x: 0, y: 0 };
     this._status = data.status;
     this._object = undefined;
+    this._myplayer = !!data.myplayer;
   }
   get id() {
     return this._id;
   }
   get name() {
     return this._name;
+  }
+  get isMyplayer() {
+    return this._myplayer;
   }
   createObject(scene) {
     this._object = scene.add.circle(

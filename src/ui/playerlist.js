@@ -12,7 +12,7 @@ export function createPlayerList(scene, config) {
     .setScrollFactor(0, 0)
     .layout();
   players.on('join', (player) => {
-    let name = player.name || (player.id === 'player') ? 'You' : player.id;
+    let name = player.name || (player.isMyplayer) ? 'You' : player.id;
     let node = players.getElement('#' + player.id);
     if (!node) {
       node = scene.add.text(0, 0, ` ${name}`).setName(player.id);
