@@ -28,7 +28,7 @@ class Coordinator {
   set observer(value) {
     this._observer = !!value;
     this.myplayer.then((player) => {
-      player._observing = this._observer;
+      player.observing = this._observer;
     });
   }
 
@@ -116,7 +116,7 @@ class Coordinator {
     this.bindEvent('player-joins', (playerid) => {
       this.getPlayer(playerid).then((player) => {
         player.createObject(this._gameScene);
-        if (player._observing || player.dead) {
+        if (player.observing || player.dead) {
           player.hide();
         }
         if (!this.observer) {

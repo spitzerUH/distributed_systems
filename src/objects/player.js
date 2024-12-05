@@ -18,6 +18,12 @@ class Player {
   get isMyplayer() {
     return this._myplayer;
   }
+  get observing() {
+    return this._observing;
+  }
+  set observing(observing) {
+    this._observing = observing;
+  }
   createObject(scene) {
     this._object = scene.add.circle(
       this._position.x,

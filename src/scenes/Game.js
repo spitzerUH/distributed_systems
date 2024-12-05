@@ -87,7 +87,7 @@ export class Game extends Scene {
           return;
         }
         player.createObject(this);
-        if (player._observing || player.dead) {
+        if (player.observing || player.dead) {
           player.hide();
         } else {
           if (playerid !== "player") {
