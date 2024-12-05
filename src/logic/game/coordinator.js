@@ -322,6 +322,9 @@ class Coordinator {
     recreateFood(this._gameScene, this);
   }
 
+  killPlayer() {
+    this.fireEvent('change-status', 'dead');
+  }
 
 }
 

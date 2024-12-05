@@ -157,7 +157,7 @@ export function recreatePlayers(coordinator) {
           if (!myplayer.observing) {
             player.collisionWith(myplayer, () => {
               if (myplayer.alive && player.alive) {
-                coordinator.fireEvent('change-status', 'dead');
+                coordinator.killPlayer();
               }
             });
           }
