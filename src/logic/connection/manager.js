@@ -9,7 +9,7 @@ class ConnectionManager {
     this.wsc = createWebSocketConnection(server);
     this.webrtcs = {};
     this.id = self.crypto.randomUUID();
-    this.raft = new RaftManager(this.id);
+    this.raft = new RaftManager(this);
     this._room = undefined;
     this.vc = undefined;
     this.events = new EventEmitter();

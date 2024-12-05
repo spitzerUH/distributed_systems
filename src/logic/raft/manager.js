@@ -6,8 +6,8 @@ import {
 import EventEmitter from 'events';
 
 class RaftManager {
-  constructor(uuid) {
-    this.uuid = uuid;
+  constructor(cm) {
+    this.cm = cm;
     this.currentTerm = 0;
     this.gotVotes = 0;
     // 0 - Follower, 1 - candidate, 2 - leader
@@ -18,6 +18,10 @@ class RaftManager {
     this.currentElectionTimeout = undefined;
 
     this.leaderChangeEvent = new EventEmitter();
+  }
+
+  get uuid() {
+    return this.cm.id;
   }
 
   isLeader = () => this.state == 2;
