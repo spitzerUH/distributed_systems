@@ -28,22 +28,23 @@ export class Game extends Scene {
 
     drawBorders(this, this.physics.world.bounds);
 
-    let myplayer = this.coordinator.myplayer;
-    myplayer.createObject(this);
-    myplayer.follow(mainCamera);
+    this.coordinator.myplayer.then((myplayer) => {
+      myplayer.createObject(this);
+      myplayer.follow(mainCamera);
+      if (this.coordinator.observer) {
+        let x = this.physics.world.bounds.width / 2;
+        let y = this.physics.world.bounds.height / 2;
+        myplayer.observe(x, y);
+      } else {
+        this.coordinator.generateSpawnpoint();
+      }
+    });
 
     startFoodProcessing(this, this.coordinator);
 
     this.dirr = undefined;
 
 
-    if (this.coordinator.observer) {
-      let x = this.physics.world.bounds.width / 2;
-      let y = this.physics.world.bounds.height / 2;
-      myplayer.observe(x, y);
-    } else {
-      this.coordinator.generateSpawnpoint();
-    }
     this.generateNewObjects();
 
     this.coordinator.fireEvent('ready');
@@ -61,7 +62,9 @@ export class Game extends Scene {
       curDirr = "down";
     }
     if (curDirr && curDirr != this.dirr) {
-      this.coordinator.myplayer.move(curDirr);
+      this.coordinator.myplayer.then((myplayer) => {
+        myplayer.move(curDirr);
+      });
       if (this.coordinator.observer)
         return;
       this.coordinator.movePlayer(curDirr);
@@ -70,31 +73,35 @@ export class Game extends Scene {
 
   clearOldObjects() {
     for (let playerid in this.coordinator.players) {
-      this.coordinator.players[playerid].resetObject();
+      this.coordinator.getPlayer(playerid).then((player) => {
+        player.removeObject();
+      });
     }
     clearFood(this.coordinator);
   }
 
   generateNewObjects() {
     for (let playerid in this.coordinator.players) {
-      if (this.coordinator.players[playerid].object) {
-        continue;
-      }
-      let player = this.coordinator.players[playerid];
-      player.createObject(this);
-      if (player._observing || !player._status || player._status == 'dead') {
-        player.hide();
-      } else {
-        if (playerid !== "player") {
-          this.coordinator.myplayer.collisionWith(player, () => {
-            if (this.coordinator.myplayer._status == 'alive' && player._status == 'alive') {
-              this.coordinator.fireEvent('change-status', 'dead');
-            }
-          });
+      this.coordinator.getPlayer(playerid).then((player) => {
+        if (player.object) {
+          return;
         }
-        player.show();
-
-      }
+        player.createObject(this);
+        if (player._observing || !player._status || player._status == 'dead') {
+          player.hide();
+        } else {
+          if (playerid !== "player") {
+            this.coordinator.myplayer.then((myplayer) => {
+              myplayer.collisionWith(player, () => {
+                if (myplayer._status == 'alive' && player._status == 'alive') {
+                  this.coordinator.fireEvent('change-status', 'dead');
+                }
+              });
+            });
+          }
+          player.show();
+        }
+      });
     }
     recreateFood(this, this.coordinator);
   }

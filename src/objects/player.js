@@ -8,6 +8,9 @@ class Player {
     this._status = data.status;
     this._object = undefined;
   }
+  get id() {
+    return this._id;
+  }
   createObject(scene) {
     this._object = scene.add.circle(
       this._position.x,
@@ -18,7 +21,7 @@ class Player {
     scene.physics.add.existing(this._object);
     this._object.body.setCollideWorldBounds(true);
   }
-  resetObject() {
+  removeObject() {
     if (this._object) {
       this._object.destroy();
     }
@@ -74,6 +77,15 @@ class Player {
   }
   get object() {
     return this._object;
+  }
+  format() {
+    return {
+      name: this._name,
+      color: this._color,
+      observing: this._observing,
+      position: this._position,
+      status: this._status,
+    };
   }
 }
 
