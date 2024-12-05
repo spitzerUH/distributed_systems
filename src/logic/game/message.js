@@ -65,7 +65,7 @@ class StatusChange extends Message {
     return new Promise((resolve, reject) => {
       coordinator.getPlayer(this._playerid).then((player) => {
         player.status = this._status;
-        player._position = this._position;
+        player.position = this._position;
         player.observing = this._observing;
         coordinator.fireEvent('status-change', this._playerid, this._status).then(() => {
           resolve();
@@ -145,7 +145,7 @@ function formatStatusChange(player) {
     type: 'status',
     data: {
       status: player.status,
-      position: player._position,
+      position: player.position,
       observing: player.observing
     }
   };

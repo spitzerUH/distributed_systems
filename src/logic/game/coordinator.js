@@ -220,7 +220,7 @@ class Coordinator {
 
     this.bindEvent('spawnpoint', (point) => {
       this.myplayer.then((player) => {
-        player._position = point;
+        player.position = point;
       });
     });
     this.bindEvent('leader-actions', () => {
