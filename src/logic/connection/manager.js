@@ -48,7 +48,6 @@ class ConnectionManager {
           this._room = response.room_code;
           this.vc = new VectorClock();
           this.raft = new RaftManager(this);
-
           this.raft.initRaftConsensus(this.webrtcs)
           resolve(response);
         } else {
@@ -80,10 +79,7 @@ class ConnectionManager {
           reject(response);
         }
       });
-
-
       this.raft.stopRaftConsensus()
-
       this.wsc.em.emit('room-exit', { room_code: this._room });
     });
   }
@@ -140,7 +136,7 @@ class ConnectionManager {
       let data = {
         sid: sid,
         uuid: this.id,
-        candidate: candidate,
+        candidate: candidate
       };
       this.wsc.em.emit('send-webrtc-candidate', data);
     });
