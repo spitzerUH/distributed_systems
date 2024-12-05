@@ -17,6 +17,9 @@ class Food {
   get eaten() {
     return this._eaten;
   }
+  set eaten(value) {
+    this._eaten = value;
+  }
   createObject(scene) {
     return new Promise((resolve, reject) => {
       try {
@@ -54,7 +57,6 @@ class Food {
     return new Promise((resolve, reject) => {
       try {
         this.destroyObject().then(() => {
-          this._eaten = true;
           resolve(this._id);
         });
       } catch (error) {
@@ -94,6 +96,7 @@ function createFoodCollision(coordinator) {
             if (food.eaten) {
               return;
             }
+            food.eaten = true;
             coordinator.fireEvent('food-eaten', food.id);
           });
         });

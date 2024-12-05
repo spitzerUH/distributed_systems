@@ -172,7 +172,6 @@ class Coordinator {
       });
     });
     this.bindEvent('eat-food', (foodId) => {
-      let food = this.food[foodId];
       this.getFood(foodId).then((food) => {
         food.eat().then((fId) => {
           this._gameState.removeFood(fId);
