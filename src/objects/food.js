@@ -13,12 +13,6 @@ class Food {
   get object() {
     return this._object;
   }
-  get eaten() {
-    return this._eaten;
-  }
-  set eaten(value) {
-    this._eaten = value;
-  }
   createObject(scene) {
     return new Promise((resolve, reject) => {
       try {
@@ -46,7 +40,7 @@ class Food {
           this._object.destroy();
         }
         this._object = undefined;
-        resolve();
+        resolve(this._id);
       } catch (error) {
         reject(error);
       }
@@ -54,12 +48,12 @@ class Food {
   }
   eat() {
     return new Promise((resolve, reject) => {
-      try {
-        this.destroyObject().then(() => {
-          resolve(this._id);
-        });
-      } catch (error) {
-        reject(error);
+      if (this._eaten) {
+        reject('Food already eaten');
+      } else {
+        this._eaten = true;
+        this._object.setVisible(false);
+        resolve(this._id);
       }
     });
   }
@@ -92,11 +86,11 @@ function createFoodCollision(coordinator) {
       for (let foodid in coordinator.food) {
         coordinator.getFood(foodid).then((food) => {
           player.collisionWith(food, (...args) => {
-            if (food.eaten) {
-              return;
-            }
-            food.eaten = true;
-            coordinator.fireEvent('food-eaten', food.id);
+            food.eat().then((id) => {
+              coordinator.fireEvent('food-eaten', id);
+            }).catch((error) => {
+              console.error(error);
+            });
           });
         });
       }

@@ -175,7 +175,7 @@ class Coordinator {
     });
     this.bindEvent('eat-food', (foodId) => {
       this.getFood(foodId).then((food) => {
-        food.eat().then((fId) => {
+        food.destroyObject().then((fId) => {
           this._gameState.removeFood(fId);
         });
         if (this._connectionManager.isLeader && Object.keys(this.food).length < 10) {
