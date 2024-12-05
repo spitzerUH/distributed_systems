@@ -120,7 +120,7 @@ function createMessage(playerid, message) {
     case 'food':
       return new Food(message);
     default:
-      throw new Error('Unknown message type ' + type);
+      throw new Error('Unknown message type ' + message.type);
   }
 }
 
@@ -170,4 +170,6 @@ function formatFoodEat(foodId) {
   };
 }
 
-export { createMessage, formatWhoAmI, formatMove, formatStatusChange, formatFoodCreate, formatFoodEat };
+
+export { createMessage, formatWhoAmI, formatMove, formatStatusChange,
+  formatFoodCreate, formatFoodEat };

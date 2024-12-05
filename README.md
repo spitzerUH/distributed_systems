@@ -281,8 +281,8 @@ Datastream messages are all sent with same channel, only the payload will be dif
 Player identification:
 ```json
 {
-    "platform": "game",
     "data": {
+        "platform": "game",
         "type": "whoami",
         "data": {
             "name": "Player name",
@@ -301,8 +301,8 @@ Field for `spawnpoint` is either `undefined` or `{"x": "x", "y": "y"}`.
 Player status:
 ```json
 {
-    "platform": "game",
     "data": {
+        "platform": "game",
         "type": "status",
         "data": {
             "status": "status value",
@@ -323,8 +323,8 @@ There is couple food related messages divided in subtypes.
 Creating food, single or multiple at once:
 ```json
 {
-    "platform": "game",
     "data": {
+        "platform": "game",
         "type": "food",
         "subtype": "create",
         "data": [
@@ -346,8 +346,8 @@ Creating food, single or multiple at once:
 Eating food:
 ```json
 {
-    "platform": "game",
     "data": {
+        "platform": "game",
         "type": "food",
         "subtype": "eat",
         "id": "id"
@@ -360,8 +360,8 @@ Eating food:
 Player movement message:
 ```json
 {
-    "platform": "game",
     "data": {
+        "platform": "game",
         "type": "move",
         "data": {
             "direction": "direction value"
@@ -370,6 +370,52 @@ Player movement message:
 }
 ```
 `direction` can be `left`, `right`, `up` or `down`.
+
+---
+
+For the RAFT leader selection we introduced some more messages:
+
+Election request every 100-500ms:
+```json
+{
+    "data": {
+        "platform": "raft",
+        "type": "raft-election-request",
+        "data": {
+            "requestFrom": "uuid",
+            "term": 1
+        }
+    }
+}
+```
+
+Election vote:
+```json
+{
+    "data": {
+        "platform": "raft",
+        "type": "raft-election-vote",
+        "data": {
+            "voteFor": "uuid",
+            "term": 1
+        }
+    }
+}
+```
+
+Leader notification every 100ms:
+```json
+{
+    "data": {
+        "platform": "raft",
+        "type": "raft-election-leader",
+        "data": {
+            "currentLeader": "uuid",
+            "term": 1
+        }
+    }
+}
+```
 
 ---
 
