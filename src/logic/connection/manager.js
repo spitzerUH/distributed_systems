@@ -18,6 +18,9 @@ class ConnectionManager {
   get isLeader() {
     return !!this.raft?.isLeader();
   }
+  get connections() {
+    return Object.keys(this.webrtcs);
+  }
   connect() {
     return new Promise((resolve, reject) => {
       if (this.wsc.socket.connected) {
@@ -142,10 +145,10 @@ class ConnectionManager {
     webrtc.em.on('receive-data-channel-message', (message) => {
       switch (message.platform) {
         case 'raft':
-            this.raft.handleRaftMessage(message)
+          this.raft.handleRaftMessage(message)
           break;
-          case 'game':
-            this.events.emit('message', uuid, message);
+        case 'game':
+          this.events.emit('message', uuid, message);
           break;
         default:
           console.error(`channel message method implemented ${message.platform}`);

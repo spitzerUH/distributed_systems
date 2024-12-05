@@ -24,13 +24,17 @@ class RaftManager {
     return this.cm.id;
   }
 
+  get participants() {
+    return this.cm.connections + 1;
+  }
+
   isLeader = () => this.state == 2;
 
   initRaftConsensus(webrtcs) {
     // maybe get data from localstorage/sessionstorage
     this.currentTerm = 0;
     this.webrtcs = webrtcs;
-    this.votesNeeded = Math.ceil((Object.keys(this.webrtcs).length + 1) / 2);
+    this.votesNeeded = Math.ceil(this.participants / 2);
     if (this.heartbearInterval) {
       clearInterval(this.heartbearInterval);
       this.heartbearInterval = undefined;
