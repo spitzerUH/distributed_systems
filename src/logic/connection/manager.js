@@ -2,7 +2,7 @@ import createWebRTCConnection from './webrtc';
 import createWebSocketConnection from './websocket';
 import { VectorClock } from './vc';
 import EventEmitter from 'events';
-import RaftManager from './raft';
+import RaftManager from '+logic/raft/manager';
 
 class ConnectionManager {
   constructor(server) {
@@ -76,7 +76,7 @@ class ConnectionManager {
         }
       });
 
-      
+
       this.raft.stopRaftConsensus()
 
       this.wsc.em.emit('room-exit', { room_code: this._room });
@@ -141,16 +141,16 @@ class ConnectionManager {
     });
     webrtc.em.on('receive-data-channel-message', (message) => {
       switch (message.platform) {
-        case 'raft':            
+        case 'raft':
             this.raft.handleRaftMessage(message)
-          break;      
+          break;
           case 'game':
             this.events.emit('message', uuid, message);
           break;
         default:
           console.error(`channel message method implemented ${message.platform}`);
           break;
-      }     
+      }
 
     });
     webrtc.em.on('data-channel-open', () => {
