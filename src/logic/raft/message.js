@@ -11,7 +11,6 @@ class Message {
 
 function formatRaftElectionRequest(term, uuid) {
   return {
-    platform: 'raft',
     type: 'raft-election-request',
     data: {
       requestFrom: uuid,
@@ -22,7 +21,6 @@ function formatRaftElectionRequest(term, uuid) {
 
 function formatRaftElectionVote(term, uuid) {
   return {
-    platform: 'raft',
     type: 'raft-election-vote',
     data: {
       voteFor: uuid,
@@ -33,7 +31,6 @@ function formatRaftElectionVote(term, uuid) {
 
 function formatRaftElectionLeader(term, uuid) {
   return {
-    platform: 'raft',
     type: 'raft-election-leader',
     data: {
       currentLeader: uuid,
