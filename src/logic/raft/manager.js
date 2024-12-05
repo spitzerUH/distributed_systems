@@ -3,7 +3,6 @@ import {
   formatRaftElectionVote,
   formatRaftElectionLeader,
 } from './message';
-import EventEmitter from 'events';
 
 class RaftManager {
   constructor(cm) {
@@ -16,8 +15,6 @@ class RaftManager {
     this.webrtcs = {};
     this.heartbearInterval = undefined;
     this.currentElectionTimeout = undefined;
-
-    this.leaderChangeEvent = new EventEmitter();
   }
 
   get uuid() {
@@ -26,6 +23,10 @@ class RaftManager {
 
   get participants() {
     return this.cm.connections + 1;
+  }
+
+  get leaderChangeEvent() {
+    return this.cm.events;
   }
 
   isLeader = () => this.state == 2;
