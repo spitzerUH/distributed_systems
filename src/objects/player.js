@@ -85,6 +85,9 @@ class Player {
   get dead() {
     return !this._status || this._status == 'dead';
   }
+  get status() {
+    return this._status;
+  }
   set status(status) {
     this._status = status;
   }
