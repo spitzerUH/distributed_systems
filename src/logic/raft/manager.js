@@ -11,7 +11,6 @@ class RaftManager {
     this.gotVotes = 0;
     // 0 - Follower, 1 - candidate, 2 - leader
     this.state = 0;
-    this.webrtcs = {};
     this.heartbearInterval = undefined;
     this.currentElectionTimeout = undefined;
   }
@@ -30,10 +29,9 @@ class RaftManager {
 
   isLeader = () => this.state == 2;
 
-  initRaftConsensus(webrtcs) {
+  initRaftConsensus() {
     // maybe get data from localstorage/sessionstorage
     this.currentTerm = 0;
-    this.webrtcs = webrtcs;
     if (this.heartbearInterval) {
       clearInterval(this.heartbearInterval);
       this.heartbearInterval = undefined;
