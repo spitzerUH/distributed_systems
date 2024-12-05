@@ -50,6 +50,14 @@ class Coordinator {
     return this._connectionManager.isLeader;
   }
 
+  sendMessage(message) {
+    return this._connectionManager.sendGameMessage(message);
+  }
+
+  sendMessageTo(id, message) {
+    return this._connectionManager.sendGameMessageTo(id, message);
+  }
+
   joinRoom(roomCode) {
     return new Promise((resolve, reject) => {
       this._observer = false;
@@ -174,7 +182,7 @@ class Coordinator {
     });
     this.bindEvent('send-food', (playerid) => {
       let message = formatFoodCreate(this.food);
-      this._connectionManager.sendGameMessageTo(playerid, message).then(() => {
+      this.sendMessageTo(playerid, message).then(() => {
       });
     });
     this.bindEvent('eat-food', (foodId) => {
@@ -191,7 +199,7 @@ class Coordinator {
     });
     this.bindEvent('food-eaten', (foodId) => {
       let message = formatFoodEat(foodId);
-      this._connectionManager.sendGameMessage(message).then(() => {
+      this.sendMessage(message).then(() => {
         this.fireEvent('eat-food', foodId);
       });
     });
@@ -204,7 +212,7 @@ class Coordinator {
       });
       if (this.isGM) {
         let message = formatFoodCreate(food);
-        this._connectionManager.sendGameMessage(message).then(() => {
+        this.sendMessage(message).then(() => {
         });
       }
     });
@@ -212,7 +220,7 @@ class Coordinator {
       this.myplayer.then((player) => {
         player.status = status;
         let message = formatStatusChange(player);
-        this._connectionManager.sendGameMessage(message).then(() => {
+        this.sendMessage(message).then(() => {
           this.fireEvent('status-change', player.id, player.status);
         });
       });
@@ -244,13 +252,13 @@ class Coordinator {
 
     this.fireEvent('move', direction);
     let message = formatMove(direction);
-    this._connectionManager.sendGameMessage(message).then(() => {
+    this.sendMessage(message).then(() => {
     });
   }
   sendWhoAmI() {
     this.myplayer.then((player) => {
       let message = formatWhoAmI(player);
-      this._connectionManager.sendGameMessage(message).then(() => {
+      this.sendMessage(message).then(() => {
       });
     });
   }
