@@ -9,7 +9,7 @@ class ConnectionManager {
     this.wsc = createWebSocketConnection(server);
     this.webrtcs = {};
     this.id = self.crypto.randomUUID();
-    this.raft = new RaftManager(this);
+    this.raft = undefined;
     this._room = undefined;
     this.vc = undefined;
     this.events = new EventEmitter();
@@ -47,6 +47,7 @@ class ConnectionManager {
         if (response.room_code) {
           this._room = response.room_code;
           this.vc = new VectorClock();
+          this.raft = new RaftManager(this);
 
           this.raft.initRaftConsensus(this.webrtcs)
           resolve(response);
@@ -68,6 +69,7 @@ class ConnectionManager {
       this.wsc.em.once('room-exited', (response) => {
         if (response.room_code && response.room_code === this._room) {
           this._room = undefined;
+          this.raft = undefined;
           this.vc = undefined;
           for (let uuid in this.webrtcs) {
             this.webrtcs[uuid].em.emit('close');
