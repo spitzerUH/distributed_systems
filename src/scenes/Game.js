@@ -87,13 +87,13 @@ export class Game extends Scene {
           return;
         }
         player.createObject(this);
-        if (player._observing || !player._status || player._status == 'dead') {
+        if (player._observing || player.dead) {
           player.hide();
         } else {
           if (playerid !== "player") {
             this.coordinator.myplayer.then((myplayer) => {
               myplayer.collisionWith(player, () => {
-                if (myplayer._status == 'alive' && player._status == 'alive') {
+                if (myplayer.alive && player.alive) {
                   this.coordinator.fireEvent('change-status', 'dead');
                 }
               });
