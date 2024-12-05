@@ -50,11 +50,11 @@ class RaftManager {
   }
 
   stopRaftConsensus() {
-    if(this.heartbearInterval){
+    if (this.heartbearInterval) {
       clearInterval(this.heartbearInterval)
       this.heartbearInterval = undefined;
     }
-    if(this.currentElectionTimeout){
+    if (this.currentElectionTimeout) {
       clearTimeout(this.currentElectionTimeout)
       this.currentElectionTimeout = undefined;
     }
@@ -74,14 +74,10 @@ class RaftManager {
     this.currentTerm;
     this.gotVotes = 1;
 
-    for (let uuid in this.webrtcs) {
-      const message = formatRaftElectionRequest(this.currentTerm, this.uuid);
+    const message = formatRaftElectionRequest(this.currentTerm, this.uuid);
 
-      this.webrtcs[uuid].em.emit(
-        'send-raft-consensus-channel-message',
-        message
-      );
-    }
+    this.cm.sendRaftMessage(message);
+
   }
 
   handleRaftMessage(message) {
@@ -105,10 +101,7 @@ class RaftManager {
           this.currentTerm,
           this.voteFor
         );
-        this.webrtcs[message.data.requestFrom].em.emit(
-          'send-raft-consensus-channel-message',
-          voteMessage
-        );
+        this.cm.sendRaftMessageTo(message.data.requestFrom, voteMessage);
         break;
       case 'raft-election-vote':
         if (this.state == 2) {
@@ -173,14 +166,8 @@ class RaftManager {
       this.currentElectionTimeout = undefined;
     }
 
-    for (let uuid in this.webrtcs) {
-      const message = formatRaftElectionLeader(this.currentTerm, this.uuid);
-
-      this.webrtcs[uuid].em.emit(
-        'send-raft-consensus-channel-message',
-        message
-      );
-    }
+    const message = formatRaftElectionLeader(this.currentTerm, this.uuid);
+    this.cm.sendRaftMessage(message);
   }
 
   getRandomTime = () => Math.random() * 400 + 100;
