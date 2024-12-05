@@ -79,6 +79,15 @@ class Player {
   get object() {
     return this._object;
   }
+  get alive() {
+    return this._status && this._status == 'alive';
+  }
+  get dead() {
+    return !this._status || this._status == 'dead';
+  }
+  set status(status) {
+    this._status = status;
+  }
   format() {
     return {
       name: this._name,

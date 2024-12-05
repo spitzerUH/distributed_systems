@@ -116,17 +116,17 @@ class Coordinator {
     this.bindEvent('player-joins', (playerid) => {
       this.getPlayer(playerid).then((player) => {
         player.createObject(this._gameScene);
-        if (player._observing || !player._status || player._status == 'dead') {
+        if (player._observing || player.dead) {
           player.hide();
         }
         if (!this.observer) {
           this.myplayer.then((myplayer) => {
             player.collisionWith(myplayer, () => {
-              if (myplayer._status == 'alive' && player._status == 'alive') {
+              if (myplayer.alive && player.alive) {
                 this.fireEvent('change-status', 'dead');
               }
             });
-            if (myplayer._status == 'alive') {
+            if (myplayer.alive) {
               this.fireEvent('change-status', 'alive');
             }
           });
@@ -205,7 +205,7 @@ class Coordinator {
     });
     this.bindEvent('change-status', (status) => {
       this.myplayer.then((player) => {
-        player._status = status;
+        player.status = status;
         let message = formatStatusChange(player);
         this._connectionManager.sendGameMessage(message).then(() => {
           this.fireEvent('status-change', 'player', status);
