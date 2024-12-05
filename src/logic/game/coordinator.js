@@ -323,12 +323,12 @@ class Coordinator {
     } else if (cursors.down.isDown) {
       curDirr = "down";
     }
+    this.myplayer.then((myplayer) => {
+      myplayer.move({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
+    });
+    if (this.observer)
+      return;
     if (curDirr && curDirr != this._previousDirection) {
-      this.myplayer.then((myplayer) => {
-        myplayer.move({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
-      });
-      if (this.observer)
-        return;
       this.movePlayer({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
       this._previousDirection = curDirr;
       this._timeWhenLastInput = time;
