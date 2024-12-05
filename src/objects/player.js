@@ -40,6 +40,9 @@ class Player {
     scene.physics.add.existing(this._object);
     this._object.body.setCollideWorldBounds(true);
     this._object.body.setCircle(10, -10, -10).setOffset(0, 0);
+    if (this.isMyplayer) {
+      this.follow(scene.cameras.main);
+    }
   }
   removeObject() {
     if (this._object) {
