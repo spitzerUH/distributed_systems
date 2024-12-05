@@ -230,9 +230,9 @@ class Coordinator {
     });
   }
   bindRaftEvents() {
-    this.connection.events.on("leader-change", (data) => {
-      this.emit("leader-change", data);
-      this.emit('leader-actions');
+    this._connectionManager.events.on("leader-change", (data) => {
+      this.fireEvent("leader-change", data);
+      this.fireEvent('leader-actions');
     });
   }
   createMyPlayer() {
