@@ -110,14 +110,13 @@ function createMessage(playerid, message) {
       return new StatusChange(playerid, message.data);
     case 'food':
       return new Food(message);
-    default:      
+    default:
       throw new Error('Unknown message type ' + message.type);
   }
 }
 
 function formatWhoAmI(player) {
   return {
-    platform: 'game',
     type: 'whoami',
     data: {
       name: player._name,
@@ -131,7 +130,6 @@ function formatWhoAmI(player) {
 
 function formatMove(direction) {
   return {
-    platform: 'game',
     type: 'move',
     data: {
       direction: direction
@@ -141,7 +139,6 @@ function formatMove(direction) {
 
 function formatStatusChange(player) {
   return {
-    platform: 'game',
     type: 'status',
     data: {
       status: player._status,
@@ -156,7 +153,6 @@ function formatFoodCreate(food) {
     food = Object.values(food)
   }
   return {
-    platform: 'game',
     type: 'food',
     subtype: 'create',
     data: food.map(f => f.format())
@@ -165,7 +161,6 @@ function formatFoodCreate(food) {
 
 function formatFoodEat(foodId) {
   return {
-    platform: 'game',
     type: 'food',
     subtype: 'eat',
     id: foodId
@@ -173,5 +168,5 @@ function formatFoodEat(foodId) {
 }
 
 
-export { createMessage, formatWhoAmI, formatMove, formatStatusChange, 
+export { createMessage, formatWhoAmI, formatMove, formatStatusChange,
   formatFoodCreate, formatFoodEat };

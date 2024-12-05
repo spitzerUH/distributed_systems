@@ -175,7 +175,7 @@ class ConnectionManager {
   sendGameMessage(message) {
     return new Promise((resolve, reject) => {
       for (let uuid in this.webrtcs) {
-        this.sendMessage(uuid, message);
+        this.sendGameMessageTo(uuid, message);
       }
       resolve();
     });
