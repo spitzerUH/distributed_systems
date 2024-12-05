@@ -325,6 +325,9 @@ class Coordinator {
   killPlayer() {
     this.fireEvent('change-status', 'dead');
   }
+  spawnPlayer() {
+    this.fireEvent('change-status', 'alive');
+  }
 
 }
 

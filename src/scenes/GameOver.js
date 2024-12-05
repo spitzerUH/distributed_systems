@@ -16,7 +16,7 @@ export class GameOver extends Scene {
     this.rexUI.add.BBCodeText(viewport.left, viewport.centerY, 'Game over, try again?', { color: '#fff', fontSize: 64 });
 
     this.input.once('pointerdown', () => {
-      this.coordinator.fireEvent('change-status', 'alive');
+      this.coordinator.spawnPlayer();
       this.scene.stop('GameOver');
     });
   }
