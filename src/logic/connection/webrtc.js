@@ -93,7 +93,6 @@ class WebRTCConnection {
       let ovc = createVectorClock(data.clock);
       this.vc.merge(ovc);
       let message = data.data;
-      
       this.em.emit('receive-data-channel-message', message);
     });
 
@@ -104,17 +103,6 @@ class WebRTCConnection {
         clock: this.vc.clock,
         data: message
       };
-      this.dataChannel.send(JSON.stringify(payload));
-    });
-
-    this.em.on('send-raft-consensus-channel-message', (message) => {
-      this.vc.increment(this.uuid);
-      let payload = {
-        method: 'webrtc',
-        clock: this.vc.clock,
-        data: message
-      };
-      
       this.dataChannel.send(JSON.stringify(payload));
     });
   }
