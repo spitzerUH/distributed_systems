@@ -97,6 +97,7 @@ class Coordinator {
   bindEvents() {
     this.bindGlobalEvents();
     this.bindGameEvents();
+    this.bindRaftEvents();
   }
   bindGlobalEvents() {
     this._connectionManager.events.on('open', (uuid) => {
@@ -226,6 +227,11 @@ class Coordinator {
       if (Object.keys(this.food).length === 0) {
         this.fireEvent('generate-food', 20);
       }
+    });
+  }
+  bindRaftEvents() {
+    this.connection.raft.leaderChangeEvent.on("leader-change", (data) => {
+      this.emit("leader-change", data);
     });
   }
   createMyPlayer() {
