@@ -99,7 +99,7 @@ function createFoodCollision(coordinator) {
 }
 
 export function generateFood(scene, coordinator, count) {
-  let gameState = coordinator._gameState;
+  let gameState = coordinator.gameState;
   let foodData = [];
   for (let i = 0; i < count; i++) {
     let id = gameState.nextFoodIndex;
