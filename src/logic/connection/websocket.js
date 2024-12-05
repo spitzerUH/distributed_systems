@@ -35,6 +35,8 @@ class WebSocketConnection {
     });
 
     this.socket.on('room-joined', (message) => {
+      console.log("room-joined");
+      
       this.vc.increment(this.socket.id);
       let svc = createVectorClock(message.clock);
       this.vc.merge(svc);
@@ -69,7 +71,6 @@ class WebSocketConnection {
       this.vc.merge(svc);
       this.em.emit('new-webrtc-candidate', message.data);
     });
-
   }
 
   bindOutgoingEvents() {

@@ -161,6 +161,7 @@ export class GameState extends EventEmitter {
   bindRaftEvents() {
     this.connection.raft.leaderChangeEvent.on("leader-change", (data) => { 
       this.emit("leader-change", data);
+      this.emit('leader-actions');
     });
   }
 }

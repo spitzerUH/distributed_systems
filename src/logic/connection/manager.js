@@ -46,7 +46,6 @@ class ConnectionManager {
           this.vc = new VectorClock();
 
           this.raft.initRaftConsensus(this.webrtcs)
-
           resolve(response);
         } else {
           reject(response);
@@ -140,17 +139,16 @@ class ConnectionManager {
       };
       this.wsc.em.emit('send-webrtc-candidate', data);
     });
-    webrtc.em.on('receive-data-channel-message', (message, method) => {
-      switch (method) {
+    webrtc.em.on('receive-data-channel-message', (message) => {
+      switch (message.platform) {
         case 'raft':            
             this.raft.handleRaftMessage(message)
           break;      
-          case 'webrtc':
+          case 'game':
             this.events.emit('message', uuid, message);
           break;
         default:
-          console.error(`channel message method implemented ${method}`);
-          
+          console.error(`channel message method implemented ${message.platform}`);
           break;
       }     
 
@@ -162,6 +160,7 @@ class ConnectionManager {
       this.events.emit('close', uuid);
       delete this.webrtcs[uuid];
     });
+
   }
 
   sendMessage(uuid, message) {
@@ -189,7 +188,6 @@ class ConnectionManager {
   get room() {
     return this._room;
   }
-
 }
 
 export default ConnectionManager;
