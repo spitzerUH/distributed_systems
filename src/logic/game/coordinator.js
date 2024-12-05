@@ -1,11 +1,11 @@
 import GameState from './state';
 import { EventEmitter } from 'events';
-import { createPlayer } from '+objects/player';
+import { createPlayer, recreatePlayers } from '+objects/player';
 import {
   createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat, formatStatusChange
 } from '+logic/game/message';
 
-import { clearFood, recreateFood, startFoodProcessing, generateFood } from '+objects/food';
+import { recreateFood, startFoodProcessing, generateFood } from '+objects/food';
 
 class Coordinator {
   constructor(cm) {
@@ -289,20 +289,8 @@ class Coordinator {
 
     startFoodProcessing(this._gameScene, this);
 
-    this.myplayer.then((myplayer) => {
-      myplayer.createObject(this._gameScene);
-      if (this.observer) {
-        let x = this._bounds.width / 2;
-        let y = this._bounds.height / 2;
-        myplayer.observe(x, y);
-      } else {
-        this.generateSpawnpoint();
-      }
-    });
+    this.recreateObjects();
 
-
-    this.clearOldObjects();
-    this.generateNewObjects();
     if (!this.observer) {
       this.fireEvent('change-status', 'alive');
     }
@@ -329,40 +317,11 @@ class Coordinator {
     }
   }
 
-  clearOldObjects() {
-    for (let playerid in this.players) {
-      this.getPlayer(playerid).then((player) => {
-        player.removeObject();
-      });
-    }
-    clearFood(this);
-  }
-
-  generateNewObjects() {
-    for (let playerid in this.players) {
-      this.getPlayer(playerid).then((player) => {
-        if (player.object) {
-          return;
-        }
-        player.createObject(this._gameScene);
-        if (player.observing || player.dead) {
-          player.hide();
-        } else {
-          if (playerid !== "player") {
-            this.myplayer.then((myplayer) => {
-              myplayer.collisionWith(player, () => {
-                if (myplayer.alive && player.alive) {
-                  this.fireEvent('change-status', 'dead');
-                }
-              });
-            });
-          }
-          player.show();
-        }
-      });
-    }
+  recreateObjects() {
+    recreatePlayers(this);
     recreateFood(this._gameScene, this);
   }
+
 
 }
 

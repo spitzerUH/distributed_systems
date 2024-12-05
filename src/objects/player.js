@@ -129,3 +129,40 @@ export function createPlayer(data) {
   let player = new Player(data);
   return player;
 }
+
+export function recreatePlayers(coordinator) {
+  coordinator.myplayer.then((myplayer) => {
+    myplayer.removeObject();
+    myplayer.createObject(coordinator._gameScene);
+
+    if (coordinator.observer) {
+      let x = coordinator._bounds.width / 2;
+      let y = coordinator._bounds.height / 2;
+      myplayer.observe(x, y);
+    } else {
+      coordinator.generateSpawnpoint();
+    }
+
+    for (let playerid in coordinator.players) {
+      coordinator.getPlayer(playerid).then((player) => {
+        if (player.isMyplayer) {
+          return;
+        }
+        player.removeObject();
+        player.createObject(coordinator._gameScene);
+        if (player.observing || player.dead) {
+          player.hide();
+        } else {
+          player.show();
+          if (!myplayer.observing) {
+            player.collisionWith(myplayer, () => {
+              if (myplayer.alive && player.alive) {
+                coordinator.fireEvent('change-status', 'dead');
+              }
+            });
+          }
+        }
+      });
+    }
+  });
+}

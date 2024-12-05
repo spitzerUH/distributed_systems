@@ -136,17 +136,10 @@ export function startFoodProcessing(scene, coordinator) {
   });
 }
 
-export function clearFood(coordinator) {
-  for (let foodid in coordinator.food) {
-    coordinator.getFood(foodid).then((food) => {
-      food.destroyObject();
-    });
-  }
-}
-
 export function recreateFood(scene, coordinator) {
   for (let foodid in coordinator.food) {
     coordinator.getFood(foodid).then((food) => {
+      food.destroyObject();
       food.createObject(scene);
     });
   }
