@@ -46,6 +46,10 @@ class Coordinator {
     return this._gameState.food;
   }
 
+  get isGM() {
+    return this._connectionManager.isLeader;
+  }
+
   joinRoom(roomCode) {
     return new Promise((resolve, reject) => {
       this._observer = false;
@@ -155,10 +159,10 @@ class Coordinator {
         case 'alive':
           this.getPlayer(playerid).then((player) => {
             player.respawn();
+            if (this.isGM && !player.isMyplayer) {
+              this.fireEvent('send-food', playerid);
+            }
           });
-          if (this._connectionManager.isLeader && playerid !== this._connectionManager.uuid) {
-            this.fireEvent('send-food', playerid);
-          }
           break;
       }
     });
@@ -178,7 +182,7 @@ class Coordinator {
         food.destroyObject().then((fId) => {
           this._gameState.removeFood(fId);
         });
-        if (this._connectionManager.isLeader && Object.keys(this.food).length < 10) {
+        if (this.isGM && Object.keys(this.food).length < 10) {
           this.fireEvent('generate-food', 10);
         }
       }).catch((err) => {
@@ -198,7 +202,7 @@ class Coordinator {
         }
         this.food[f.id] = f;
       });
-      if (this._connectionManager.isLeader) {
+      if (this.isGM) {
         let message = formatFoodCreate(food);
         this._connectionManager.sendGameMessage(message).then(() => {
         });
@@ -259,7 +263,7 @@ class Coordinator {
   }
 
   gameChannelOpen(playerid) {
-    if (this._connectionManager.isLeader) {
+    if (this.isGM) {
       this.fireEvent('leader-actions');
     }
   }
