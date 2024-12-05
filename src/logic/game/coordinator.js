@@ -232,6 +232,7 @@ class Coordinator {
   bindRaftEvents() {
     this.connection.raft.leaderChangeEvent.on("leader-change", (data) => {
       this.emit("leader-change", data);
+      this.emit('leader-actions');
     });
   }
   createMyPlayer() {

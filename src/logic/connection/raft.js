@@ -8,7 +8,6 @@ import EventEmitter from 'events';
 class RaftManager {
   constructor(uuid) {
     this.uuid = uuid;
-    this.currentLeader = '';
     this.currentTerm = 0;
     this.gotVotes = 0;
     // 0 - Follower, 1 - candidate, 2 - leader
@@ -48,7 +47,6 @@ class RaftManager {
       clearTimeout(this.currentElectionTimeout)
       this.currentElectionTimeout = undefined;
     }
-    // stop it
   }
 
   startElection() {
@@ -77,8 +75,6 @@ class RaftManager {
   }
 
   handleRaftMessage(message) {
-    // console.log(message);
-
     switch (message.type) {
       case 'raft-election-request':
         if (this.state == 2) {
@@ -137,16 +133,8 @@ class RaftManager {
 
       case 'raft-election-leader':
         this.state = 1;
-        console.log(message.data.currentLeader);
-        
-        if (
-          this.voteFor != message.data.currentLeader ||
-          this.currentLeader != message.data.currentLeader
-        ) {
-          this.voteFor = message.data.currentLeader;
-          this.currentLeader = message.data.currentLeader;
-          this.leaderChangeEvent.emit('leader-change', this.currentLeader);
-        }
+        this.voteFor = message.data.currentLeader;
+        this.leaderChangeEvent.emit('leader-change', message.data.currentLeader);
         break;
       default:
         console.error(

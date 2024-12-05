@@ -152,6 +152,7 @@ function createMessage(playerid, message) {
 
 function formatWhoAmI(player) {
   return {
+    platform: 'game',
     type: 'whoami',
     data: player.format()
   };
@@ -159,6 +160,7 @@ function formatWhoAmI(player) {
 
 function formatMove(direction) {
   return {
+    platform: 'game',
     type: 'move',
     data: {
       direction: direction
@@ -168,6 +170,7 @@ function formatMove(direction) {
 
 function formatStatusChange(player) {
   return {
+    platform: 'game',
     type: 'status',
     data: {
       status: player._status,
@@ -182,6 +185,7 @@ function formatFoodCreate(food) {
     food = Object.values(food)
   }
   return {
+    platform: 'game',
     type: 'food',
     subtype: 'create',
     data: food.map(f => f.format())
@@ -190,6 +194,7 @@ function formatFoodCreate(food) {
 
 function formatFoodEat(foodId) {
   return {
+    platform: 'game',
     type: 'food',
     subtype: 'eat',
     id: foodId
@@ -198,6 +203,7 @@ function formatFoodEat(foodId) {
 
 function formatRaftElectionRequest(term, uuid) {
   return {
+    platform: 'raft',
     type: 'raft-election-request',
     data: {
       requestFrom: uuid,
@@ -208,6 +214,7 @@ function formatRaftElectionRequest(term, uuid) {
 
 function formatRaftElectionVote(term, uuid) {
   return {
+    platform: 'raft',
     type: 'raft-election-vote',
     data: {
       voteFor: uuid,
@@ -218,6 +225,7 @@ function formatRaftElectionVote(term, uuid) {
 
 function formatRaftElectionLeader(term, uuid) {
   return {
+    platform: 'raft',
     type: 'raft-election-leader',
     data: {
       currentLeader: uuid,
