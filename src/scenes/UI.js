@@ -31,6 +31,9 @@ export class UI extends Scene {
     this.gameState.on('player-joins', (playerid) => {
       playerList.emit('join', playerid, this.gameState.players[playerid]);
     });
+    this.gameState.on('leader-change', (playerid) => {
+      playerList.emit('leader-change', playerid)
+    })
     this.gameState.on('player-leaves', (playerid) => {
       playerList.emit('leave', playerid);
     });

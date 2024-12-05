@@ -2,19 +2,21 @@ import createWebRTCConnection from './webrtc';
 import createWebSocketConnection from './websocket';
 import { VectorClock } from './vc';
 import EventEmitter from 'events';
+import RaftManager from './raft';
 
 class ConnectionManager {
   constructor(server) {
     this.wsc = createWebSocketConnection(server);
     this.webrtcs = {};
     this.id = self.crypto.randomUUID();
+    this.raft = new RaftManager(this.id);
     this._room = undefined;
     this.vc = undefined;
     this.events = new EventEmitter();
     this.wasFirst = undefined;
   }
   get isLeader() {
-    return !!this.wasFirst;
+    return !!this.raft?.isLeader();
   }
   connect() {
     return new Promise((resolve, reject) => {
@@ -42,6 +44,9 @@ class ConnectionManager {
         if (response.room_code) {
           this._room = response.room_code;
           this.vc = new VectorClock();
+
+          this.raft.initRaftConsensus(this.webrtcs)
+
           resolve(response);
         } else {
           reject(response);
@@ -71,6 +76,10 @@ class ConnectionManager {
           reject(response);
         }
       });
+
+      
+      this.raft.stopRaftConsensus()
+
       this.wsc.em.emit('room-exit', { room_code: this._room });
     });
   }
@@ -127,12 +136,24 @@ class ConnectionManager {
       let data = {
         sid: sid,
         uuid: this.id,
-        candidate: candidate
+        candidate: candidate,
       };
       this.wsc.em.emit('send-webrtc-candidate', data);
     });
-    webrtc.em.on('receive-data-channel-message', (message) => {
-      this.events.emit('message', uuid, message);
+    webrtc.em.on('receive-data-channel-message', (message, method) => {
+      switch (method) {
+        case 'raft':            
+            this.raft.handleRaftMessage(message)
+          break;      
+          case 'webrtc':
+            this.events.emit('message', uuid, message);
+          break;
+        default:
+          console.error(`channel message method implemented ${method}`);
+          
+          break;
+      }     
+
     });
     webrtc.em.on('data-channel-open', () => {
       this.events.emit('open', uuid);

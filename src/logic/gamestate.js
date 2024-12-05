@@ -30,6 +30,7 @@ export class GameState extends EventEmitter {
     this.handleStatusChange();
     this.bindWhoEvents();
     this.handleFood();
+    this.bindRaftEvents();
     this.on('spawnpoint', (point) => {
       this.players['player']._position = point;
     });
@@ -154,6 +155,12 @@ export class GameState extends EventEmitter {
       let message = formatFoodCreate(this.food);
       this._connection.sendGameMessageTo(playerid, message).then(() => {
       });
+    });
+  }
+
+  bindRaftEvents() {
+    this.connection.raft.leaderChangeEvent.on("leader-change", (data) => { 
+      this.emit("leader-change", data);
     });
   }
 }

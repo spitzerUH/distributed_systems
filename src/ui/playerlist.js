@@ -15,13 +15,14 @@ export function createPlayerList(scene, config) {
     let name = data._name || (pid === 'player') ? 'You' : pid;
     let node = players.getElement('#' + pid);
     if (!node) {
-      node = scene.add.text(0, 0, name).setName(pid);
+      node = scene.add.text(0, 0, ` ${name}`).setName(pid);
       players.add(node, { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
     } else {
-      node.text = name;
+      node.text = ` ${name}`;
     }
     players.layout();
     resetPosition(scene, players);
+    
   });
   players.on('leave', (pid) => {
     let node = players.getElement('#' + pid);
@@ -31,6 +32,21 @@ export function createPlayerList(scene, config) {
       resetPosition(scene, players);
     }
   });
+
+  players.on('leader-change', (leader) => {    
+    const items = players.getElement('items')
+    let leaderNode = players.getElement('#' + leader);
+    for(let player in items) {
+      let node = items[player];
+      
+      const currentName = node.name == 'player' ? 'You' : node.name;
+      if(currentName == leader || (currentName == 'You' && !leaderNode))
+        node.text = `*${currentName}`;       
+      
+    }
+  })
+
+  
   return players;
 }
 
