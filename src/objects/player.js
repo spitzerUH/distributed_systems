@@ -11,6 +11,9 @@ class Player {
   get id() {
     return this._id;
   }
+  get name() {
+    return this._name;
+  }
   createObject(scene) {
     this._object = scene.add.circle(
       this._position.x,
