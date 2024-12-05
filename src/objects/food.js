@@ -1,4 +1,3 @@
-import Coordinator from '+logic/game/coordinator';
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
 class Food {
