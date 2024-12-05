@@ -16,7 +16,7 @@ class ConnectionManager {
     this.wasFirst = undefined;
   }
   get isLeader() {
-    return !!this.raft?.isLeader();
+    return !!this.raft?.isLeader;
   }
   get connections() {
     return Object.keys(this.webrtcs).length;

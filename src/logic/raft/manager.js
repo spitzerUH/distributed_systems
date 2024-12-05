@@ -27,7 +27,9 @@ class RaftManager {
     return this.participants / 2;
   }
 
-  isLeader = () => this.state == 2;
+  get isLeader() {
+    return this.state == 2;
+  }
 
   initRaftConsensus() {
     // maybe get data from localstorage/sessionstorage
