@@ -48,7 +48,7 @@ export class Game extends Scene {
     });
     this.gameState.on('player-moves', (playerid, direction) => {
       let player = this.gameState.players[playerid].object;
-      this.doMovement(player, direction);
+      this.doMovement(player, direction.curDirr, direction.position);
     });
     this.gameState.on('player-leaves', (playerid) => {
       this.gameState.players[playerid].object.destroy();
@@ -101,14 +101,16 @@ export class Game extends Scene {
       curDirr = "down";
     }
     if (curDirr && curDirr != this.dirr) {
-      this.doMovement(this.gameState.players['player'].object, curDirr);
+      let myplayer = this.gameState.players['player'].object
+      this.doMovement(this.gameState.players['player'].object, curDirr, [myplayer.x, myplayer.y]);
       if (this.gameState.players['player'].observing)
         return;
-      this.gameState.emit('move', curDirr);
+      this.gameState.emit('move', {curDirr, position:[myplayer.x, myplayer.y]});
     }
   }
 
-  doMovement(player, movement) {
+  doMovement(player, movement, location) {
+    player.setPosition(location[0], location[1])
     switch (movement) {
       case "left":
         player.body.setVelocity(-100, 0);

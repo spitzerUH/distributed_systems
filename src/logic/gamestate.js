@@ -97,7 +97,7 @@ export class GameState extends EventEmitter {
   }
 
   handleMovement() {
-    this.on('move', (direction) => {
+    this.on('move', (direction, position) => {
       this._connection.sendGameMessage({ type: 'move', data: { direction: direction } }).then(() => {
       });
     });
