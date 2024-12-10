@@ -143,7 +143,7 @@ class ConnectionManager {
     webrtc.em.on('receive-data-channel-message', (message) => {
       switch (message.platform) {
         case 'raft':
-          this.raft.handleRaftMessage(message)
+          this.raft?.handleRaftMessage(message)
           break;
         case 'game':
           this.events.emit('game-message', uuid, message);

@@ -42,18 +42,24 @@ class Player {
     }
   }
   createObject(scene) {
-    this._object = scene.add.circle(
-      this._position.x,
-      this._position.y,
-      10,
-      this._color
-    );
-    scene.physics.add.existing(this._object);
-    this._object.body.setCollideWorldBounds(true);
-    this._object.body.setCircle(10, -10, -10).setOffset(0, 0);
-    if (this.isMyplayer) {
-      this.follow(scene.cameras.main);
-    }
+    return new Promise((resolve, reject) => {
+      if (this._object || !scene) {
+        return reject('Object already exists or scene is not defined');
+      }
+      this._object = scene.add.circle(
+        this._position.x,
+        this._position.y,
+        10,
+        this._color
+      );
+      scene.physics.add.existing(this._object);
+      this._object.body.setCollideWorldBounds(true);
+      this._object.body.setCircle(10, -10, -10).setOffset(0, 0);
+      if (this.isMyplayer) {
+        this.follow(scene.cameras.main);
+      }
+      resolve();
+    });
   }
   removeObject() {
     if (this._object) {
