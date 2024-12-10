@@ -103,11 +103,17 @@ class Player {
       .setActive(true)
       .setVisible(true);
   }
+  dies() {
+    this.stop();
+    this.hide();
+
+  }
   respawn() {
     this._object.setPosition(this._position.x, this._position.y);
     this.show();
   }
   stop() {
+    this._direction = undefined;
     this._object.body.setVelocity(0, 0);
   }
   observe(x, y) {

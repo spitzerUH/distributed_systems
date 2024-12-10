@@ -162,8 +162,7 @@ class Coordinator {
       switch (status) {
         case 'dead':
           this.getPlayer(playerid).then((deadPlayer) => {
-            deadPlayer.stop();
-            deadPlayer.hide();
+            deadPlayer.dies();
             if (deadPlayer.isMyplayer) {
               this.generateSpawnpoint();
               this._gameScene.scene.run('GameOver', { coordinator: this });
@@ -338,8 +337,9 @@ class Coordinator {
         this.movePlayer(curDirr, myplayer.position);
         this._previousDirection = curDirr;
         this._timeWhenLastInput = time;
+        this._lastInformed = time;
       } else if (!this._lastInformed || time - this._lastInformed > 100) {
-        this.movePlayer(this._previousDirection, myplayer.position);
+        this.movePlayer(this.myplayer.direction, myplayer.position);
         this._lastInformed = time;
       }
     });
