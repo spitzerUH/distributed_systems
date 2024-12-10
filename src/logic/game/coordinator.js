@@ -131,6 +131,9 @@ class Coordinator {
   bindGameEvents() {
     this.bindEvent('player-joins', (playerid) => {
       this.getPlayer(playerid).then((player) => {
+        if (this.isGM && !player.isMyplayer) {
+          this.fireEvent('send-food', playerid);
+        }
         player.createObject(this._gameScene).then(() => {
           if (player.observing || player.dead) {
             player.hide();
@@ -172,9 +175,6 @@ class Coordinator {
         case 'alive':
           this.getPlayer(playerid).then((player) => {
             player.respawn();
-            if (this.isGM && !player.isMyplayer) {
-              this.fireEvent('send-food', playerid);
-            }
           });
           break;
       }
