@@ -29,6 +29,9 @@ class Player {
   }
   set position(position) {
     this._position = position;
+    if (this._object) {
+      this._object.setPosition(position.x, position.y);
+    }
   }
   createObject(scene) {
     this._object = scene.add.circle(
@@ -61,8 +64,7 @@ class Player {
     );
   }
   move(direction) {
-    this._object.setPosition(direction.x, direction.y)
-    switch (direction.curDirr) {
+    switch (direction) {
       case 'up':
         this._object.body.setVelocity(0, -100);
         break;

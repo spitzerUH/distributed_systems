@@ -148,9 +148,10 @@ class Coordinator {
         }
       });
     });
-    this.bindEvent('player-moves', (playerid, direction) => {
+    this.bindEvent('player-moves', (playerid, data) => {
       this.getPlayer(playerid).then((player) => {
-        player.move({ curDirr: direction.curDirr, x: direction.x, y: direction.y });
+        player.position = data.position;
+        player.move(data.direction);
       });
     });
     this.bindEvent('status-change', (playerid, status) => {
@@ -249,10 +250,9 @@ class Coordinator {
     let player = createPlayer(playerData);
     this._gameState.addPlayer(player);
   }
-  movePlayer(direction) {
-
+  movePlayer(direction, position) {
     this.fireEvent('move', direction);
-    let message = formatMove(direction);
+    let message = formatMove(direction, position);
     this.sendMessage(message).then(() => {
     });
   }
@@ -324,12 +324,12 @@ class Coordinator {
       curDirr = "down";
     }
     this.myplayer.then((myplayer) => {
-      myplayer.move({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
+      myplayer.move(curDirr);
     });
     if (this.observer)
       return;
     if (curDirr && curDirr != this._previousDirection) {
-      this.movePlayer({ curDirr, x: myplayer.object.x, y: myplayer.object.y });
+      this.movePlayer(curDirr, this.myplayer.position);
       this._previousDirection = curDirr;
       this._timeWhenLastInput = time;
     }

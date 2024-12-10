@@ -37,14 +37,15 @@ class WhoAmI extends Message {
 }
 
 class Move extends Message {
-  constructor(playerid, direction) {
+  constructor(playerid, direction, position) {
     super('move');
     this._playerid = playerid;
     this._direction = direction;
+    this._position = position;
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      coordinator.fireEvent('player-moves', this._playerid, this._direction).then(() => {
+      coordinator.fireEvent('player-moves', this._playerid, this._direction, this._position).then(() => {
         resolve();
       }).catch((error) => {
         reject('player-moves event failed');
@@ -114,7 +115,7 @@ function createMessage(playerid, message) {
     case 'whoami':
       return new WhoAmI(playerid, message.data);
     case 'move':
-      return new Move(playerid, message.data.direction);
+      return new Move(playerid, message.data.direction, message.data.position);
     case 'status':
       return new StatusChange(playerid, message.data);
     case 'food':
@@ -131,11 +132,12 @@ function formatWhoAmI(player) {
   };
 }
 
-function formatMove(direction) {
+function formatMove(direction, position) {
   return {
     type: 'move',
     data: {
-      direction: direction
+      direction: direction,
+      position: position
     }
   };
 }
@@ -171,5 +173,7 @@ function formatFoodEat(foodId) {
 }
 
 
-export { createMessage, formatWhoAmI, formatMove, formatStatusChange,
-  formatFoodCreate, formatFoodEat };
+export {
+  createMessage, formatWhoAmI, formatMove, formatStatusChange,
+  formatFoodCreate, formatFoodEat
+};
