@@ -97,6 +97,9 @@ class WebRTCConnection {
     });
 
     this.em.on('send-data-channel-message', (message) => {
+      if (this.dataChannel.readyState !== 'open') {
+        return;
+      }
       this.vc.increment(this.uuid);
       let payload = {
         method: 'webrtc',
