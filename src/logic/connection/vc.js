@@ -45,7 +45,8 @@ class VectorClock {
   }
 
   appendToQueue(senderId, message, clock) {
-    this.messageBuffer.push({senderId, message, clock})
+    const bufferMessage = new BufferMessage(senderId, message, clock)
+    this.messageBuffer.push(bufferMessage)
   }
 
   getConsumableMessages(data) {
