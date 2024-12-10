@@ -37,14 +37,14 @@ class WhoAmI extends Message {
 }
 
 class Move extends Message {
-  constructor(playerid, direction) {
+  constructor(playerid, data) {
     super('move');
     this._playerid = playerid;
-    this._direction = direction;
+    this._data = data;
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      coordinator.fireEvent('player-moves', this._playerid, this._direction).then(() => {
+      coordinator.fireEvent('player-moves', this._playerid, this._data).then(() => {
         resolve();
       }).catch((error) => {
         reject('player-moves event failed');
@@ -64,9 +64,9 @@ class StatusChange extends Message {
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
       coordinator.getPlayer(this._playerid).then((player) => {
-        player._status = this._status;
-        player._position = this._position;
-        player._observing = this._observing;
+        player.status = this._status;
+        player.position = this._position;
+        player.observing = this._observing;
         coordinator.fireEvent('status-change', this._playerid, this._status).then(() => {
           resolve();
         }).catch((error) => {
@@ -114,7 +114,7 @@ function createMessage(playerid, message) {
     case 'whoami':
       return new WhoAmI(playerid, message.data);
     case 'move':
-      return new Move(playerid, message.data.direction);
+      return new Move(playerid, message.data);
     case 'status':
       return new StatusChange(playerid, message.data);
     case 'food':
@@ -131,11 +131,12 @@ function formatWhoAmI(player) {
   };
 }
 
-function formatMove(direction) {
+function formatMove(direction, position) {
   return {
     type: 'move',
     data: {
-      direction: direction
+      direction: direction,
+      position: position
     }
   };
 }
@@ -144,9 +145,9 @@ function formatStatusChange(player) {
   return {
     type: 'status',
     data: {
-      status: player._status,
-      position: player._position,
-      observing: player._observing
+      status: player.status,
+      position: player.position,
+      observing: player.observing
     }
   };
 }
@@ -171,5 +172,7 @@ function formatFoodEat(foodId) {
 }
 
 
-export { createMessage, formatWhoAmI, formatMove, formatStatusChange,
-  formatFoodCreate, formatFoodEat };
+export {
+  createMessage, formatWhoAmI, formatMove, formatStatusChange,
+  formatFoodCreate, formatFoodEat
+};

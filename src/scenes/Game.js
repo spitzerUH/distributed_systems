@@ -1,7 +1,5 @@
 import { Scene } from 'phaser';
-import { initMainCamera } from '+cameras/main';
 import { drawBorders } from '+ui/debug';
-import { clearFood, recreateFood, startFoodProcessing } from '+objects/food';
 
 export class Game extends Scene {
   constructor() {
@@ -13,97 +11,24 @@ export class Game extends Scene {
   }
 
   create() {
+    this.scene.launch('UI', { coordinator: this.coordinator });
+
     this.physics.world.setBounds(0, 0, 1000, 1000);
     this.coordinator.setBounds(this.physics.world.bounds);
     this.coordinator.setGameScene(this);
-    this.clearOldObjects();
-    const mainCamera = initMainCamera(this);
-
-    this.scene.launch('UI', { coordinator: this.coordinator });
-    this.cameras.main.setBackgroundColor(0x002200);
     this.cursors = this.input.keyboard.createCursorKeys();
 
+    this.cameras.main.setBackgroundColor(0x002200);
     const bg = this.add.image(0, 0, "gradientBackground").setOrigin(0).setDepth(-2);
     bg.setDisplaySize(this.physics.world.bounds.width, this.physics.world.bounds.height);
 
     drawBorders(this, this.physics.world.bounds);
 
-    this.coordinator.myplayer.then((myplayer) => {
-      myplayer.createObject(this);
-      myplayer.follow(mainCamera);
-      if (this.coordinator.observer) {
-        let x = this.physics.world.bounds.width / 2;
-        let y = this.physics.world.bounds.height / 2;
-        myplayer.observe(x, y);
-      } else {
-        this.coordinator.generateSpawnpoint();
-      }
-    });
-
-    startFoodProcessing(this, this.coordinator);
-
-    this.dirr = undefined;
-
-
-    this.generateNewObjects();
-
-    this.coordinator.fireEvent('ready');
+    this.coordinator.gameReady();
   }
 
   update(time, delta) {
-    var curDirr = undefined;
-    if (this.cursors.left.isDown) {
-      curDirr = "left";
-    } else if (this.cursors.right.isDown) {
-      curDirr = "right";
-    } else if (this.cursors.up.isDown) {
-      curDirr = "up";
-    } else if (this.cursors.down.isDown) {
-      curDirr = "down";
-    }
-    if (curDirr && curDirr != this.dirr) {
-      this.coordinator.myplayer.then((myplayer) => {
-        myplayer.move({curDirr, x:myplayer.object.x, y:myplayer.object.y});
-        if (this.coordinator.observer)
-          return;
-        this.coordinator.movePlayer({curDirr, x:myplayer.object.x, y: myplayer.object.y});
-      });
-    }
-  }
-
-  clearOldObjects() {
-    for (let playerid in this.coordinator.players) {
-      this.coordinator.getPlayer(playerid).then((player) => {
-        player.removeObject();
-      });
-    }
-    clearFood(this.coordinator);
-  }
-
-  generateNewObjects() {
-    for (let playerid in this.coordinator.players) {
-      this.coordinator.getPlayer(playerid).then((player) => {
-        if (player.object) {
-          return;
-        }
-        player.createObject(this);
-        if (player._observing || !player._status || player._status == 'dead') {
-          player.hide();
-        } else {
-          if (playerid !== "player") {
-            this.coordinator.myplayer.then((myplayer) => {
-              myplayer.collisionWith(player, () => {
-                if (myplayer._status == 'alive' && player._status == 'alive') {
-                  this.coordinator.fireEvent('change-status', 'dead');
-                }
-              });
-            });
-          }
-          player.show();
-        }
-      });
-    }
-    recreateFood(this, this.coordinator);
+    this.coordinator.handleInput(time, delta, this.cursors);
   }
 
 }

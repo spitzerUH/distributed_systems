@@ -42,9 +42,9 @@ class GameState {
     this._food[food.id] = food;
     return food;
   }
-  removeFood(food) {
+  removeFood(foodId) {
     return new Promise((resolve, reject) => {
-      this.getFood(food.id).then((food) => {
+      this.getFood(foodId).then((food) => {
         delete this._food[food.id];
         resolve();
       }).catch((e) => {

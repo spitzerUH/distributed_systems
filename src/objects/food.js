@@ -1,4 +1,3 @@
-import Coordinator from '+logic/game/coordinator';
 import Hexagon from 'phaser3-rex-plugins/plugins/hexagon.js';
 
 class Food {
@@ -13,9 +12,6 @@ class Food {
   }
   get object() {
     return this._object;
-  }
-  get eaten() {
-    return this._eaten;
   }
   createObject(scene) {
     return new Promise((resolve, reject) => {
@@ -44,7 +40,7 @@ class Food {
           this._object.destroy();
         }
         this._object = undefined;
-        resolve();
+        resolve(this._id);
       } catch (error) {
         reject(error);
       }
@@ -52,13 +48,12 @@ class Food {
   }
   eat() {
     return new Promise((resolve, reject) => {
-      try {
-        this.destroyObject().then(() => {
-          this._eaten = true;
-          resolve(this._id);
-        });
-      } catch (error) {
-        reject(error);
+      if (this._eaten) {
+        reject('Food already eaten');
+      } else {
+        this._eaten = true;
+        this._object.setVisible(false);
+        resolve(this._id);
       }
     });
   }
@@ -91,10 +86,11 @@ function createFoodCollision(coordinator) {
       for (let foodid in coordinator.food) {
         coordinator.getFood(foodid).then((food) => {
           player.collisionWith(food, (...args) => {
-            if (food.eaten) {
-              return;
-            }
-            coordinator.fireEvent('food-eaten', food.id);
+            food.eat().then((id) => {
+              coordinator.fireEvent('food-eaten', id);
+            }).catch((error) => {
+              console.error(error);
+            });
           });
         });
       }
@@ -103,7 +99,7 @@ function createFoodCollision(coordinator) {
 }
 
 export function generateFood(scene, coordinator, count) {
-  let gameState = coordinator._gameState;
+  let gameState = coordinator.gameState;
   let foodData = [];
   for (let i = 0; i < count; i++) {
     let id = gameState.nextFoodIndex;
@@ -133,17 +129,10 @@ export function startFoodProcessing(scene, coordinator) {
   });
 }
 
-export function clearFood(coordinator) {
-  for (let foodid in coordinator.food) {
-    coordinator.getFood(foodid).then((food) => {
-      food.destroyObject();
-    });
-  }
-}
-
 export function recreateFood(scene, coordinator) {
   for (let foodid in coordinator.food) {
     coordinator.getFood(foodid).then((food) => {
+      food.destroyObject();
       food.createObject(scene);
     });
   }

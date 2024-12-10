@@ -11,18 +11,18 @@ export function createPlayerList(scene, config) {
     .addBackground(background)
     .setScrollFactor(0, 0)
     .layout();
-  players.on('join', (pid, data) => {
-    let name = data._name || (pid === 'player') ? 'You' : pid;
-    let node = players.getElement('#' + pid);
+  players.on('join', (player) => {
+    let name = player.name || (player.isMyplayer) ? 'You' : player.id;
+    let node = players.getElement('#' + player.id);
     if (!node) {
-      node = scene.add.text(0, 0, ` ${name}`).setName(pid);
+      node = scene.add.text(0, 0, ` ${name}`).setName(player.id);
       players.add(node, { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
     } else {
       node.text = ` ${name}`;
     }
     players.layout();
     resetPosition(scene, players);
-    
+
   });
   players.on('leave', (pid) => {
     let node = players.getElement('#' + pid);
@@ -33,20 +33,20 @@ export function createPlayerList(scene, config) {
     }
   });
 
-  players.on('leader-change', (leader) => {    
+  players.on('leader-change', (leader) => {
     const items = players.getElement('items')
     let leaderNode = players.getElement('#' + leader);
     for(let player in items) {
       let node = items[player];
-      
+
       const currentName = node.name == 'player' ? 'You' : node.name;
       if(currentName == leader || (currentName == 'You' && !leaderNode))
-        node.text = `*${currentName}`;       
-      
+        node.text = `*${currentName}`;
+
     }
   })
 
-  
+
   return players;
 }
 

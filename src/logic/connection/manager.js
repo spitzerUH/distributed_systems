@@ -143,16 +143,15 @@ class ConnectionManager {
     webrtc.em.on('receive-data-channel-message', (message) => {
       switch (message.platform) {
         case 'raft':
-          this.raft.handleRaftMessage(message)
+          this.raft?.handleRaftMessage(message)
           break;
         case 'game':
-          this.events.emit('message', uuid, message);
+          this.events.emit('game-message', uuid, message);
           break;
         default:
           console.error(`channel message method implemented ${message.platform}`);
           break;
       }
-
     });
     webrtc.em.on('data-channel-open', () => {
       this.events.emit('open', uuid);
@@ -172,10 +171,15 @@ class ConnectionManager {
 
   sendGameMessage(message) {
     return new Promise((resolve, reject) => {
+      let promises = [];
       for (let uuid in this.webrtcs) {
-        this.sendGameMessageTo(uuid, message);
+        promises.push(this.sendGameMessageTo(uuid, message));
       }
-      resolve();
+      Promise.all(promises).then(() => {
+        resolve();
+      }).catch((error) => {
+        reject(error);
+      });
     });
   }
 

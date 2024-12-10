@@ -1,11 +1,11 @@
 import GameState from './state';
 import { EventEmitter } from 'events';
-import { createPlayer } from '+objects/player';
+import { createPlayer, recreatePlayers } from '+objects/player';
 import {
   createMessage, formatWhoAmI, formatMove, formatFoodCreate, formatFoodEat, formatStatusChange
 } from '+logic/game/message';
 
-import { generateFood } from '+objects/food';
+import { recreateFood, startFoodProcessing, generateFood } from '+objects/food';
 
 class Coordinator {
   constructor(cm) {
@@ -15,6 +15,10 @@ class Coordinator {
     this._bounds = undefined;
     this._gameScene = undefined;
     this._observer = false;
+
+    this._previousDirection = undefined;
+    this._timeWhenLastInput = undefined;
+    this._lastInformed = undefined;
   }
 
   get room() {
@@ -28,7 +32,7 @@ class Coordinator {
   set observer(value) {
     this._observer = !!value;
     this.myplayer.then((player) => {
-      player._observing = this._observer;
+      player.observing = this._observer;
     });
   }
 
@@ -42,6 +46,18 @@ class Coordinator {
 
   get food() {
     return this._gameState.food;
+  }
+
+  get isGM() {
+    return this._connectionManager.isLeader;
+  }
+
+  sendMessage(message) {
+    return this._connectionManager.sendGameMessage(message);
+  }
+
+  sendMessageTo(id, message) {
+    return this._connectionManager.sendGameMessageTo(id, message);
   }
 
   joinRoom(roomCode) {
@@ -104,7 +120,7 @@ class Coordinator {
       this.sendWhoAmI();
       this.gameChannelOpen(uuid);
     });
-    this._connectionManager.events.on('message', (uuid, message) => {
+    this._connectionManager.events.on('game-message', (uuid, message) => {
       let msg = createMessage(uuid, message);
       msg.doAction(this);
     });
@@ -116,26 +132,27 @@ class Coordinator {
     this.bindEvent('player-joins', (playerid) => {
       this.getPlayer(playerid).then((player) => {
         player.createObject(this._gameScene);
-        if (player._observing || !player._status || player._status == 'dead') {
+        if (player.observing || player.dead) {
           player.hide();
         }
         if (!this.observer) {
           this.myplayer.then((myplayer) => {
             player.collisionWith(myplayer, () => {
-              if (myplayer._status == 'alive' && player._status == 'alive') {
+              if (myplayer.alive && player.alive) {
                 this.fireEvent('change-status', 'dead');
               }
             });
-            if (myplayer._status == 'alive') {
+            if (myplayer.alive) {
               this.fireEvent('change-status', 'alive');
             }
           });
         }
       });
     });
-    this.bindEvent('player-moves', (playerid, direction) => {
+    this.bindEvent('player-moves', (playerid, data) => {
       this.getPlayer(playerid).then((player) => {
-        player.move({curDirr:direction.curDirr, x:direction.x, y:direction.y});
+        player.position = data.position;
+        player.move(data.direction);
       });
     });
     this.bindEvent('status-change', (playerid, status) => {
@@ -144,7 +161,7 @@ class Coordinator {
           this.getPlayer(playerid).then((deadPlayer) => {
             deadPlayer.stop();
             deadPlayer.hide();
-            if (playerid == 'player') {
+            if (deadPlayer.isMyplayer) {
               this.generateSpawnpoint();
               this._gameScene.scene.run('GameOver', { coordinator: this });
             }
@@ -153,10 +170,10 @@ class Coordinator {
         case 'alive':
           this.getPlayer(playerid).then((player) => {
             player.respawn();
+            if (this.isGM && !player.isMyplayer) {
+              this.fireEvent('send-food', playerid);
+            }
           });
-          if (this._connectionManager.isLeader && playerid !== 'player') {
-            this.fireEvent('send-food', playerid);
-          }
           break;
       }
     });
@@ -168,16 +185,15 @@ class Coordinator {
     });
     this.bindEvent('send-food', (playerid) => {
       let message = formatFoodCreate(this.food);
-      this._connectionManager.sendGameMessageTo(playerid, message).then(() => {
+      this.sendMessageTo(playerid, message).then(() => {
       });
     });
     this.bindEvent('eat-food', (foodId) => {
-      let food = this.food[foodId];
       this.getFood(foodId).then((food) => {
-        food.eat().then((fId) => {
+        food.destroyObject().then((fId) => {
           this._gameState.removeFood(fId);
         });
-        if (this._connectionManager.isLeader && Object.keys(this.food).length < 10) {
+        if (this.isGM && Object.keys(this.food).length < 10) {
           this.fireEvent('generate-food', 10);
         }
       }).catch((err) => {
@@ -186,7 +202,7 @@ class Coordinator {
     });
     this.bindEvent('food-eaten', (foodId) => {
       let message = formatFoodEat(foodId);
-      this._connectionManager.sendGameMessage(message).then(() => {
+      this.sendMessage(message).then(() => {
         this.fireEvent('eat-food', foodId);
       });
     });
@@ -197,30 +213,19 @@ class Coordinator {
         }
         this.food[f.id] = f;
       });
-      if (this._connectionManager.isLeader) {
+      if (this.isGM) {
         let message = formatFoodCreate(food);
-        this._connectionManager.sendGameMessage(message).then(() => {
+        this.sendMessage(message).then(() => {
         });
       }
     });
     this.bindEvent('change-status', (status) => {
       this.myplayer.then((player) => {
-        player._status = status;
+        player.status = status;
         let message = formatStatusChange(player);
-        this._connectionManager.sendGameMessage(message).then(() => {
-          this.fireEvent('status-change', 'player', status);
+        this.sendMessage(message).then(() => {
+          this.fireEvent('status-change', player.id, player.status);
         });
-      });
-    });
-    this.bindEvent('ready', () => {
-      if (!this.observer) {
-        this.fireEvent('change-status', 'alive');
-      }
-    });
-
-    this.bindEvent('spawnpoint', (point) => {
-      this.myplayer.then((player) => {
-        player._position = point;
       });
     });
     this.bindEvent('leader-actions', () => {
@@ -237,36 +242,38 @@ class Coordinator {
   }
   createMyPlayer() {
     let playerData = {
-      id: 'player',
+      id: this._connectionManager.uuid,
       name: JSON.parse(localStorage.getItem('player-name')),
       color: JSON.parse(localStorage.getItem('player-color')),
-      observing: this.observer
+      observing: this.observer,
+      myplayer: true
     };
     let player = createPlayer(playerData);
     this._gameState.addPlayer(player);
   }
-  movePlayer(direction) {
-
+  movePlayer(direction, position) {
     this.fireEvent('move', direction);
-    let message = formatMove(direction);
-    this._connectionManager.sendGameMessage(message).then(() => {
+    let message = formatMove(direction, position);
+    this.sendMessage(message).then(() => {
     });
   }
   sendWhoAmI() {
     this.myplayer.then((player) => {
       let message = formatWhoAmI(player);
-      this._connectionManager.sendGameMessage(message).then(() => {
+      this.sendMessage(message).then(() => {
       });
     });
   }
   generateSpawnpoint() {
     let randomPoint = this._bounds.getRandomPoint();
     let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
-    this.fireEvent('spawnpoint', spawnpoint);
+    this.myplayer.then((player) => {
+      player.position = spawnpoint;
+    });
   }
 
   gameChannelOpen(playerid) {
-    if (this._connectionManager.isLeader) {
+    if (this.isGM) {
       this.fireEvent('leader-actions');
     }
   }
@@ -277,7 +284,7 @@ class Coordinator {
   }
 
   get myplayer() {
-    return this.getPlayer('player');
+    return this.getPlayer(this._connectionManager.uuid);
   }
   getPlayer(playerid) {
     return this._gameState.getPlayer(playerid);
@@ -287,6 +294,61 @@ class Coordinator {
   }
   getFood(foodid) {
     return this._gameState.getFood(foodid);
+  }
+
+  gameReady() {
+    if (!this.myplayer.status) {
+      this.generateSpawnpoint();
+    }
+
+    startFoodProcessing(this._gameScene, this);
+
+    this.recreateObjects();
+
+    if (!this.observer) {
+      this.fireEvent('change-status', 'alive');
+    }
+  }
+
+  handleInput(time, delta, cursors) {
+    var curDirr = undefined;
+    if (time - this._timeWhenLastInput < 100) { // 100ms
+      return;
+    }
+    if (cursors.left.isDown) {
+      curDirr = "left";
+    } else if (cursors.right.isDown) {
+      curDirr = "right";
+    } else if (cursors.up.isDown) {
+      curDirr = "up";
+    } else if (cursors.down.isDown) {
+      curDirr = "down";
+    }
+    this.myplayer.then((myplayer) => {
+      myplayer.move(curDirr);
+      if (this.observer)
+        return;
+      if (curDirr && curDirr != this._previousDirection) {
+        this.movePlayer(curDirr, myplayer.position);
+        this._previousDirection = curDirr;
+        this._timeWhenLastInput = time;
+      } else if (!this._lastInformed || time - this._lastInformed > 100) {
+        this.movePlayer(this._previousDirection, myplayer.position);
+        this._lastInformed = time;
+      }
+    });
+  }
+
+  recreateObjects() {
+    recreatePlayers(this);
+    recreateFood(this._gameScene, this);
+  }
+
+  killPlayer() {
+    this.fireEvent('change-status', 'dead');
+  }
+  spawnPlayer() {
+    this.fireEvent('change-status', 'alive');
   }
 
 }
