@@ -82,6 +82,7 @@ class WebRTCConnection {
       console.log('Data channel close');
     });
 
+    // receive message
     this.dataChannel.addEventListener('message', (event) => {
       this.vc.increment(this.uuid);
       let data = undefined;
@@ -90,17 +91,19 @@ class WebRTCConnection {
       } catch (error) {
         data = event.data;
       }
-      let ovc = createVectorClock(data.clock);
-      this.vc.merge(ovc);
-      let message = data.data;
-      this.em.emit('receive-data-channel-message', message);
+      const consumableMessages = this.vc.getConsumableMessages(data);
+      for (const message of consumableMessages) {
+        this.em.emit('receive-data-channel-message', message);
+      }
     });
 
+    // send message
     this.em.on('send-data-channel-message', (message) => {
       this.vc.increment(this.uuid);
       let payload = {
         method: 'webrtc',
         clock: this.vc.clock,
+        senderId: this.uuid,
         data: message
       };
       this.dataChannel.send(JSON.stringify(payload));
