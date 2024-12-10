@@ -49,12 +49,12 @@ class Player {
       this._object = scene.add.circle(
         this._position.x,
         this._position.y,
-        10,
+        30,
         this._color
       );
       scene.physics.add.existing(this._object);
       this._object.body.setCollideWorldBounds(true);
-      this._object.body.setCircle(10, -10, -10).setOffset(0, 0);
+      this._object.body.setCircle(30, -30, -30).setOffset(0, 0);
       if (this.isMyplayer) {
         this.follow(scene.cameras.main);
       }
