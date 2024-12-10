@@ -131,22 +131,25 @@ class Coordinator {
   bindGameEvents() {
     this.bindEvent('player-joins', (playerid) => {
       this.getPlayer(playerid).then((player) => {
-        player.createObject(this._gameScene);
-        if (player.observing || player.dead) {
-          player.hide();
-        }
-        if (!this.observer) {
-          this.myplayer.then((myplayer) => {
-            player.collisionWith(myplayer, () => {
-              if (myplayer.alive && player.alive) {
-                this.fireEvent('change-status', 'dead');
+        player.createObject(this._gameScene).then(() => {
+          if (player.observing || player.dead) {
+            player.hide();
+          }
+          if (!this.observer) {
+            this.myplayer.then((myplayer) => {
+              player.collisionWith(myplayer, () => {
+                if (myplayer.alive && player.alive) {
+                  this.fireEvent('change-status', 'dead');
+                }
+              });
+              if (myplayer.alive) {
+                this.fireEvent('change-status', 'alive');
               }
             });
-            if (myplayer.alive) {
-              this.fireEvent('change-status', 'alive');
-            }
-          });
-        }
+          }
+        }).catch((err) => {
+          console.error(err);
+        });
       });
     });
     this.bindEvent('player-moves', (playerid, data) => {
@@ -242,14 +245,14 @@ class Coordinator {
   }
   createMyPlayer() {
     let playerData = {
-      id: this._connectionManager.uuid,
+      id: this._connectionManager.id,
       name: JSON.parse(localStorage.getItem('player-name')),
       color: JSON.parse(localStorage.getItem('player-color')),
       observing: this.observer,
       myplayer: true
     };
     let player = createPlayer(playerData);
-    this._gameState.addPlayer(player);
+    this.addPlayer(player);
   }
   movePlayer(direction, position) {
     this.fireEvent('move', direction);
@@ -284,7 +287,7 @@ class Coordinator {
   }
 
   get myplayer() {
-    return this.getPlayer(this._connectionManager.uuid);
+    return this.getPlayer(this._connectionManager.id);
   }
   getPlayer(playerid) {
     return this._gameState.getPlayer(playerid);
@@ -304,6 +307,9 @@ class Coordinator {
     startFoodProcessing(this._gameScene, this);
 
     this.recreateObjects();
+
+
+    this.fireEvent('player-joins', this._connectionManager.id);
 
     if (!this.observer) {
       this.fireEvent('change-status', 'alive');

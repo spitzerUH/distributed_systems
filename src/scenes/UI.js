@@ -28,9 +28,6 @@ export class UI extends Scene {
 
     var playerList = createPlayerList(this, {});
 
-    this.coordinator.myplayer.then((myplayer) => {
-      playerList.emit('join', myplayer);
-    });
     this.coordinator.bindEvent('player-joins', (playerid) => {
       this.coordinator.getPlayer(playerid).then((player) => {
         playerList.emit('join', player);
@@ -50,5 +47,6 @@ export class UI extends Scene {
         this.scene.stop().start('Game', { coordinator: this.coordinator });
       });
     }
+    this.coordinator.fireEvent('ui-ready');
   }
 }
