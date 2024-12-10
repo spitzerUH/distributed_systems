@@ -37,15 +37,14 @@ class WhoAmI extends Message {
 }
 
 class Move extends Message {
-  constructor(playerid, direction, position) {
+  constructor(playerid, data) {
     super('move');
     this._playerid = playerid;
-    this._direction = direction;
-    this._position = position;
+    this._data = data;
   }
   doAction(coordinator) {
     return new Promise((resolve, reject) => {
-      coordinator.fireEvent('player-moves', this._playerid, this._direction, this._position).then(() => {
+      coordinator.fireEvent('player-moves', this._playerid, this._data).then(() => {
         resolve();
       }).catch((error) => {
         reject('player-moves event failed');
@@ -115,7 +114,7 @@ function createMessage(playerid, message) {
     case 'whoami':
       return new WhoAmI(playerid, message.data);
     case 'move':
-      return new Move(playerid, message.data.direction, message.data.position);
+      return new Move(playerid, message.data);
     case 'status':
       return new StatusChange(playerid, message.data);
     case 'food':

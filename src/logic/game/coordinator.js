@@ -18,6 +18,7 @@ class Coordinator {
 
     this._previousDirection = undefined;
     this._timeWhenLastInput = undefined;
+    this._lastInformed = undefined;
   }
 
   get room() {
@@ -325,14 +326,17 @@ class Coordinator {
     }
     this.myplayer.then((myplayer) => {
       myplayer.move(curDirr);
+      if (this.observer)
+        return;
+      if (curDirr && curDirr != this._previousDirection) {
+        this.movePlayer(curDirr, myplayer.position);
+        this._previousDirection = curDirr;
+        this._timeWhenLastInput = time;
+      } else if (!this._lastInformed || time - this._lastInformed > 100) {
+        this.movePlayer(this._previousDirection, myplayer.position);
+        this._lastInformed = time;
+      }
     });
-    if (this.observer)
-      return;
-    if (curDirr && curDirr != this._previousDirection) {
-      this.movePlayer(curDirr, this.myplayer.position);
-      this._previousDirection = curDirr;
-      this._timeWhenLastInput = time;
-    }
   }
 
   recreateObjects() {

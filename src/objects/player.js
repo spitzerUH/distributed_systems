@@ -25,10 +25,18 @@ class Player {
     this._observing = observing;
   }
   get position() {
+    if (this._object) {
+      this._position = {
+        x: this._object.x,
+        y: this._object.y,
+      }
+    }
     return this._position;
   }
   set position(position) {
-    this._position = position;
+    if (position) {
+      this._position = position;
+    }
     if (this._object) {
       this._object.setPosition(position.x, position.y);
     }
