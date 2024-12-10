@@ -13,9 +13,6 @@ class Food {
   get object() {
     return this._object;
   }
-  get eaten() {
-    return this._eaten;
-  }
   createObject(scene) {
     return new Promise((resolve, reject) => {
       try {
@@ -43,7 +40,7 @@ class Food {
           this._object.destroy();
         }
         this._object = undefined;
-        resolve();
+        resolve(this._id);
       } catch (error) {
         reject(error);
       }
@@ -51,13 +48,12 @@ class Food {
   }
   eat() {
     return new Promise((resolve, reject) => {
-      try {
-        this.destroyObject().then(() => {
-          this._eaten = true;
-          resolve(this._id);
-        });
-      } catch (error) {
-        reject(error);
+      if (this._eaten) {
+        reject('Food already eaten');
+      } else {
+        this._eaten = true;
+        this._object.setVisible(false);
+        resolve(this._id);
       }
     });
   }
@@ -81,26 +77,32 @@ function createFood(scene, data) {
   return food;
 }
 
-function createFoodCollision(scene, player) {
-  if (player && player.object && player.object.body) {
-    for (let foodid in scene.gameState.food) {
-      let food = scene.gameState.food[foodid];
-      if (food) {
-        player.collisionWith(food, (player, f) => {
-          if (food.eaten) {
-            return;
-          }
-          scene.gameState.emit('food-eaten', food.id);
+function createFoodCollision(coordinator) {
+  if (coordinator.observer) {
+    return;
+  }
+  coordinator.myplayer.then((player) => {
+    if (player.object && player.object.body) {
+      for (let foodid in coordinator.food) {
+        coordinator.getFood(foodid).then((food) => {
+          player.collisionWith(food, (...args) => {
+            food.eat().then((id) => {
+              coordinator.fireEvent('food-eaten', id);
+            }).catch((error) => {
+              console.error(error);
+            });
+          });
         });
       }
     }
-  }
+  });
 }
 
-export function generateFood(scene, count) {
+export function generateFood(scene, coordinator, count) {
+  let gameState = coordinator.gameState;
   let foodData = [];
   for (let i = 0; i < count; i++) {
-    let id = scene.gameState.nextFoodIndex;
+    let id = gameState.nextFoodIndex;
     let x = Phaser.Math.Between(0, scene.physics.world.bounds.width);
     let y = Phaser.Math.Between(0, scene.physics.world.bounds.height);
     let size = Phaser.Math.Between(5, 10);
@@ -120,27 +122,19 @@ export function generateFood(scene, count) {
   return foodData;
 }
 
-export function startFoodProcessing(scene, myplayer) {
-  scene.gameState.on('create-food', (data) => {
-    scene.gameState.emit('food-created', createFood(scene, data));
-    createFoodCollision(scene, myplayer);
+export function startFoodProcessing(scene, coordinator) {
+  coordinator.bindEvent('create-food', (data) => {
+    coordinator.fireEvent('food-created', createFood(scene, data));
+    createFoodCollision(coordinator);
   });
 }
 
-export function clearFood(scene) {
-  for (let foodid in scene.gameState.food) {
-    let food = scene.gameState.food[foodid];
-    if (food) {
+export function recreateFood(scene, coordinator) {
+  for (let foodid in coordinator.food) {
+    coordinator.getFood(foodid).then((food) => {
       food.destroyObject();
-    }
-  }
-}
-
-export function recreateFood(scene) {
-  for (let foodid in scene.gameState.food) {
-    let food = scene.gameState.food[foodid];
-    if (food) {
       food.createObject(scene);
-    }
+    });
   }
+  createFoodCollision(coordinator);
 }

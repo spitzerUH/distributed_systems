@@ -2,19 +2,24 @@ import createWebRTCConnection from './webrtc';
 import createWebSocketConnection from './websocket';
 import { VectorClock } from './vc';
 import EventEmitter from 'events';
+import RaftManager from '+logic/raft/manager';
 
 class ConnectionManager {
   constructor(server) {
     this.wsc = createWebSocketConnection(server);
     this.webrtcs = {};
     this.id = self.crypto.randomUUID();
+    this.raft = undefined;
     this._room = undefined;
     this.vc = undefined;
     this.events = new EventEmitter();
     this.wasFirst = undefined;
   }
   get isLeader() {
-    return !!this.wasFirst;
+    return !!this.raft?.isLeader;
+  }
+  get connections() {
+    return Object.keys(this.webrtcs).length;
   }
   connect() {
     return new Promise((resolve, reject) => {
@@ -42,6 +47,8 @@ class ConnectionManager {
         if (response.room_code) {
           this._room = response.room_code;
           this.vc = new VectorClock();
+          this.raft = new RaftManager(this);
+          this.raft.initRaftConsensus()
           resolve(response);
         } else {
           reject(response);
@@ -61,6 +68,7 @@ class ConnectionManager {
       this.wsc.em.once('room-exited', (response) => {
         if (response.room_code && response.room_code === this._room) {
           this._room = undefined;
+          this.raft = undefined;
           this.vc = undefined;
           for (let uuid in this.webrtcs) {
             this.webrtcs[uuid].em.emit('close');
@@ -71,6 +79,7 @@ class ConnectionManager {
           reject(response);
         }
       });
+      this.raft.stopRaftConsensus()
       this.wsc.em.emit('room-exit', { room_code: this._room });
     });
   }
@@ -132,7 +141,17 @@ class ConnectionManager {
       this.wsc.em.emit('send-webrtc-candidate', data);
     });
     webrtc.em.on('receive-data-channel-message', (message) => {
-      this.events.emit('message', uuid, message);
+      switch (message.platform) {
+        case 'raft':
+          this.raft?.handleRaftMessage(message)
+          break;
+        case 'game':
+          this.events.emit('game-message', uuid, message);
+          break;
+        default:
+          console.error(`channel message method implemented ${message.platform}`);
+          break;
+      }
     });
     webrtc.em.on('data-channel-open', () => {
       this.events.emit('open', uuid);
@@ -141,6 +160,7 @@ class ConnectionManager {
       this.events.emit('close', uuid);
       delete this.webrtcs[uuid];
     });
+
   }
 
   sendMessage(uuid, message) {
@@ -151,15 +171,41 @@ class ConnectionManager {
 
   sendGameMessage(message) {
     return new Promise((resolve, reject) => {
+      let promises = [];
       for (let uuid in this.webrtcs) {
-        this.sendMessage(uuid, message);
+        promises.push(this.sendGameMessageTo(uuid, message));
       }
-      resolve();
+      Promise.all(promises).then(() => {
+        resolve();
+      }).catch((error) => {
+        reject(error);
+      });
     });
   }
 
   sendGameMessageTo(id, message) {
     return new Promise((resolve, reject) => {
+      message.platform = 'game';
+      this.sendMessage(id, message);
+      resolve();
+    });
+  }
+
+  sendRaftMessage(message) {
+    return new Promise((resolve, reject) => {
+      let promises = [];
+      for (let uuid in this.webrtcs) {
+        promises.push(this.sendRaftMessageTo(uuid, message));
+      }
+      Promise.all(promises).then(() => {
+        resolve();
+      });
+    });
+  }
+
+  sendRaftMessageTo(id, message) {
+    return new Promise((resolve, reject) => {
+      message.platform = 'raft';
       this.sendMessage(id, message);
       resolve();
     });
@@ -168,7 +214,6 @@ class ConnectionManager {
   get room() {
     return this._room;
   }
-
 }
 
 export default ConnectionManager;
