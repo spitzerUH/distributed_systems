@@ -135,7 +135,7 @@ class Coordinator {
     });
     this.bindEvent('player-moves', (playerid, direction) => {
       this.getPlayer(playerid).then((player) => {
-        player.move(direction);
+        player.move({curDirr:direction.curDirr, x:direction.x, y:direction.y});
       });
     });
     this.bindEvent('status-change', (playerid, status) => {
@@ -246,6 +246,7 @@ class Coordinator {
     this._gameState.addPlayer(player);
   }
   movePlayer(direction) {
+
     this.fireEvent('move', direction);
     let message = formatMove(direction);
     this._connectionManager.sendGameMessage(message).then(() => {

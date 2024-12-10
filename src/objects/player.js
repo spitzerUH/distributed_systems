@@ -38,7 +38,8 @@ class Player {
     );
   }
   move(direction) {
-    switch (direction) {
+    this._object.setPosition(direction.x, direction.y)
+    switch (direction.curDirr) {
       case 'up':
         this._object.body.setVelocity(0, -100);
         break;

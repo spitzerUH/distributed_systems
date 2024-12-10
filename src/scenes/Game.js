@@ -63,11 +63,11 @@ export class Game extends Scene {
     }
     if (curDirr && curDirr != this.dirr) {
       this.coordinator.myplayer.then((myplayer) => {
-        myplayer.move(curDirr);
+        myplayer.move({curDirr, x:myplayer.object.x, y:myplayer.object.y});
+        if (this.coordinator.observer)
+          return;
+        this.coordinator.movePlayer({curDirr, x:myplayer.object.x, y: myplayer.object.y});
       });
-      if (this.coordinator.observer)
-        return;
-      this.coordinator.movePlayer(curDirr);
     }
   }
 
