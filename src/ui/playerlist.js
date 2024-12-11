@@ -41,7 +41,6 @@ export function createPlayerList(scene, config) {
     {
       for(let player in items) {
         let node = items[player];
-        console.log(node);
         
         if(!node.name)
           node.text = `*You`;
