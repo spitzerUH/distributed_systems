@@ -235,8 +235,8 @@ class Coordinator {
     });
   }
   bindRaftEvents() {
-    this._connectionManager.events.on("leader-change", (data) => {
-      this.fireEvent("leader-change", data);
+    this._connectionManager.events.on("leader-change", (data, state, caller) => {
+      this.fireEvent("leader-change", data, state, caller);
       this.fireEvent('leader-actions');
     });
   }
