@@ -8,7 +8,9 @@ class GameState {
     return this._players;
   }
   addPlayer(player) {
-    this._players[player.id] = player;
+    console.log(player)
+    if(!this._players[player.id])
+      this._players[player.id] = player;
     return player;
   }
   removePlayer(playerId) {
