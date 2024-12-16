@@ -108,7 +108,11 @@ Client emits `room-enter` message to enter a specific game room:
 ```json
 {
     "method": "ws",
-    "clock": ...,
+    "clock": {
+        "id": "value",
+        "id2": "value2"
+        ...
+    },
     "data": {
         "uuid": "unique identifier",
         "room_code": "code"
@@ -121,7 +125,11 @@ Server will send response message with active room code:
 ```json
 {
     "method": "ws",
-    "clock": ...,
+    "clock": {
+        "id": "value",
+        "id2": "value2"
+        ...
+    },
     "data": {
         "sid": "sid",
         "uuid": "unique identifier",
@@ -136,7 +144,11 @@ Client emits `room-exit` message to leave a room:
 ```json
 {
     "method": "ws",
-    "clock": ...,
+    "clock": {
+        "id": "value",
+        "id2": "value2"
+        ...
+    },
     "data": {
         "room_code": "code"
     }
@@ -146,7 +158,11 @@ Server responses with similar message, but includes socket id:
 ```json
 {
     "method": "ws",
-    "clock": ...,
+    "clock": {
+        "id": "value",
+        "id2": "value2"
+        ...
+    },
     "data": {
         "sid": "sid",
         "room_code": "code"
@@ -160,7 +176,11 @@ Server emits `room-joined` message when a new client joins a room:
 ```json
 {
     "method": "ws",
-    "clock": ...,
+    "clock": {
+        "id": "value",
+        "id2": "value2"
+        ...
+    },
     "data": {
         "sid": "sid",
         "uuid": "unique identifier",
@@ -175,7 +195,11 @@ Server emits `room-left` message when a a client leaves a room:
 ```json
 {
     "method": "ws",
-    "clock": ...,
+    "clock": {
+        "id": "value",
+        "id2": "value2"
+        ...
+    },
     "data": {
         "sid": "sid",
         "room_code": "code"
@@ -416,8 +440,14 @@ Leader notification every 100ms:
     }
 }
 ```
-
----
+## Vector clocks
+* Causality guaranteed with vector clocks
+* Each game message includes a clock from the sender
+* Each received clock is compared with client's own clock. Message is consumed if causality is not broken
+* Message is queued if causality is broken
+* Queue is read every time a message arrives
+* Current implementation assumes no messages are lost
+* Queue is kept in memory: gets lost easily but is fast to access
 
 ## Possible problems
 * how to deal with bad/good internet connection of the different clients? -> Data consistency issues
