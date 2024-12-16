@@ -13,10 +13,11 @@ export function createPlayerList(scene, config) {
     .layout();
   players.on('join', (player) => {    
     let name = player.isMyplayer ? 'You' : (player.name || player.id);
-    let node = players.getElement('#' + player.id);
-    if (!node) {
+    
+    let node = players.getElement(player.id ?? name);
+    if (!node) {      
       node = scene.add.text(0, 0, ` ${name}`).setName(name);
-      players.add(node, { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
+      players.add(node, { key: (player.id ?? name), align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } }, );
     } else {
       node.text = ` ${name}`;
     }
