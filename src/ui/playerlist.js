@@ -33,16 +33,32 @@ export function createPlayerList(scene, config) {
     }
   });
 
-  players.on('leader-change', (leader) => {
+  players.on('leader-change', (leader, state, caller) => {
+    // console.log(`state: ${state} called by ${caller}`);
+    
     const items = players.getElement('items')
-    let leaderNode = players.getElement('#' + leader);
-    for(let player in items) {
-      let node = items[player];
+    if(state == 2)
+    {
+      for(let player in items) {
+        let node = items[player];
+        
+        if(!node.name)
+          node.text = `*You`;
+        else
+          node.text = ` ${node.name}`
+  
+      }
+    } else {      
+      for(let player in items) {
+        let node = items[player];
 
-      const currentName = node.name == 'player' ? 'You' : node.name;
-      if(currentName == leader || (currentName == 'You' && !leaderNode))
-        node.text = `*${currentName}`;
-
+        if(!node.name)
+          node.text = ` You`
+        else if (node.name == leader)
+          node.text = `*${node.name}`;
+        else 
+          node.text = ` ${node.name}`;
+      }
     }
   })
 

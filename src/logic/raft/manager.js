@@ -111,8 +111,8 @@ class RaftManager {
             console.log(
               `you are leader now (got ${this.gotVotes} of ${this.votesNeeded} needed)`
             );
-            this.cm.events.emit('leader-change', this.uuid);
             this.state = 2;
+            this.cm.events.emit('leader-change', this.uuid, this.state, message.type);
             // start leader heardbeat you are the leader now
             this.heartbearInterval = setInterval(
               this.startLeaderHeartbeat.bind(this),
@@ -131,9 +131,15 @@ class RaftManager {
         break;
 
       case 'raft-election-leader':
+        if(this.state == 2){
+          console.log("got leader signal but is leader");
+          this.state = 1;
+
+          this.restartElectionTimer()
+        }
         this.state = 1;
         this.voteFor = message.data.currentLeader;
-        this.cm.events.emit('leader-change', message.data.currentLeader);
+        this.cm.events.emit('leader-change', message.data.currentLeader, this.state, message.type);
         break;
       default:
         console.error(
@@ -146,6 +152,11 @@ class RaftManager {
   }
 
   restartElectionTimer() {
+    if (this.currentElectionTimeout) {
+      clearTimeout(this.currentElectionTimeout);
+      this.currentElectionTimeout = undefined;
+    }
+
     if (this.currentElectionTimeout) {
       clearTimeout(this.currentElectionTimeout);
     }
@@ -161,9 +172,12 @@ class RaftManager {
       clearTimeout(this.currentElectionTimeout);
       this.currentElectionTimeout = undefined;
     }
-
-    const message = formatRaftElectionLeader(this.currentTerm, this.uuid);
-    this.cm.sendRaftMessage(message);
+    if(this.state == 2){
+      const message = formatRaftElectionLeader(this.currentTerm, this.uuid);
+      this.cm.sendRaftMessage(message);
+    } else {
+      clearInterval(this.heartbearInterval )
+    }
   }
 
   getRandomTime = () => Math.random() * 400 + 100;
