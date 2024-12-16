@@ -245,8 +245,8 @@ class Coordinator {
   createMyPlayer() {
     let playerData = {
       id: this._connectionManager.id,
-      name: JSON.parse(localStorage.getItem('player-name')),
-      color: JSON.parse(localStorage.getItem('player-color')),
+      name: JSON.parse(sessionStorage.getItem('player-name')),
+      color: JSON.parse(sessionStorage.getItem('player-color')),
       observing: this.observer,
       myplayer: true
     };
@@ -267,10 +267,12 @@ class Coordinator {
     });
   }
   generateSpawnpoint() {
+    console.log("- generate spawn point");
+    
     let randomPoint = this._bounds.getRandomPoint();
     let spawnpoint = { x: randomPoint.x, y: randomPoint.y };
     this.myplayer.then((player) => {
-      player.position = spawnpoint;
+        player.position = spawnpoint;
     });
   }
 

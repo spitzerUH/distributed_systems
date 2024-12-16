@@ -53,9 +53,11 @@ class VectorClock {
     const message = data.data;
     const senderId = data.senderId;
     const receivedClock = createVectorClock(data.clock);
+    // console.log("Starting handling of received message, clock", receivedClock)
     let orderedMessages = []
 
     let result = this.compare(receivedClock)
+    // console.log("Comparison result", result)
 
     if (result == "after") {
       // message came early
@@ -67,10 +69,12 @@ class VectorClock {
 
     this.tryConsumingFromBuffer(orderedMessages)
 
+    // console.log("Returning messages", orderedMessages)
     return orderedMessages
   }
 
   tryConsumingFromBuffer(orderedMessages) {
+    // console.log("tryConsumingFromBuffer starting")
     let madeProgress = true;
     while (madeProgress) {
       madeProgress = false;

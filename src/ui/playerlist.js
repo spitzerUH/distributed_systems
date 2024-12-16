@@ -11,12 +11,13 @@ export function createPlayerList(scene, config) {
     .addBackground(background)
     .setScrollFactor(0, 0)
     .layout();
-  players.on('join', (player) => {
-    let name = player.name || (player.isMyplayer) ? 'You' : player.id;
-    let node = players.getElement('#' + player.id);
-    if (!node) {
-      node = scene.add.text(0, 0, ` ${name}`).setName(player.id);
-      players.add(node, { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
+  players.on('join', (player) => {    
+    let name = player.isMyplayer ? 'You' : (player.name || player.id);
+    
+    let node = players.getElement(player.id ?? name);
+    if (!node) {      
+      node = scene.add.text(0, 0, ` ${name}`).setName(name);
+      players.add(node, { key: (player.id ?? name), align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
     } else {
       node.text = ` ${name}`;
     }
@@ -25,7 +26,7 @@ export function createPlayerList(scene, config) {
 
   });
   players.on('leave', (pid) => {
-    let node = players.getElement('#' + pid);
+    let node = players.getElement(pid);
     if (node) {
       players.remove(node, true);
       players.layout();
@@ -37,12 +38,14 @@ export function createPlayerList(scene, config) {
     // console.log(`state: ${state} called by ${caller}`);
     
     const items = players.getElement('items')
+    const leaderNode = players.getElement(leader);
     if(state == 2)
-    {
+    {      
       for(let player in items) {
+
         let node = items[player];
         
-        if(!node.name)
+        if(node.name == "You")
           node.text = `*You`;
         else
           node.text = ` ${node.name}`
@@ -51,10 +54,10 @@ export function createPlayerList(scene, config) {
     } else {      
       for(let player in items) {
         let node = items[player];
-
-        if(!node.name)
+        
+        if(node.name == "You")
           node.text = ` You`
-        else if (node.name == leader)
+        else if (node == leaderNode)
           node.text = `*${node.name}`;
         else 
           node.text = ` ${node.name}`;
