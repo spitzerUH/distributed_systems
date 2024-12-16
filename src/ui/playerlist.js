@@ -11,11 +11,11 @@ export function createPlayerList(scene, config) {
     .addBackground(background)
     .setScrollFactor(0, 0)
     .layout();
-  players.on('join', (player) => {
-    let name = player.name || (player.isMyplayer) ? 'You' : player.id;
+  players.on('join', (player) => {    
+    let name = player.isMyplayer ? 'You' : (player.name || player.id);
     let node = players.getElement('#' + player.id);
     if (!node) {
-      node = scene.add.text(0, 0, ` ${name}`).setName(player.id);
+      node = scene.add.text(0, 0, ` ${name}`).setName(name);
       players.add(node, { align: 'left', padding: { left: 10, top: 5, bottom: 5, right: 10 } });
     } else {
       node.text = ` ${name}`;

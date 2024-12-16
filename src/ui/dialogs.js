@@ -191,6 +191,8 @@ function createSettingsDialog(scene, config) {
     .hide();
 
   closeButton.on('pointerdown', function () {
+    sessionStorage.setItem('player-name', JSON.stringify(playerName));
+    sessionStorage.setItem('player-color', JSON.stringify(playerColor));
     localStorage.setItem('player-name', JSON.stringify(playerName));
     localStorage.setItem('player-color', JSON.stringify(playerColor));
     settingsDialog.emit('close');
